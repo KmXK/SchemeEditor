@@ -15,17 +15,24 @@ namespace SchemeEditor
 
             SchemeSettings settings = new SchemeSettings()
             {
-                BlocksOnPage = 10,
+                BlocksOnPage = 4,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
                 StandartHeight = 50,
                 StandartWidth = 100,
                 StartBlockText = "Вход",
-                EndBlockText = "Выход"
+                EndBlockText = "Выход",
+                PageOffset = 10
             };
 
             Scheme scheme = new Scheme(settings);
-            scheme.DrawScheme();
+            var a = scheme.DrawScheme();
+            string i = "1";
+            foreach (var c in a)
+            {
+                c.Save(i + ".png");
+                i += "1";
+            }
         }
     }
 }

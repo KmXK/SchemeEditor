@@ -10,6 +10,7 @@ namespace SchemeEditor
         private SchemeSettings _settings;
 
         private List<int> _pageHeights;
+        private Bitmap[] _bitmaps;
         
         // Список битмапов
         // Список graphics для рисования по битмапам
@@ -27,15 +28,40 @@ namespace SchemeEditor
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
             _mainBlock.Width = _settings.StandartWidth;
             _mainBlock.Height = _settings.StandartHeight;
+            
+            Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
+            bigIf.Width = _settings.StandartWidth;
+            bigIf.Height = _settings.StandartHeight;
+            _mainBlock.AddChild(bigIf, 0, 0);
 
             // Добавление блока в схему
-            Block someBlock = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock.Width = _settings.StandartWidth;
-            someBlock.Height = _settings.StandartHeight;
-            _mainBlock.AddChild(someBlock, 0, 0);
+            Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
+            ifBlock.Width = _settings.StandartWidth;
+            ifBlock.Height = _settings.StandartHeight;
+            bigIf.AddChild(ifBlock, 0, 0);
+            
+            Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock1.Width = _settings.StandartWidth;
+            someBlock1.Height = _settings.StandartHeight;
+            ifBlock.AddChild(someBlock1, 0, 0);
+            
+            Block someBlock2 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock2.Width = _settings.StandartWidth;
+            someBlock2.Height = _settings.StandartHeight;
+            ifBlock.AddChild(someBlock2, 1, 0);
+            
+            Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock3.Width = _settings.StandartWidth;
+            someBlock3.Height = _settings.StandartHeight;
+            _mainBlock.AddChild(someBlock3, 0, 1);
+            
+            Block someBlock4 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock4.Width = _settings.StandartWidth;
+            someBlock4.Height = _settings.StandartHeight;
+            bigIf.AddChild(someBlock4, 1, 0);
         }
 
-        public void DrawScheme()
+        public Bitmap[] DrawScheme()
         {
             _mainBlock.Position = new BlockPosition()
             {
@@ -44,34 +70,42 @@ namespace SchemeEditor
                 Y = _settings.PageOffset
             };
             int blockIndexPage = 0;
-            CalculateBlockCoords(_mainBlock, out BlockPosition lastPosition,  ref blockIndexPage);
+            _pageHeights = new List<int>() {0};
+            var width = CalculateBlockCoords(_mainBlock, out BlockPosition lastPosition,  ref blockIndexPage);
             
             // Отрисовка каждой страницы
+            _bitmaps = new Bitmap[_pageHeights.Count];
             
+            for (int i = 0; i < _bitmaps.Length; i++)
+            {
+                _bitmaps[i] = new Bitmap(width + 2 * _settings.PageOffset, _pageHeights[i] + _settings.PageOffset);
+            }
+            DrawBlock(_mainBlock);
+            
+            return _bitmaps;
+        }
+
+        private void DrawBlock(Block block)
+        {
+            if (block.Type != BlockType.Main)
+            {
+                Graphics g = Graphics.FromImage(_bitmaps[block.Position.PageIndex]);
+                g.DrawRectangle(new Pen(Color.Black), block.Position.X, block.Position.Y, block.Width, block.Height);
+                g.Dispose();
+            }
+
+            for (int i = 0; i < block.ColumnCount; i++)
+            {
+                for (int j = 0; j < block.GetChildCount(i); j++)
+                {
+                    DrawBlock(block.GetChild(i, j));
+                }
+            }
         }
 
         // Returns BlockWidth with children
         private int CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
-            // Координаты блока уже посчитаны правильно
-            // Всё, что нужно, это начать просчитать потомков
-            // Позиция первого блока для всех колонок будет находится на горизонтале
-            // Введём некую переменную startChildPos, хранящую эту позицию
-            // Когда заканчиваем рисовать колонку, нужно будет сдвинуть X этой позиции на ширину колонки + отступ
-            // Каждой колонке дадим переменную childPos, хранящую текущую позицию блока в этой колонке
-            // Изначально она будет равна startChildPos
-            // После каждого блока эта позиция будет сдвигаться вниз
-            // Просчитываем потомков по следующему алгоритму:
-            // 1) Проверяем, что по позиции ChildPos можно поставить блок. Если нет, то увеличиваем страницу на 1 и
-            //    ставим Y = 0. Чтобы узнать, поместиться ли блок, нужно сравнить его индекс на странице с количеством блоков
-            //    на странице. Если они <=, то оставляем, иначе сдвигаем на другую страницу
-            // 2) Ставим координаты блоку и вызываем для него этот же метод. При этом в метод третьим параметром передаём
-            //    индекс текущего блока на странице + 1
-            // 3) Получаем координаты конца, следовательно именно они будут координатами конца
-            // 4) Добавляем к ним вертикальный интервал и, не заботясь о том, что они могут быть на другой странице,
-            //    присваиваем их переменной ChildPos. Индекс блока на странице получаем из 3 параметра.
-            // 5) Повторяем для всех других потомков
-
             BlockPosition startChildPos = new BlockPosition()
             {
                 PageIndex = block.Position.PageIndex,
@@ -87,10 +121,12 @@ namespace SchemeEditor
             lastPosition = block.Position;
             lastPosition.Y += block.Height;
 
+            int firstChildBlockIndexPage = blockIndexPage + 1;
+
             for (int c = 0; c < block.ColumnCount; c++)
             {
                 BlockPosition childPos = startChildPos;
-                int childIndexPage = blockIndexPage + 1;
+                int childIndexPage = firstChildBlockIndexPage;
                 int maxX = block.GetChildCount(c) == 0 ? 0 : block.Width;
 
                 for (int i = 0; i < block.GetChildCount(c); i++)
@@ -98,21 +134,22 @@ namespace SchemeEditor
                     // Если блок не помещается на странице
                     if (childIndexPage > _settings.BlocksOnPage)
                     {
-                        if (_pageHeights.Count < childPos.PageIndex)
-                        {
-                            _pageHeights.Add(0);
-                        }
-
-                        _pageHeights[childPos.PageIndex] = childPos.Y;
-                        
                         childIndexPage = 1;
                         childPos.PageIndex++;
                         childPos.Y = 0;
+
+                        if (_pageHeights.Count - 1 < childPos.PageIndex)
+                        {
+                            _pageHeights.Add(0);
+                        }
                     }
-                    
                     // Устанавливаем координаты блока
                     var child = block.GetChild(c, i);
                     child.Position = childPos;
+
+                    if (_pageHeights[childPos.PageIndex] < childPos.Y + child.Height)
+                        _pageHeights[childPos.PageIndex] = childPos.Y + child.Height;
+                    
 
                     maxX = Math.Max(CalculateBlockCoords(child, out childPos, ref childIndexPage), maxX);
                     if (i != block.GetChildCount(c) - 1)
@@ -133,7 +170,7 @@ namespace SchemeEditor
                     startChildPos.X += _settings.HorizontalInterval;
             }
 
-            return startChildPos.X - block.Position.X;
+            return Math.Max(startChildPos.X - block.Position.X, block.Width);
         }
     }
 }
