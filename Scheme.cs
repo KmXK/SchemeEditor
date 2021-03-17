@@ -32,7 +32,7 @@ namespace SchemeEditor
             _mainBlock.AddChild(bigIf, 0, 0);
 
             // Добавление блока в схему
-            Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
+            Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
             ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight;
             bigIf.AddChild(ifBlock, 0, 0);
@@ -46,6 +46,11 @@ namespace SchemeEditor
             someBlock2.Width = _settings.StandartWidth;
             someBlock2.Height = _settings.StandartHeight;
             ifBlock.AddChild(someBlock2, 1, 0);
+            
+            Block someBlock6 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock6.Width = _settings.StandartWidth;
+            someBlock6.Height = _settings.StandartHeight;
+            ifBlock.AddChild(someBlock6, 2, 0);
             
             Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock3.Width = _settings.StandartWidth;
@@ -66,16 +71,19 @@ namespace SchemeEditor
                 X = _settings.PageOffset,
                 Y = _settings.PageOffset
             };
+            
             int blockIndexPage = 0;
             _pageHeights = new List<int>() {0};
-            var width = CalculateBlockCoords(_mainBlock, out BlockPosition lastPosition,  ref blockIndexPage);
+            CalculateBlockCoords(_mainBlock, out BlockPosition lastPosition,  ref blockIndexPage);
             
             // Отрисовка каждой страницы
             _bitmaps = new Bitmap[_pageHeights.Count];
             
             for (int i = 0; i < _bitmaps.Length; i++)
             {
-                _bitmaps[i] = new Bitmap(width + 2 * _settings.PageOffset, _pageHeights[i] + _settings.PageOffset);
+                _bitmaps[i] = new Bitmap(_mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
+                    _pageHeights[i] + _settings.PageOffset);
+                // Добавим к height 2 высоты коннектора + 2 интервала
             }
             DrawBlock(_mainBlock);
             
@@ -100,7 +108,7 @@ namespace SchemeEditor
             }
         }
 
-        private int CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
+        private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
             BlockPosition startChildPos = new BlockPosition()
             {
@@ -109,24 +117,28 @@ namespace SchemeEditor
                 Y = block.Position.Y
             };
 
+            _pageHeights[block.Position.PageIndex] = Math.Max(
+                block.Position.Y + block.Height,
+                _pageHeights[block.Position.PageIndex]);
+
             if (block.Type != BlockType.Main)
             {
                 startChildPos.Y += block.Height + _settings.VerticalInterval;
             }
 
             lastPosition = block.Position;
-            lastPosition.Y += block.Height;
+            lastPosition.Y += block.Height; // for main = 0
 
             int firstChildBlockIndexPage = blockIndexPage + 1;
 
             block.ChildrenWidth = 0;
 
-            for (int c = 0; c < block.ColumnCount; c++)
+            for (int branchIndex = 0; branchIndex < block.ColumnCount; branchIndex++)
             {
                 BlockPosition childPos = startChildPos;
                 int childIndexPage = firstChildBlockIndexPage;
-                int maxWidth = block.GetChildCount(c) == 0 ? 0 : block.Width;
-                int maxX = childPos.X;
+                //int maxWidth = block.GetChildCount(c) == 0 ? 0 : block.Width;
+                //int maxCenter = childPos.X;
                 
                 // Найти максимальный X
                 // После пройтись по колонке, сдвинуть все блоки до этого X и найти maxWidth с учётом сдвига
@@ -135,11 +147,13 @@ namespace SchemeEditor
                 
                 // Сделать так, чтобы предок понимал, что сместились блоки. Хотя это и будет частью этого алгоритма
 
-                for (int i = 0; i < block.GetChildCount(c); i++)
+                for (int i = 0; i < block.GetChildCount(branchIndex); i++)
                 {
                     // Если блок не помещается на странице
                     if (childIndexPage > _settings.BlocksOnPage)
                     {
+                        // Можно сразу учитывать размеры соединителей и отступы
+                        
                         childIndexPage = 1;
                         childPos.PageIndex++;
                         childPos.Y = 0;
@@ -149,31 +163,39 @@ namespace SchemeEditor
                             _pageHeights.Add(0);
                         }
                     }
+                    
                     // Устанавливаем координаты блока
-                    var child = block.GetChild(c, i);
+                    var child = block.GetChild(branchIndex, i);
                     child.Position = childPos;
 
-                    if (_pageHeights[childPos.PageIndex] < childPos.Y + child.Height)
-                        _pageHeights[childPos.PageIndex] = childPos.Y + child.Height;
+                    CalculateBlockCoords(child, out childPos, ref childIndexPage);
                     
-
-                    maxWidth = Math.Max(CalculateBlockCoords(child, out childPos, ref childIndexPage), maxWidth);
-                    if (i != block.GetChildCount(c) - 1)
+                    // Если позиция центра другая
+                    //maxCenter = Math.Max(maxCenter, child.Position.X + child.Width / 2);
+                    
+                    if (i != block.GetChildCount(branchIndex) - 1)
                     {
                         childPos.Y += _settings.VerticalInterval;
                         childIndexPage++;
                     }
                 }
 
-                if (block.GetChildCount(c) > 0 && (childPos.Y > lastPosition.Y || childPos.PageIndex>lastPosition.PageIndex))
+                if (block.GetChildCount(branchIndex) > 0 &&
+                    (childPos.Y > lastPosition.Y || childPos.PageIndex > lastPosition.PageIndex))
                 {
                     lastPosition = childPos;
                     blockIndexPage = childIndexPage;
                 }
 
+                int maxWidth = 0;
+                
+                // Вызов метода для выравнивая текущей колонки,
+                // который возвращает макс ширину
+                maxWidth = AlignColumn(block, branchIndex);
+                
                 int deltaColumnX = maxWidth;
                 
-                if (c != block.ColumnCount - 1)
+                if (branchIndex != block.ColumnCount - 1)
                     deltaColumnX += _settings.HorizontalInterval;
                 
                 startChildPos.X += deltaColumnX;
@@ -181,7 +203,83 @@ namespace SchemeEditor
                 block.ChildrenWidth += deltaColumnX;
             }
 
-            return Math.Max(block.ChildrenWidth, block.Width);
+            if (block.ColumnCount > 2)
+            {
+                var pos = block.Position;
+                pos.X = block.Position.X + block.ChildrenWidth / 2 - block.Width / 2;
+                block.Position = pos;
+            }
+            else if (block.ColumnCount > 0 && block.GetChildCount(0) > 0)
+            {
+                var pos = block.Position;
+                pos.X = block.GetChild(0, 0).Position.X;
+                block.Position = pos;
+            }
+        }
+
+        private int AlignColumn(Block block, int branchIndex)
+        {
+            int centerX = 0;
+
+            for (int i = 0; i < block.GetChildCount(branchIndex); i++)
+            {
+                var child = block.GetChild(branchIndex, i);
+                centerX = Math.Max(centerX, child.Position.X + child.Width / 2);
+            }
+
+            int maxWidth = 0;
+
+            for (int i = 0; i < block.GetChildCount(branchIndex); i++)
+            {
+                var child = block.GetChild(branchIndex, i);
+
+                int childCenterX = child.Position.X + child.Width / 2;
+
+                int delta = centerX - childCenterX;
+
+                // Нужно сдвинуть
+                if (delta > 0)
+                {
+                    /* var pos = block.Position;
+                    if (block.ColumnCount > 2)
+                    {
+                        pos.X = childCenterX - block.ChildrenWidth / 2 + delta;
+                    }
+                    else
+                    {
+                        pos.X = childCenterX + delta;
+                    }
+
+                    child.Position = pos;*/
+                    
+                    ShiftBlockWithChildren(child, delta);
+                }
+                
+                
+
+                maxWidth = Math.Max(maxWidth, Math.Max(child.Width, child.ChildrenWidth) + delta);
+            }
+
+            return maxWidth;
+        }
+
+        private void ShiftBlockWithChildren(Block block, int shift)
+        {
+            var pos = block.Position;
+            pos.X += shift;
+            block.Position = pos;
+
+            for (int bi = 0; bi < block.ColumnCount; bi++)
+            {
+                for (int i = 0; i < block.GetChildCount(bi); i++)
+                {
+                    var child = block.GetChild(bi, i);
+                    pos = child.Position;
+                    pos.X += shift;
+                    child.Position = pos;
+                    ShiftBlockWithChildren(child, shift);
+                }
+            }
         }
     }
 }
