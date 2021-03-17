@@ -103,7 +103,6 @@ namespace SchemeEditor
             }
         }
 
-        // Returns BlockWidth with children
         private int CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
             BlockPosition startChildPos = new BlockPosition()
@@ -123,11 +122,21 @@ namespace SchemeEditor
 
             int firstChildBlockIndexPage = blockIndexPage + 1;
 
+            block.ChildrenWidth = 0;
+
             for (int c = 0; c < block.ColumnCount; c++)
             {
                 BlockPosition childPos = startChildPos;
                 int childIndexPage = firstChildBlockIndexPage;
-                int maxX = block.GetChildCount(c) == 0 ? 0 : block.Width;
+                int maxWidth = block.GetChildCount(c) == 0 ? 0 : block.Width;
+                int maxX = childPos.X;
+                
+                // Найти максимальный X
+                // После пройтись по колонке, сдвинуть все блоки до этого X и найти maxWidth с учётом сдвига
+                // При этом Case нужно сдвигать по правилам
+                // То есть свести к старому X, прибавить сдвиг, а потом уже свести к середине потомков
+                
+                // Сделать так, чтобы предок понимал, что сместились блоки. Хотя это и будет частью этого алгоритма
 
                 for (int i = 0; i < block.GetChildCount(c); i++)
                 {
@@ -151,7 +160,7 @@ namespace SchemeEditor
                         _pageHeights[childPos.PageIndex] = childPos.Y + child.Height;
                     
 
-                    maxX = Math.Max(CalculateBlockCoords(child, out childPos, ref childIndexPage), maxX);
+                    maxWidth = Math.Max(CalculateBlockCoords(child, out childPos, ref childIndexPage), maxWidth);
                     if (i != block.GetChildCount(c) - 1)
                     {
                         childPos.Y += _settings.VerticalInterval;
@@ -165,12 +174,17 @@ namespace SchemeEditor
                     blockIndexPage = childIndexPage;
                 }
 
-                startChildPos.X += maxX;
+                int deltaColumnX = maxWidth;
+                
                 if (c != block.ColumnCount - 1)
-                    startChildPos.X += _settings.HorizontalInterval;
+                    deltaColumnX += _settings.HorizontalInterval;
+                
+                startChildPos.X += deltaColumnX;
+
+                block.ChildrenWidth += deltaColumnX;
             }
 
-            return Math.Max(startChildPos.X - block.Position.X, block.Width);
+            return Math.Max(block.ChildrenWidth, block.Width);
         }
     }
 }
