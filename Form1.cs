@@ -12,6 +12,19 @@ namespace SchemeEditor
         public Form1()
         {
             InitializeComponent();
+
+            SchemeSettings settings = new SchemeSettings()
+            {
+                BlocksOnPage = 10,
+                HorizontalInterval =  50,
+                VerticalInterval = 50,
+                StandartHeight = 50,
+                StandartWidth = 100,
+                StartBlockText = "Вход",
+                EndBlockText = "Выход"
+            };
+
+            Scheme scheme = new Scheme(settings);
         }
     }
 }

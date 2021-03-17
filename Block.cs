@@ -21,6 +21,8 @@ namespace SchemeEditor
             }
         }
 
+        public BlockPosition Position { get; set; }
+
         private List<Block>[] _children;
 
         public Block(BlockType type, string[] text, string[] branchNames)
@@ -41,15 +43,14 @@ namespace SchemeEditor
             }
         }
 
-        private bool DoesIndexExist(int branchIndex, int index)
+        private bool DoesBranchExist(int branchIndex)
         {
-            return branchIndex >= 0 && branchIndex < _children.Length && index >= 0 &&
-                   index < _children[branchIndex].Count;
+            return branchIndex >= 0 && branchIndex < _children.Length;
         }
 
         public Block GetChild(int branchIndex, int index)
         {
-            if (DoesIndexExist(branchIndex, index))
+            if (DoesBranchExist(branchIndex) && index >= 0 && index < _children[branchIndex].Count)
             {
                 return _children[branchIndex][index];
             }
@@ -59,9 +60,21 @@ namespace SchemeEditor
             }
         }
 
+        public string GetBranchName(int branchIndex)
+        {
+            if (branchIndex >= 0 && branchIndex < _data.BranchNames.Length)
+            {
+                return _data.BranchNames[branchIndex];
+            }
+            else
+            {
+                throw new IndexOutOfRangeException($"BranchIndex = {branchIndex}.");
+            }
+        }
+        
         public void AddChild(Block block, int branchIndex, int index)
         {
-            if (DoesIndexExist(branchIndex, index) || DoesIndexExist(branchIndex, index - 1))
+            if (DoesBranchExist(branchIndex) && index >= 0 && index <= _children[branchIndex].Count)
             {
                 _children[branchIndex].Insert(index, block);
             }
@@ -70,5 +83,11 @@ namespace SchemeEditor
                 throw new IndexOutOfRangeException($"BranchIndex = {branchIndex}, Index = {index}.");
             }
         }
+    }
+
+    public struct BlockPosition
+    {
+        public int PageIndex;
+        public int X, Y;
     }
 }

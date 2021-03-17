@@ -2,8 +2,8 @@
 {
     public class SchemeData
     {
-        public Block MainBlock { private set; get; }
-        public Block SelectedBlock { set; get; }
+        //public Block MainBlock { private set; get; }
+        //public Block SelectedBlock { set; get; }
         
         
     }
