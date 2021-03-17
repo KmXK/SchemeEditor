@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms.VisualStyles;
 
 namespace SchemeEditor
 {
@@ -21,7 +20,11 @@ namespace SchemeEditor
             }
         }
 
+        public int ColumnCount => _children.Length;
+
         public BlockPosition Position { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
 
         private List<Block>[] _children;
 
@@ -60,6 +63,17 @@ namespace SchemeEditor
             }
         }
 
+        public int GetChildCount(int branchIndex)
+        {
+            if (DoesBranchExist(branchIndex))
+            {
+                return _children[branchIndex].Count;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
+        }
         public string GetBranchName(int branchIndex)
         {
             if (branchIndex >= 0 && branchIndex < _data.BranchNames.Length)

@@ -25,6 +25,7 @@ namespace SchemeEditor
             };
 
             Scheme scheme = new Scheme(settings);
+            scheme.DrawScheme();
         }
     }
 }

@@ -8,5 +8,6 @@
         public int StandartWidth;
         public int StandartHeight;
         public string StartBlockText, EndBlockText;
+        public int PageOffset;
     }
 }
