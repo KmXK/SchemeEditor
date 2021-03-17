@@ -24,6 +24,7 @@ namespace SchemeEditor
 
         public BlockPosition Position { get; set; }
         public int Width { get; set; }
+        public int ChildrenWidth { get; set; }
         public int Height { get; set; }
 
         private List<Block>[] _children;
