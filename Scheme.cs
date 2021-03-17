@@ -33,19 +33,32 @@ namespace SchemeEditor
 
             // Добавление блока в схему
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
-            ifBlock.Width = _settings.StandartWidth;
+            ifBlock.Width = _settings.StandartWidth+600;
             ifBlock.Height = _settings.StandartHeight;
             bigIf.AddChild(ifBlock, 0, 0);
             
             Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock1.Width = _settings.StandartWidth;
+            someBlock1.Width = _settings.StandartWidth+150;
             someBlock1.Height = _settings.StandartHeight;
             ifBlock.AddChild(someBlock1, 0, 0);
             
-            Block someBlock2 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock2.Width = _settings.StandartWidth;
-            someBlock2.Height = _settings.StandartHeight;
-            ifBlock.AddChild(someBlock2, 1, 0);
+            Block littleIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
+            littleIf.Width = _settings.StandartWidth;
+            littleIf.Height = _settings.StandartHeight;
+            //ifBlock.AddChild(littleIf, 1, 0);
+            
+            
+            
+            Block someBlock7 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock7.Width = _settings.StandartWidth;
+            someBlock7.Height = _settings.StandartHeight;
+            ifBlock.AddChild(someBlock7, 1, 0);
+            
+            Block someBlock8 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            someBlock8.Width = _settings.StandartWidth;
+            someBlock8.Height = _settings.StandartHeight;
+            littleIf.AddChild(someBlock8, 1, 0);
+            
             
             Block someBlock6 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock6.Width = _settings.StandartWidth;
@@ -206,13 +219,25 @@ namespace SchemeEditor
             if (block.ColumnCount > 2)
             {
                 var pos = block.Position;
-                pos.X = block.Position.X + block.ChildrenWidth / 2 - block.Width / 2;
-                block.Position = pos;
+                if(block.Width<=block.ChildrenWidth)
+                {
+                    pos.X = block.Position.X + block.ChildrenWidth / 2 - block.Width / 2;
+                    block.Position = pos;
+                }
+                else
+                {
+                    var delta = block.Width / 2 - block.ChildrenWidth / 2;
+                    pos.X = block.Position.X  - delta;
+                    block.Position = pos;
+                    ShiftBlockWithChildren(block, delta);
+                }
             }
             else if (block.ColumnCount > 0 && block.GetChildCount(0) > 0)
             {
                 var pos = block.Position;
-                pos.X = block.GetChild(0, 0).Position.X;
+                var firstChild = block.GetChild(0, 0);
+
+                pos.X = firstChild.Position.X + firstChild.Width / 2 - block.Width / 2;
                 block.Position = pos;
             }
         }
@@ -220,6 +245,8 @@ namespace SchemeEditor
         private int AlignColumn(Block block, int branchIndex)
         {
             int centerX = 0;
+            if(block.ColumnCount<=2 && branchIndex == 0)
+                centerX = block.Position.X + block.Width / 2;
 
             for (int i = 0; i < block.GetChildCount(branchIndex); i++)
             {
@@ -260,7 +287,10 @@ namespace SchemeEditor
                 maxWidth = Math.Max(maxWidth, Math.Max(child.Width, child.ChildrenWidth) + delta);
             }
 
-            return maxWidth;
+            if(block.ColumnCount <=2 && branchIndex == 0)
+                return Math.Max(maxWidth, block.Width);
+            else
+                return maxWidth;
         }
 
         private void ShiftBlockWithChildren(Block block, int shift)
@@ -274,9 +304,6 @@ namespace SchemeEditor
                 for (int i = 0; i < block.GetChildCount(bi); i++)
                 {
                     var child = block.GetChild(bi, i);
-                    pos = child.Position;
-                    pos.X += shift;
-                    child.Position = pos;
                     ShiftBlockWithChildren(child, shift);
                 }
             }
