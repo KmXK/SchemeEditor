@@ -12,6 +12,7 @@ namespace SchemeEditor
 
         private List<int> _pageHeights;
         private Bitmap[] _bitmaps;
+        private Graphics[] _graphics;
         
         // Список битмапов
         // Список graphics для рисования по битмапам
@@ -92,14 +93,22 @@ namespace SchemeEditor
             
             // Отрисовка каждой страницы
             _bitmaps = new Bitmap[_pageHeights.Count];
+            _graphics = new Graphics[_pageHeights.Count];
             
             for (int i = 0; i < _bitmaps.Length; i++)
             {
                 _bitmaps[i] = new Bitmap(_mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
                     _pageHeights[i] + _settings.PageOffset);
                 // Добавим к height 2 высоты коннектора + 2 интервала
+                
+                _graphics[i]= Graphics.FromImage(_bitmaps[i]);
             }
             DrawBlock(_mainBlock);
+
+            for (int i = 0; i < _bitmaps.Length; i++)
+            {
+                _graphics[i].Dispose();
+            }
             
             return _bitmaps;
         }
@@ -108,9 +117,8 @@ namespace SchemeEditor
         {
             if (block.Type != BlockType.Main)
             {
-                Graphics g = Graphics.FromImage(_bitmaps[block.Position.PageIndex]);
+                Graphics g = _graphics[block.Position.PageIndex];
                 g.DrawRectangle(new Pen(Color.Black), block.Position.X, block.Position.Y, block.Width, block.Height);
-                g.Dispose();
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
