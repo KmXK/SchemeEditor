@@ -25,6 +25,7 @@ namespace SchemeEditor
         public BlockPosition Position { get; set; }
         public int Width { get; set; }
         public int ChildrenWidth { get; set; }
+        public Block Parent { get; private set; }
         public int Height { get; set; }
 
         private List<Block>[] _children;
@@ -92,6 +93,7 @@ namespace SchemeEditor
             if (DoesBranchExist(branchIndex) && index >= 0 && index <= _children[branchIndex].Count)
             {
                 _children[branchIndex].Insert(index, block);
+                block.Parent = this;
             }
             else
             {
