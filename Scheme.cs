@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 
 namespace SchemeEditor
 {
     public class Scheme
     {
+        private const int PictureMultiplier = 5;
+        
         private Block _mainBlock;
         private SchemeSettings _settings;
 
@@ -21,8 +24,8 @@ namespace SchemeEditor
         // Сделать получение битмапов и их создание
 
         public Scheme(SchemeSettings settings)
-        {
-            _settings = settings;
+        {  
+            SetSettings(settings);
             _pageHeights = new List<int>() {0};
             
             // Создание блока-контейнера (такой один на всей схеме)
@@ -79,6 +82,16 @@ namespace SchemeEditor
             //_mainBlock.AddChild(someBlock3, 0, 1);
         }
 
+        public void SetSettings(SchemeSettings settings)
+        {
+            _settings = settings;
+            _settings.HorizontalInterval *= PictureMultiplier;
+            _settings.VerticalInterval *= PictureMultiplier;
+            _settings.StandartWidth *= PictureMultiplier;
+            _settings.StandartHeight *= PictureMultiplier;
+            _settings.PageOffset *= PictureMultiplier;
+        }
+        
         public Bitmap[] DrawScheme()
         {
             _mainBlock.Position = new BlockPosition()
@@ -92,19 +105,11 @@ namespace SchemeEditor
             _pageHeights = new List<int>() {0};
             CalculateBlockCoords(_mainBlock, out BlockPosition lastPosition,  ref blockIndexPage);
             
-            // Отрисовка каждой страницы
-            _bitmaps = new Bitmap[_pageHeights.Count];
-            _graphics = new Graphics[_pageHeights.Count];
-            
-            for (int i = 0; i < _bitmaps.Length; i++)
-            {
-                _bitmaps[i] = new Bitmap(_mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
-                    _pageHeights[i] + _settings.PageOffset);
-                // Добавим к height 2 высоты коннектора + 2 интервала
-                
-                _graphics[i]= Graphics.FromImage(_bitmaps[i]);
-            }
-            DrawBlock(_mainBlock);
+            InitializeBitmaps();
+
+            Pen pen = new Pen(Color.Black, 1 * PictureMultiplier);
+
+            DrawBlock(_mainBlock, pen);
 
             for (int i = 0; i < _bitmaps.Length; i++)
             {
@@ -114,23 +119,122 @@ namespace SchemeEditor
             return _bitmaps;
         }
 
-        private void DrawBlock(Block block)
+        private void InitializeBitmaps()
+        {
+            _bitmaps = new Bitmap[_pageHeights.Count];
+            _graphics = new Graphics[_pageHeights.Count];
+            
+            for (int i = 0; i < _bitmaps.Length; i++)
+            {
+                int normalWidth = _mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
+                    normalHeight = _pageHeights[i] + _settings.PageOffset;
+
+                _bitmaps[i] = new Bitmap(normalWidth, normalHeight);
+                // Добавим к height 2 высоты коннектора + 2 интервала
+
+                _graphics[i] = Graphics.FromImage(_bitmaps[i]);
+
+                _graphics[i].CompositingQuality = CompositingQuality.HighQuality;
+                _graphics[i].InterpolationMode = InterpolationMode.HighQualityBicubic;
+                _graphics[i].PixelOffsetMode = PixelOffsetMode.HighQuality;
+                _graphics[i].SmoothingMode = SmoothingMode.HighQuality;
+                _graphics[i].TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            }
+        }
+
+        private void DrawBlock(Block block, Pen pen)
         {
             if (block.Type != BlockType.Main)
             {
                 Graphics g = _graphics[block.Position.PageIndex];
-                g.DrawRectangle(new Pen(Color.Black), block.Position.X, block.Position.Y, block.Width, block.Height);
+                DrawBlockFigure(g, block, pen);
+                DrawBlockLines(g, block, pen);
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
             {
                 for (int j = 0; j < block.GetChildCount(i); j++)
                 {
-                    DrawBlock(block.GetChild(i, j));
+                    DrawBlock(block.GetChild(i, j), pen);
                 }
             }
         }
 
+        private void DrawBlockFigure(Graphics graphics, Block block, Pen pen)
+        {
+            int x = block.Position.X,
+                y = block.Position.Y,
+                width = block.Width,
+                height = block.Height;
+
+            Point[] points;
+            
+            switch (block.Type)
+            {
+                case BlockType.Start:
+                case BlockType.End:
+                    graphics.DrawArc(pen, x, y, height, height, 90, 180);
+                    graphics.DrawArc(pen, x + width - height, y, height, height, -90, 180);
+
+                    graphics.DrawLine(pen, x + height / 2, y, x + width - height / 2, y);
+                    graphics.DrawLine(pen, x + height / 2, y + height, x + width - height / 2, y + height);
+                    break;
+                case BlockType.Default:
+                    points = new[]
+                    {
+                        new Point(x, y),
+                        new Point(x + width, y),
+                        new Point(x + width, y + height),
+                        new Point(x, y + height),
+                        new Point(x, y),
+                        new Point(x + width, y)
+                    };
+                    
+                    graphics.DrawLines(pen, points);
+                    break;
+                case BlockType.Condition:
+                    points = new[]
+                    {
+                        new Point(x, y + height / 2),
+                        new Point(x + width / 2, y),
+                        new Point(x + width, y + height / 2),
+                        new Point(x + width / 2, y + height),
+                        new Point(x, y + height / 2),
+                        new Point(x + width / 2, y)
+                    };
+                    graphics.DrawLines(pen, points);
+                    break;
+                case BlockType.Loop:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void DrawBlockLines(Graphics graphics, Block block, Pen pen)
+        {
+            // TODO: когда будешь делать то, чтобы линии для блоков условия сходились, продумать то, что эти линии могут пересечься
+            // Если эти линии пересекутся, то то самое сглаживание испортит всё про всё
+            // 1 Способ: убрать сглаживание во время отрисовки линий
+            // 2 Способ: рисовать линию до ширины потомка - width/2
+            int x = block.Position.X,
+                y = block.Position.Y,
+                width = block.Width,
+                height = block.Height,
+                vertInt = _settings.VerticalInterval;
+            
+            if (block.Type != BlockType.Start)
+            {
+                graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
+                graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
+            }
+
+            if (block.Type != BlockType.End)
+            {
+                graphics.DrawLine(pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
+            }
+        }
+        
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
             BlockPosition startChildPos = new BlockPosition()
