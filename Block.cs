@@ -100,6 +100,25 @@ namespace SchemeEditor
                 throw new IndexOutOfRangeException($"BranchIndex = {branchIndex}, Index = {index}.");
             }
         }
+
+        public void GetChildIndex(Block child, out int branchIndex, out int index)
+        {
+            for (int b = 0; b < ColumnCount; b++)
+            {
+                for (int i = 0; i < _children[b].Count; i++)
+                {
+                    if (child == GetChild(b, i))
+                    {
+                        branchIndex = b;
+                        index = i;
+                        return;
+                    }
+                }
+            }
+
+            branchIndex = -1;
+            index = -1;
+        }
     }
 
     public struct BlockPosition
