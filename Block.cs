@@ -21,8 +21,10 @@ namespace SchemeEditor
         }
 
         public int ColumnCount => _children.Length;
+        public int[] ColumnXs { get; private set; }
 
         public BlockPosition Position { get; set; }
+        public BlockPosition EndPosition { get; set; }
         public int Width { get; set; }
         public int ChildrenWidth { get; set; }
         public Block Parent { get; private set; }
@@ -41,6 +43,7 @@ namespace SchemeEditor
             _data.BranchNames = names;
             
             _children = new List<Block>[names.Length];
+            ColumnXs = new int[names.Length];
 
             for (int i = pastCount; i < names.Length; i++)
             {

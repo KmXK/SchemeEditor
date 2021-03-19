@@ -47,7 +47,7 @@ namespace SchemeEditor
             Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock1.Width = _settings.StandartWidth+100;
             someBlock1.Height = _settings.StandartHeight;
-            ifBlock.AddChild(someBlock1, 0, 0);
+            //ifBlock.AddChild(someBlock1, 0, 0);
             
             Block littleIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             littleIf.Width = _settings.StandartWidth;
@@ -127,7 +127,7 @@ namespace SchemeEditor
             for (int i = 0; i < _bitmaps.Length; i++)
             {
                 int normalWidth = _mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
-                    normalHeight = _pageHeights[i] + _settings.PageOffset;
+                    normalHeight = _pageHeights[i] + _settings.PageOffset+300;
 
                 _bitmaps[i] = new Bitmap(normalWidth, normalHeight);
                 // Добавим к height 2 высоты коннектора + 2 интервала
@@ -213,26 +213,108 @@ namespace SchemeEditor
 
         private void DrawBlockLines(Graphics graphics, Block block, Pen pen)
         {
-            // TODO: когда будешь делать то, чтобы линии для блоков условия сходились, продумать то, что эти линии могут пересечься
-            // Если эти линии пересекутся, то то самое сглаживание испортит всё про всё
-            // 1 Способ: убрать сглаживание во время отрисовки линий
-            // 2 Способ: рисовать линию до ширины потомка - width/2
+            graphics.SmoothingMode = SmoothingMode.None;
+            
             int x = block.Position.X,
                 y = block.Position.Y,
                 width = block.Width,
                 height = block.Height,
                 vertInt = _settings.VerticalInterval;
             
+            block.Parent.GetChildIndex(block, out int branchIndex, out int index);
+
             if (block.Type != BlockType.Start)
             {
                 graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
-                graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
+                //graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
             }
 
             if (block.Type != BlockType.End)
             {
                 graphics.DrawLine(pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
             }
+
+            if (block.ColumnCount > 1)
+            {
+                // If
+                if (block.ColumnCount == 2)
+                {
+                    int centerSecondColumn = block.GetChildCount(1) > 0
+                        ? block.GetChild(1, 0).Position.X + block.GetChild(1, 0).Width / 2
+                        : x + block.ChildrenWidth;
+
+                    Point[] points = new[]
+                    {
+                        new Point(x + width, y + height / 2),
+                        new Point(centerSecondColumn, y + height / 2),
+                        new Point(centerSecondColumn, y + height + vertInt / 2)
+                    };
+
+                    graphics.DrawLines(pen, points);
+
+                    graphics.DrawLine(pen, x + width / 2, block.EndPosition.Y + vertInt / 2, centerSecondColumn,
+                        block.EndPosition.Y + vertInt / 2);
+                }
+                // Case
+                else if (block.ColumnCount > 2)
+                {
+                    int firstColumnCenter = (block.GetChildCount(0) > 0
+                        ? block.GetChild(0, 0).Position.X + block.GetChild(0, 0).Width / 2
+                        : block.ColumnXs[0]);
+                    int lastColumnCenter = (block.GetChildCount(block.ColumnCount - 1) > 0
+                        ? block.GetChild(block.ColumnCount - 1, 0).Position.X +
+                          block.GetChild(block.ColumnCount - 1, 0).Width / 2
+                        : block.ColumnXs[0] + block.ChildrenWidth);
+
+                    Point[] points = new[]
+                    {
+                        new Point(firstColumnCenter, y + height + vertInt),
+                        new Point(firstColumnCenter, y + height + vertInt / 2),
+                        new Point(lastColumnCenter, y + height + vertInt / 2),
+                        new Point(lastColumnCenter, y + height + vertInt),
+                    };
+
+                    graphics.DrawLines(pen, points);
+                    
+                    points = new[]
+                    {
+                        new Point(firstColumnCenter, block.EndPosition.Y + vertInt / 2),
+                        new Point(lastColumnCenter, block.EndPosition.Y + vertInt / 2)
+                    };
+                    
+                    graphics.DrawLines(pen, points);
+                }
+                
+                // Дополнение колонок
+                for (int b = 0; b < block.ColumnCount; b++)
+                {
+                    BlockPosition lastColumnPos;
+                    if (block.GetChildCount(b) > 0)
+                    {
+                        var lastChild = block.GetChild(b, block.GetChildCount(b) - 1);
+                        lastColumnPos = lastChild.EndPosition;
+                        lastColumnPos.X = lastChild.Position.X + lastChild.Width / 2;
+                        lastColumnPos.Y += vertInt / 2;
+                    }
+                    else
+                    {
+                        lastColumnPos = block.Position;
+                        lastColumnPos.Y += height + vertInt / 2;
+                        lastColumnPos.X = block.ColumnXs[b];
+                        if (block.ColumnCount == 2 && b == 0)
+                            lastColumnPos.X += block.Width / 2;
+                    }
+
+                    // Если колонка на одной странице
+                    if (lastColumnPos.PageIndex == block.EndPosition.PageIndex)
+                    {
+                        graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y, lastColumnPos.X,
+                            block.EndPosition.Y + vertInt / 2 + (int)pen.Width / 2);
+                    }
+                }
+            }
+            
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
         
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
@@ -264,6 +346,8 @@ namespace SchemeEditor
             {
                 BlockPosition childPos = startChildPos;
                 int childIndexPage = firstChildBlockIndexPage;
+
+                block.ColumnXs[branchIndex] = childPos.X;
 
                 for (int i = 0; i < block.GetChildCount(branchIndex); i++)
                 {
@@ -344,6 +428,8 @@ namespace SchemeEditor
                 pos.X = firstChild.Position.X + firstChild.Width / 2 - block.Width / 2;
                 block.Position = pos;
             }
+
+            block.EndPosition = lastPosition;
         }
 
         private int AlignColumn(Block block, int branchIndex)
