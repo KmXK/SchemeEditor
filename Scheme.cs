@@ -10,6 +10,8 @@ namespace SchemeEditor
         private Block _mainBlock;
         private SchemeSettings _settings;
 
+        public Block MainBlock => _mainBlock;
+
         private List<int> _pageHeights;
         private Bitmap[] _bitmaps;
         private Graphics[] _graphics;
@@ -35,22 +37,21 @@ namespace SchemeEditor
 
             // Добавление блока в схему
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
-            ifBlock.Width = _settings.StandartWidth+15;
+            ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight;
             bigIf.AddChild(ifBlock, 0, 0);
             
             Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock1.Width = _settings.StandartWidth+150;
+            someBlock1.Width = _settings.StandartWidth+100;
             someBlock1.Height = _settings.StandartHeight;
             ifBlock.AddChild(someBlock1, 0, 0);
             
             Block littleIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
-            littleIf.Width = _settings.StandartWidth+100;
+            littleIf.Width = _settings.StandartWidth;
             littleIf.Height = _settings.StandartHeight;
             ifBlock.AddChild(littleIf, 1, 0);
-            
-            
-            
+
+
             Block someBlock7 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock7.Width = _settings.StandartWidth;
             someBlock7.Height = _settings.StandartHeight;
@@ -75,7 +76,7 @@ namespace SchemeEditor
             Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock3.Width = _settings.StandartWidth;
             someBlock3.Height = _settings.StandartHeight;
-            _mainBlock.AddChild(someBlock3, 0, 1);
+            //_mainBlock.AddChild(someBlock3, 0, 1);
         }
 
         public Bitmap[] DrawScheme()

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -26,12 +28,22 @@ namespace SchemeEditor
             };
 
             Scheme scheme = new Scheme(settings);
-            var a = scheme.DrawScheme();
-            string i = "1";
-            foreach (var c in a)
+            
+            Bitmap[] bitmaps = scheme.DrawScheme();
+            
+            LoadSchemePictures(bitmaps);
+        }
+
+        private void LoadSchemePictures(Bitmap[] bitmaps)
+        {
+            int i = 0;
+            if (!Directory.Exists("SomeFolder/"))
             {
-                c.Save(i + ".png");
-                i += "1";
+                Directory.CreateDirectory("SomeFolder/");
+            }
+            foreach (var bitmap in bitmaps)
+            {
+                bitmap.Save($"SomeFolder/{i++}.bmp");
             }
         }
     }
