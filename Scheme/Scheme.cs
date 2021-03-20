@@ -135,7 +135,7 @@ namespace SchemeEditor
             Pen pen = new Pen(Color.Black, 1 * PictureMultiplier);
 
             DrawBlock(_mainBlock, pen);
-            //DrawConnectors(pen);
+            DrawConnectors(pen);
 
             // Удаление вспомогательных средств
             for (int i = 0; i < _bitmaps.Length; i++)
@@ -305,9 +305,11 @@ namespace SchemeEditor
 
                     graphics.DrawLines(pen, points);
 
-                    _graphics[block.EndPosition.PageIndex].DrawLine(pen, x + width / 2,
-                        block.EndPosition.Y + vertInt / 2, centerSecondColumn,
+                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
+                    _graphics[block.EndPosition.PageIndex].DrawLine(pen, x + width / 2 - (int)pen.Width / 2,
+                        block.EndPosition.Y + vertInt / 2, centerSecondColumn + (int)pen.Width / 2,
                         block.EndPosition.Y + vertInt / 2);
+                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.HighQuality;
                 }
                 // Case
                 else if (block.ColumnCount > 2)
@@ -332,11 +334,13 @@ namespace SchemeEditor
 
                     points = new[]
                     {
-                        new Point(firstColumnCenter, block.EndPosition.Y + vertInt / 2),
-                        new Point(lastColumnCenter, block.EndPosition.Y + vertInt / 2)
+                        new Point(firstColumnCenter - (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2),
+                        new Point(lastColumnCenter + (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2)
                     };
 
+                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
                     _graphics[block.EndPosition.PageIndex].DrawLines(pen, points);
+                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.HighQuality;
                 }
 
                 // Дополнение колонок
@@ -375,10 +379,23 @@ namespace SchemeEditor
                                 lastColumnPos.X,
                                 _pageHeights[block.Position.PageIndex] + _settings.VerticalInterval / 2);
 
+                            _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
                             _graphics[block.EndPosition.PageIndex].DrawLine(pen,
                                 lastColumnPos.X, block.EndPosition.Y + _settings.VerticalInterval / 2, lastColumnPos.X,
                                 _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
                             );
+                            _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.HighQuality;
+                            
+                            _connectorPairs.Add(
+                                new ConnectorPair(
+                                    
+                                    block.Position.PageIndex,
+                                    block.Position.PageIndex+1,
+                                    _pageHeights[block.Position.PageIndex]+_settings.VerticalInterval,
+                                    lastColumnPos.X - _settings.ConnectorSize / 2
+                                    
+                                    )
+                                );
                         }
                         else
                         {
@@ -407,6 +424,18 @@ namespace SchemeEditor
                 var secondGraph = _graphics[pair.SecondPage];
 
                 firstGraph.DrawEllipse(pen, pair.X, pair.FirstConY, _settings.ConnectorSize, _settings.ConnectorSize);
+                firstGraph.DrawLine(pen, pair.X + _settings.ConnectorSize / 2, pair.FirstConY,
+                    pair.X + _settings.ConnectorSize / 2, pair.FirstConY - _settings.VerticalInterval / 2);
+
+                secondGraph.DrawEllipse(pen, pair.X, _settings.PageOffset, _settings.ConnectorSize,
+                    _settings.ConnectorSize);
+                secondGraph.DrawLine(
+                    pen,
+                    pair.X + _settings.ConnectorSize / 2,
+                    _settings.PageOffset + _settings.ConnectorSize,
+                    pair.X + _settings.ConnectorSize / 2,
+                    _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
+                );
             }
         }
         
@@ -455,7 +484,7 @@ namespace SchemeEditor
                             new ConnectorPair(
                                 childPos.PageIndex,
                                 childPos.PageIndex + 1,
-                                childPos.Y + _settings.VerticalInterval,
+                                childPos.Y,
                                 block.GetChild(branchIndex, i),
                                 block.Width / 2 - _settings.ConnectorSize / 2)
                         );

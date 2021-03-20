@@ -22,7 +22,7 @@ namespace SchemeEditor
                 VerticalInterval = 50,
                 StandartHeight = 50,
                 StandartWidth = 100,
-                ConnectorSize = 50,
+                ConnectorSize = 30,
                 StartBlockText = "Вход",
                 EndBlockText = "Выход",
                 PageOffset = 10,
