@@ -25,7 +25,8 @@ namespace SchemeEditor
                 ConnectorSize = 50,
                 StartBlockText = "Вход",
                 EndBlockText = "Выход",
-                PageOffset = 10
+                PageOffset = 10,
+                FontSize = 11
             };
 
             Scheme scheme = new Scheme(settings);

@@ -18,6 +18,7 @@ namespace SchemeEditor
         private List<int> _pageHeights;
         private Bitmap[] _bitmaps;
         private Graphics[] _graphics;
+        private Font _font;
         
         // Список битмапов
         // Список graphics для рисования по битмапам
@@ -101,6 +102,14 @@ namespace SchemeEditor
             _settings.StandartHeight *= PictureMultiplier;
             _settings.PageOffset *= PictureMultiplier;
             _settings.ConnectorSize *= PictureMultiplier;
+
+            _font = new Font("Times New Roman", _settings.FontSize);
+            int i = 1;
+
+            var g = Graphics.FromImage(new Bitmap(1, 1));
+            var height = g.MeasureString("1", _font).Height;
+            while (g.MeasureString("1", _font).Height < height * PictureMultiplier)
+                _font = new Font("Times New Roman", _settings.FontSize+i++); 
         }
         
         public Bitmap[] DrawScheme()
