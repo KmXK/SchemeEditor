@@ -11,6 +11,8 @@ namespace SchemeEditor
         private const int PictureMultiplier = 4;
         
         private Block _mainBlock;
+        private List<ConnectorPair> _connectorPairs;
+        
         private SchemeSettings _settings;
 
         public Block MainBlock => _mainBlock;
@@ -27,7 +29,6 @@ namespace SchemeEditor
         public Scheme(SchemeSettings settings)
         {  
             SetSettings(settings);
-            _pageHeights = new List<int>() {0};
             
             // Создание блока-контейнера (такой один на всей схеме)
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
@@ -47,13 +48,13 @@ namespace SchemeEditor
             // Добавление блока в схему
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
             ifBlock.Width = _settings.StandartWidth;
-            ifBlock.Height = _settings.StandartHeight;
+            ifBlock.Height = _settings.StandartHeight*2;
             bigIf.AddChild(ifBlock, 0, 0);
             
             Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock1.Width = _settings.StandartWidth+100;
             someBlock1.Height = _settings.StandartHeight;
-            //ifBlock.AddChild(someBlock1, 0, 0);
+            ifBlock.AddChild(someBlock1, 0, 0);
             
             Block littleIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             littleIf.Width = _settings.StandartWidth;
@@ -75,7 +76,7 @@ namespace SchemeEditor
             Block someBlock6 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock6.Width = _settings.StandartWidth;
             someBlock6.Height = _settings.StandartHeight;
-            //ifBlock.AddChild(someBlock6, 2, 0);
+            ifBlock.AddChild(someBlock6, 2, 0);
             
             Block someBlock4 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock4.Width = _settings.StandartWidth;
@@ -120,17 +121,23 @@ namespace SchemeEditor
                 X = _settings.PageOffset,
                 Y = _settings.PageOffset
             };
+            _connectorPairs = new List<ConnectorPair>();
             
+            // Просчёт расположения блоков
             int blockIndexPage = 0;
             _pageHeights = new List<int>() {0};
-            CalculateBlockCoords(_mainBlock, out BlockPosition lastPosition,  ref blockIndexPage);
+            CalculateBlockCoords(_mainBlock, out _,  ref blockIndexPage);
             
+            // Создание графических структур
             InitializeBitmaps();
 
+            // Отрисовка компонентов схемы
             Pen pen = new Pen(Color.Black, 1 * PictureMultiplier);
 
             DrawBlock(_mainBlock, pen);
+            //DrawConnectors(pen);
 
+            // Удаление вспомогательных средств
             for (int i = 0; i < _bitmaps.Length; i++)
             {
                 _graphics[i].Dispose();
@@ -165,6 +172,7 @@ namespace SchemeEditor
             }
         }
 
+        #region BlockDrawing
         private void DrawBlock(Block block, Pen pen)
         {
             if (block.Type != BlockType.Main)
@@ -172,7 +180,7 @@ namespace SchemeEditor
                 Graphics g = _graphics[block.Position.PageIndex];
                 DrawBlockFigure(g, block, pen);
                 DrawBlockLines(g, block, pen);
-                DrawText(g, block);
+                DrawBlockText(g, block);
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
@@ -235,7 +243,7 @@ namespace SchemeEditor
             }
         }
 
-        private void DrawText(Graphics graphics, Block block)
+        private void DrawBlockText(Graphics graphics, Block block)
         {
             var fontHeight = (int)graphics.MeasureString("1", _font).Height;
 
@@ -249,17 +257,17 @@ namespace SchemeEditor
                 y += fontHeight;
             }
         }
-        
+
         private void DrawBlockLines(Graphics graphics, Block block, Pen pen)
         {
             graphics.SmoothingMode = SmoothingMode.None;
-            
+
             int x = block.Position.X,
                 y = block.Position.Y,
                 width = block.Width,
                 height = block.Height,
                 vertInt = _settings.VerticalInterval;
-            
+
             block.Parent.GetChildIndex(block, out int branchIndex, out int index);
 
             if (block.Type != BlockType.Start)
@@ -291,7 +299,8 @@ namespace SchemeEditor
 
                     graphics.DrawLines(pen, points);
 
-                    graphics.DrawLine(pen, x + width / 2, block.EndPosition.Y + vertInt / 2, centerSecondColumn,
+                    _graphics[block.EndPosition.PageIndex].DrawLine(pen, x + width / 2,
+                        block.EndPosition.Y + vertInt / 2, centerSecondColumn,
                         block.EndPosition.Y + vertInt / 2);
                 }
                 // Case
@@ -314,16 +323,16 @@ namespace SchemeEditor
                     };
 
                     graphics.DrawLines(pen, points);
-                    
+
                     points = new[]
                     {
                         new Point(firstColumnCenter, block.EndPosition.Y + vertInt / 2),
                         new Point(lastColumnCenter, block.EndPosition.Y + vertInt / 2)
                     };
-                    
-                    graphics.DrawLines(pen, points);
+
+                    _graphics[block.EndPosition.PageIndex].DrawLines(pen, points);
                 }
-                
+
                 // Дополнение колонок
                 for (int b = 0; b < block.ColumnCount; b++)
                 {
@@ -348,13 +357,38 @@ namespace SchemeEditor
                     if (lastColumnPos.PageIndex == block.EndPosition.PageIndex)
                     {
                         graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y, lastColumnPos.X,
-                            block.EndPosition.Y + vertInt / 2 + (int)pen.Width / 2);
+                            block.EndPosition.Y + vertInt / 2 + (int) pen.Width / 2);
+                    }
+                    else
+                    {
+                        // TODO
                     }
                 }
             }
-            
+
             graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
+
+        #endregion
+        
+        #region Connectors
+
+        private void DrawConnectors(Pen pen)
+        {
+            for (int c = 0; c < _connectorPairs.Count; c++)
+            {
+                var pair = _connectorPairs[c];
+                
+                var firstGraph = _graphics[pair.FirstPage];
+                var secondGraph = _graphics[pair.SecondPage];
+
+                firstGraph.DrawEllipse(pen, pair.X, pair.FirstConY, _settings.ConnectorSize, _settings.ConnectorSize);
+            }
+        }
+        
+        #endregion
+
+        #region Calculations
         
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
@@ -393,7 +427,14 @@ namespace SchemeEditor
                     // Если блок не помещается на странице
                     if (childIndexPage > _settings.BlocksOnPage)
                     {
-                        // Можно сразу учитывать размеры соединителей и отступы
+                        _connectorPairs.Add(
+                            new ConnectorPair(
+                                childPos.PageIndex,
+                                childPos.PageIndex + 1,
+                                childPos.Y + _settings.VerticalInterval,
+                                block.GetChild(branchIndex, i),
+                                block.Width / 2 - _settings.ConnectorSize / 2)
+                        );
                         
                         childIndexPage = 1;
                         childPos.PageIndex++;
@@ -421,7 +462,8 @@ namespace SchemeEditor
                 }
 
                 if (block.GetChildCount(branchIndex) > 0 &&
-                    (childPos.Y > lastPosition.Y || childPos.PageIndex > lastPosition.PageIndex))
+                    ((childPos.Y > lastPosition.Y && childPos.PageIndex == lastPosition.PageIndex) ||
+                     childPos.PageIndex > lastPosition.PageIndex))
                 {
                     lastPosition = childPos;
                     blockIndexPage = childIndexPage;
@@ -525,5 +567,6 @@ namespace SchemeEditor
                 }
             }
         }
+        #endregion
     }
 }

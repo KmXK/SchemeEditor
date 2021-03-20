@@ -17,7 +17,7 @@ namespace SchemeEditor
 
             SchemeSettings settings = new SchemeSettings()
             {
-                BlocksOnPage = 10,
+                BlocksOnPage = 4,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
                 StandartHeight = 50,
