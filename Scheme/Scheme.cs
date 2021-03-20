@@ -8,9 +8,10 @@ namespace SchemeEditor
 {
     public class Scheme
     {
+        private Block _mainBlock;
+        
         private const int PictureMultiplier = 4;
         
-        private Block _mainBlock;
         private List<ConnectorPair> _connectorPairs;
         
         private SchemeSettings _settings;
@@ -45,7 +46,6 @@ namespace SchemeEditor
             bigIf.Height = _settings.StandartHeight;
             _mainBlock.AddChild(bigIf, 0, 1);
 
-            // Добавление блока в схему
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
             ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight*2;
@@ -115,12 +115,11 @@ namespace SchemeEditor
         
         public Bitmap[] DrawScheme()
         {
-            _mainBlock.Position = new BlockPosition()
-            {
-                PageIndex = 0,
-                X = _settings.PageOffset,
-                Y = _settings.PageOffset
-            };
+            _mainBlock.Position = new BlockPosition(
+                0,
+                _settings.PageOffset,
+                _settings.PageOffset
+            );
             _connectorPairs = new List<ConnectorPair>();
             
             // Просчёт расположения блоков
@@ -445,12 +444,7 @@ namespace SchemeEditor
         
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
-            BlockPosition startChildPos = new BlockPosition()
-            {
-                PageIndex = block.Position.PageIndex,
-                X = block.Position.X,
-                Y = block.Position.Y
-            };
+            BlockPosition startChildPos = block.Position;
 
             _pageHeights[block.Position.PageIndex] = Math.Max(
                 block.Position.Y + block.Height,
@@ -462,7 +456,7 @@ namespace SchemeEditor
             }
 
             lastPosition = block.Position;
-            lastPosition.Y += block.Height; // for main = 0
+            lastPosition.Y += block.Height;
 
             int firstChildBlockIndexPage = blockIndexPage + 1;
 
@@ -549,6 +543,7 @@ namespace SchemeEditor
                 else
                 {
                     var delta = block.Width / 2 - block.ChildrenWidth / 2;
+
                     pos.X = block.Position.X  - delta;
                     block.Position = pos;
                     ShiftBlockWithChildren(block, delta);
@@ -556,9 +551,9 @@ namespace SchemeEditor
             }
             else if (block.ColumnCount > 0 && block.GetChildCount(0) > 0)
             {
-                var pos = block.Position;
                 var firstChild = block.GetChild(0, 0);
 
+                var pos = block.Position;
                 pos.X = firstChild.Position.X + firstChild.Width / 2 - block.Width / 2;
                 block.Position = pos;
             }
@@ -594,8 +589,6 @@ namespace SchemeEditor
                     ShiftBlockWithChildren(child, delta);
                 }
                 
-                
-
                 maxWidth = Math.Max(maxWidth, Math.Max(child.Width, child.ChildrenWidth) + delta);
             }
 

@@ -47,7 +47,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Block\Block.cs" />
-        <Compile Include="Block\BlockData.cs" />
+        <Compile Include="Block\BlockPosition.cs" />
         <Compile Include="Block\BlockType.cs" />
         <Compile Include="Block\ConnectorPair.cs" />
         <Compile Include="Form1.cs">

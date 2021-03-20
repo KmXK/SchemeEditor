@@ -5,21 +5,15 @@ namespace SchemeEditor
 {
     public class Block
     {
-        private BlockData _data;
+        public BlockType Type { get; private set; }
+        public string[] Text { get; set; }
+        public string[] BranchNames { get; private set; }
+        private List<Block>[] _children;
+        public Block Parent { get; private set; }
 
-        public BlockType Type => _data.Type;
-        public string[] Text
-        {
-            get
-            {
-                return _data.Text;
-            }
-            set
-            {
-                _data.Text = value;
-            }
-        }
 
+        
+        #region Visual
         public int ColumnCount => _children.Length;
         public int[] ColumnXs { get; private set; }
 
@@ -27,20 +21,21 @@ namespace SchemeEditor
         public BlockPosition EndPosition { get; set; }
         public int Width { get; set; }
         public int ChildrenWidth { get; set; }
-        public Block Parent { get; private set; }
         public int Height { get; set; }
+        #endregion
 
-        private List<Block>[] _children;
 
         public Block(BlockType type, string[] text, string[] branchNames)
         {
-            _data = new BlockData(type, text, new string[0]);
+            Type = type;
+            Text = text;
+            BranchNames = new string[0];
             SetBranchNames(branchNames);
         }
         private void SetBranchNames(string[] names)
         {
-            int pastCount = _data.BranchNames.Length; 
-            _data.BranchNames = names;
+            int pastCount = BranchNames.Length; 
+            BranchNames = names;
             
             _children = new List<Block>[names.Length];
             ColumnXs = new int[names.Length];
@@ -79,17 +74,6 @@ namespace SchemeEditor
                 throw new IndexOutOfRangeException();
             }
         }
-        public string GetBranchName(int branchIndex)
-        {
-            if (branchIndex >= 0 && branchIndex < _data.BranchNames.Length)
-            {
-                return _data.BranchNames[branchIndex];
-            }
-            else
-            {
-                throw new IndexOutOfRangeException($"BranchIndex = {branchIndex}.");
-            }
-        }
         
         public void AddChild(Block block, int branchIndex, int index)
         {
@@ -122,11 +106,5 @@ namespace SchemeEditor
             branchIndex = -1;
             index = -1;
         }
-    }
-
-    public struct BlockPosition
-    {
-        public int PageIndex;
-        public int X, Y;
     }
 }
