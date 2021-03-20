@@ -178,9 +178,9 @@ namespace SchemeEditor
             if (block.Type != BlockType.Main)
             {
                 Graphics g = _graphics[block.Position.PageIndex];
-                DrawBlockFigure(g, block, pen);
-                DrawBlockLines(g, block, pen);
-                DrawBlockText(g, block);
+                DrawBlockFigure(block, pen);
+                DrawBlockLines(block, pen);
+                DrawBlockText(block);
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
@@ -192,12 +192,14 @@ namespace SchemeEditor
             }
         }
 
-        private void DrawBlockFigure(Graphics graphics, Block block, Pen pen)
+        private void DrawBlockFigure(Block block, Pen pen)
         {
             int x = block.Position.X,
                 y = block.Position.Y,
                 width = block.Width,
                 height = block.Height;
+
+            Graphics graphics = _graphics[block.Position.PageIndex];
 
             Point[] points;
             
@@ -243,8 +245,10 @@ namespace SchemeEditor
             }
         }
 
-        private void DrawBlockText(Graphics graphics, Block block)
+        private void DrawBlockText(Block block)
         {
+            Graphics graphics = _graphics[block.Position.PageIndex];
+            
             var fontHeight = (int)graphics.MeasureString("1", _font).Height;
 
             int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
@@ -258,8 +262,10 @@ namespace SchemeEditor
             }
         }
 
-        private void DrawBlockLines(Graphics graphics, Block block, Pen pen)
+        private void DrawBlockLines(Block block, Pen pen)
         {
+            Graphics graphics = _graphics[block.Position.PageIndex];
+            
             graphics.SmoothingMode = SmoothingMode.None;
 
             int x = block.Position.X,
@@ -336,6 +342,7 @@ namespace SchemeEditor
                 // Дополнение колонок
                 for (int b = 0; b < block.ColumnCount; b++)
                 {
+                    // Позиция конца отрисовки линии
                     BlockPosition lastColumnPos;
                     if (block.GetChildCount(b) > 0)
                     {
@@ -359,9 +366,26 @@ namespace SchemeEditor
                         graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y, lastColumnPos.X,
                             block.EndPosition.Y + vertInt / 2 + (int) pen.Width / 2);
                     }
+                    // Линия закончилась на одной странице, нужно довести до другой
                     else
                     {
-                        // TODO
+                        if (block.GetChildCount(b) > 0)
+                        {
+                            graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y,
+                                lastColumnPos.X,
+                                _pageHeights[block.Position.PageIndex] + _settings.VerticalInterval / 2);
+
+                            _graphics[block.EndPosition.PageIndex].DrawLine(pen,
+                                lastColumnPos.X, block.EndPosition.Y + _settings.VerticalInterval / 2, lastColumnPos.X,
+                                _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
+                            );
+                        }
+                        else
+                        {
+                            // TODO: Подумать над соединителем для пустой колонки Case и IF
+                            // т.е. надо же как-то выделять ширину для соединителя, но как? Ведь мы не знаем, будем
+                            // ли мы его использовать в момент просчёта ширины каждого столбца
+                        }
                     }
                 }
             }
