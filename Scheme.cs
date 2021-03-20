@@ -8,7 +8,7 @@ namespace SchemeEditor
 {
     public class Scheme
     {
-        private const int PictureMultiplier = 5;
+        private const int PictureMultiplier = 4;
         
         private Block _mainBlock;
         private SchemeSettings _settings;
@@ -82,7 +82,7 @@ namespace SchemeEditor
             someBlock4.Height = _settings.StandartHeight;
             bigIf.AddChild(someBlock4, 1, 0);
 
-            Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
+            Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло", "123"}, new string[0]);
             someBlock3.Width = _settings.StandartWidth;
             someBlock3.Height = _settings.StandartHeight;
             _mainBlock.AddChild(someBlock3, 0, 2);
@@ -172,6 +172,7 @@ namespace SchemeEditor
                 Graphics g = _graphics[block.Position.PageIndex];
                 DrawBlockFigure(g, block, pen);
                 DrawBlockLines(g, block, pen);
+                DrawText(g, block);
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
@@ -234,6 +235,21 @@ namespace SchemeEditor
             }
         }
 
+        private void DrawText(Graphics graphics, Block block)
+        {
+            var fontHeight = (int)graphics.MeasureString("1", _font).Height;
+
+            int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
+
+            for (int i = 0; i < block.Text.Length; i++)
+            {
+                int lineWidth = (int) graphics.MeasureString(block.Text[i], _font).Width;
+                graphics.DrawString(block.Text[i], _font, Brushes.Black,
+                    block.Position.X + block.Width / 2 - lineWidth / 2, y);
+                y += fontHeight;
+            }
+        }
+        
         private void DrawBlockLines(Graphics graphics, Block block, Pen pen)
         {
             graphics.SmoothingMode = SmoothingMode.None;
