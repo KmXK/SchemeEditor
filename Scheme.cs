@@ -32,11 +32,16 @@ namespace SchemeEditor
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
             _mainBlock.Width = _settings.StandartWidth;
             _mainBlock.Height = _settings.StandartHeight;
+
+            Block start = new Block(BlockType.Start, new[] {_settings.StartBlockText}, new string[0]);
+            start.Width = _settings.StandartWidth;
+            start.Height = _settings.StandartHeight;
+            _mainBlock.AddChild(start, 0,0);
             
             Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             bigIf.Width = _settings.StandartWidth;
             bigIf.Height = _settings.StandartHeight;
-            _mainBlock.AddChild(bigIf, 0, 0);
+            _mainBlock.AddChild(bigIf, 0, 1);
 
             // Добавление блока в схему
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
@@ -69,7 +74,7 @@ namespace SchemeEditor
             Block someBlock6 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock6.Width = _settings.StandartWidth;
             someBlock6.Height = _settings.StandartHeight;
-            ifBlock.AddChild(someBlock6, 2, 0);
+            //ifBlock.AddChild(someBlock6, 2, 0);
             
             Block someBlock4 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock4.Width = _settings.StandartWidth;
@@ -79,7 +84,12 @@ namespace SchemeEditor
             Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock3.Width = _settings.StandartWidth;
             someBlock3.Height = _settings.StandartHeight;
-            //_mainBlock.AddChild(someBlock3, 0, 1);
+            _mainBlock.AddChild(someBlock3, 0, 2);
+            
+            Block end = new Block(BlockType.End, new[] {_settings.EndBlockText}, new string[0]);
+            end.Width = _settings.StandartWidth;
+            end.Height = _settings.StandartHeight;
+            _mainBlock.AddChild(end, 0,3);
         }
 
         public void SetSettings(SchemeSettings settings)
@@ -90,6 +100,7 @@ namespace SchemeEditor
             _settings.StandartWidth *= PictureMultiplier;
             _settings.StandartHeight *= PictureMultiplier;
             _settings.PageOffset *= PictureMultiplier;
+            _settings.ConnectorSize *= PictureMultiplier;
         }
         
         public Bitmap[] DrawScheme()
@@ -127,7 +138,10 @@ namespace SchemeEditor
             for (int i = 0; i < _bitmaps.Length; i++)
             {
                 int normalWidth = _mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
-                    normalHeight = _pageHeights[i] + _settings.PageOffset+300;
+                    normalHeight = _pageHeights[i] + _settings.PageOffset +
+                                   (_bitmaps.Length > 1 && i < _bitmaps.Length - 1
+                                       ? _settings.ConnectorSize + _settings.VerticalInterval
+                                       : 0);
 
                 _bitmaps[i] = new Bitmap(normalWidth, normalHeight);
                 // Добавим к height 2 высоты коннектора + 2 интервала
@@ -358,7 +372,7 @@ namespace SchemeEditor
                         
                         childIndexPage = 1;
                         childPos.PageIndex++;
-                        childPos.Y = 0;
+                        childPos.Y = _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval;
 
                         if (_pageHeights.Count - 1 < childPos.PageIndex)
                         {

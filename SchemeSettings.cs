@@ -9,5 +9,6 @@
         public int StandartHeight;
         public string StartBlockText, EndBlockText;
         public int PageOffset;
+        public int ConnectorSize;
     }
 }

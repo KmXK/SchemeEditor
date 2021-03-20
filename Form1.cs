@@ -17,11 +17,12 @@ namespace SchemeEditor
 
             SchemeSettings settings = new SchemeSettings()
             {
-                BlocksOnPage = 5,
+                BlocksOnPage = 10,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
                 StandartHeight = 50,
                 StandartWidth = 100,
+                ConnectorSize = 50,
                 StartBlockText = "Вход",
                 EndBlockText = "Выход",
                 PageOffset = 10
