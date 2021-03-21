@@ -115,6 +115,9 @@ namespace SchemeEditor
 
         private void FormResize(object sender, EventArgs e)
         {
+            if (tabControl1.TabCount == 0)
+                return;
+            
             var tabPage = tabControl1.SelectedTab;
 
             var panel = (Panel) tabPage.Controls["panel"];
