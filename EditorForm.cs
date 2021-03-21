@@ -43,7 +43,7 @@ namespace SchemeEditor
             //SaveSchemePictures(bitmaps);
         }
 
-        private void SaveSchemePictures(Bitmap[] bitmaps)
+        private void SaveBitmaps(Bitmap[] bitmaps)
         {
             int i = 0;
             if (!Directory.Exists("SomeFolder/"))
@@ -84,12 +84,36 @@ namespace SchemeEditor
             _schemes.Add(scheme);
             pictureBox.Image = scheme.DrawScheme();
             pictureBox.MouseDown += SchemeMouseDown;
+
+            tabControl1.SelectedIndex = tabControl1.TabCount - 1;
             
-            EditorForm_Resize(this, null);
+            FormResize(this, null);
 
         }
 
-        private void EditorForm_Resize(object sender, EventArgs e)
+        private void RemoveScheme()
+        {
+            // TODO:
+        }
+
+        private void AddBlockToScheme(object sender, EventArgs e)
+        {
+            // TODO
+            
+            
+        }
+
+        private void RemoveBlock(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void EditBlock(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void FormResize(object sender, EventArgs e)
         {
             var tabPage = tabControl1.SelectedTab;
 
@@ -100,7 +124,7 @@ namespace SchemeEditor
             panel.Size = tabPage.ClientSize;
 
             pictureBox.ModifyWidth(panel.Width -
-                                   ((tabPage.Height < pictureBox.Image.Height)
+                                   (tabPage.Height < pictureBox.Image.Height
                                        ? SystemInformation.VerticalScrollBarWidth
                                        : 0));
         }
