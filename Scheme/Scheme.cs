@@ -393,7 +393,7 @@ namespace SchemeEditor
                     // Если колонка на одной странице
                     if (lastColumnPos.PageIndex == block.EndPosition.PageIndex)
                     {
-                        graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y, lastColumnPos.X,
+                        _graphics[lastColumnPos.PageIndex].DrawLine(pen, lastColumnPos.X, lastColumnPos.Y, lastColumnPos.X,
                             block.EndPosition.Y + vertInt / 2 + (int) pen.Width / 2);
                     }
                     // Линия закончилась на одной странице, нужно довести до другой
@@ -401,9 +401,11 @@ namespace SchemeEditor
                     {
                         if (block.GetChildCount(b) > 0)
                         {
+                            var lastChild = block.GetChild(b, block.GetChildCount(b) - 1);
+                            
                             graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y,
                                 lastColumnPos.X,
-                                _pageHeights[block.Position.PageIndex] + _settings.VerticalInterval / 2);
+                                _pageHeights[lastChild.EndPosition.PageIndex] + _settings.VerticalInterval / 2);
 
                             _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
                             _graphics[block.EndPosition.PageIndex].DrawLine(pen,
@@ -415,9 +417,9 @@ namespace SchemeEditor
                             _connectorPairs.Add(
                                 new ConnectorPair(
                                     
-                                    block.Position.PageIndex,
-                                    block.Position.PageIndex+1,
-                                    _pageHeights[block.Position.PageIndex]+_settings.VerticalInterval,
+                                    lastChild.EndPosition.PageIndex,
+                                    block.EndPosition.PageIndex,
+                                    _pageHeights[lastChild.EndPosition.PageIndex]+_settings.VerticalInterval,
                                     lastColumnPos.X - _settings.ConnectorSize / 2
                                     
                                     )
@@ -499,7 +501,8 @@ namespace SchemeEditor
                 for (int i = 0; i < block.GetChildCount(branchIndex); i++)
                 {
                     // Если блок не помещается на странице
-                    if (childIndexPage > _settings.BlocksOnPage)
+                    if (childIndexPage >= _settings.BlocksOnPage &&
+                        block.GetChild(branchIndex, i).Type != BlockType.End)
                     {
                         _connectorPairs.Add(
                             new ConnectorPair(
@@ -507,10 +510,10 @@ namespace SchemeEditor
                                 childPos.PageIndex + 1,
                                 childPos.Y,
                                 block.GetChild(branchIndex, i),
-                                block.Width / 2 - _settings.ConnectorSize / 2)
+                                block.GetChild(branchIndex, i).Width / 2 - _settings.ConnectorSize / 2)
                         );
                         
-                        childIndexPage = 1;
+                        childIndexPage = 2;
                         childPos.PageIndex++;
                         childPos.Y = _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval;
 
