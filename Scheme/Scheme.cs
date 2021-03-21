@@ -10,13 +10,13 @@ namespace SchemeEditor
     {
         private Block _mainBlock;
         
-        private const int PictureMultiplier = 2;
+        private const int PictureMultiplier = 5;
         
         private List<ConnectorPair> _connectorPairs;
         
         private SchemeSettings _settings;
 
-        public Block MainBlock { get; private set; }
+        public Block MainBlock => _mainBlock;
         public Block SelectedBlock { get; private set; }
 
         private List<int> _pageHeights;
@@ -113,35 +113,9 @@ namespace SchemeEditor
         }
         public Bitmap DrawScheme()
         {
-            Bitmap bitmap;
             Bitmap[] bitmaps = DrawSchemePages();
 
-            int width = bitmaps[0].Width;
-            int height = bitmaps[0].Height;
-
-            int[] bitmapYs = new int[bitmaps.Length];
-            bitmapYs[0] = 0;
-
-            for (int i = 1; i < bitmaps.Length; i++)
-            {
-                height += _settings.PagesInterval;
-                
-                bitmapYs[i] = height;
-                
-                height += bitmaps[i].Height;
-            }
-
-            bitmap = new Bitmap(width, height);
-
-            using (var graphics = Graphics.FromImage(bitmap))
-            {
-                for (int i = 0; i < bitmaps.Length; i++)
-                {
-                    graphics.DrawImage(bitmaps[i], new Point(0, bitmapYs[i]));
-                }
-            }
-
-            return bitmap;
+            return ConnectBitmaps(bitmaps);
         }
         public Bitmap[] DrawSchemePages()
         {
@@ -198,6 +172,40 @@ namespace SchemeEditor
                 _graphics[i].SmoothingMode = SmoothingMode.HighQuality;
                 _graphics[i].TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
             }
+        }
+        private Bitmap ConnectBitmaps(Bitmap[] bitmaps)
+        {
+            Bitmap bitmap;
+
+            int width = bitmaps[0].Width;
+            int height = bitmaps[0].Height;
+
+            int[] bitmapYs = new int[bitmaps.Length];
+            bitmapYs[0] = 0;
+
+            for (int i = 1; i < bitmaps.Length; i++)
+            {
+                height += _settings.PagesInterval;
+                
+                bitmapYs[i] = height;
+                
+                height += bitmaps[i].Height;
+            }
+
+            bitmap = new Bitmap(width, height);
+            var graphics = Graphics.FromImage(bitmap);
+            graphics.Clear(Color.White);
+            for (int i = 0; i < bitmaps.Length; i++)
+            {
+                graphics.DrawImage(bitmaps[i], new Point(0, bitmapYs[i]));
+            }
+            graphics.Dispose();
+
+            return bitmap;
+        }
+        public Bitmap GetBitmap()
+        {
+            return ConnectBitmaps(_bitmaps);
         }
         #endregion
 
@@ -649,7 +657,73 @@ namespace SchemeEditor
 
         public void SelectBlock(Block block)
         {
-            SelectedBlock = block;
+            if (SelectedBlock != block)
+            {
+                var g1 = Graphics.FromImage(_bitmaps[SelectedBlock.Position.PageIndex]);
+                var g2 = Graphics.FromImage(_bitmaps[block.Position.PageIndex]);
+
+
+                DrawBlockFigure(g1, SelectedBlock, SelectedBlock.Position.X, SelectedBlock.Position.Y,
+                    new Pen(Color.Black, PictureMultiplier));
+                
+                DrawBlockFigure(g2, block, block.Position.X, block.Position.Y,
+                    new Pen(Color.Red, PictureMultiplier));
+                
+                g1.Dispose();
+                g2.Dispose();
+                
+                SelectedBlock = block;
+            }
+        }
+        
+        public bool SelectBlockByCoords(BlockPosition position)
+        {
+            var res = GetBlockByCoords(MainBlock, position);
+
+            if (res != null)
+            {
+                SelectBlock(res);
+            }
+            
+            return res != null;
+        }
+
+        public Block GetBlockByCoords(Block block, BlockPosition pos)
+        {
+            if (block.Type != BlockType.Main && block.DoesBlockContainPoint(pos))
+                return block;
+
+            for (int b = 0; b < block.ColumnCount; b++)
+            {
+                for (int i = 0; i < block.GetChildCount(b); i++)
+                {
+                    var res = GetBlockByCoords(block.GetChild(b, i), pos);
+                    if (res != null)
+                        return res;
+                }
+            }
+
+            return null;
+        }
+
+        public BlockPosition GetPageCoordsByGlobal(int x, int y)
+        {
+            int dy = 0;
+            for (int i = 0; i < _pageHeights.Count; i++)
+            {
+                int height = dy + _pageHeights[i] + _settings.VerticalInterval + _settings.ConnectorSize;
+                if (y <= height)
+                {
+                    var pos = new BlockPosition(i, x, y - dy);
+                    return pos;
+                }
+                else
+                {
+                    dy = height + _settings.PagesInterval;
+                }
+            }
+
+            return new BlockPosition(-1, -1, -1);
         }
         
         #endregion

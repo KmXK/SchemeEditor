@@ -106,5 +106,15 @@ namespace SchemeEditor
             branchIndex = -1;
             index = -1;
         }
+
+        public bool DoesBlockContainPoint(BlockPosition pos)
+        {
+            return Position.PageIndex == pos.PageIndex &&
+                   Position.X <= pos.X &&
+                   Position.X + Width >= pos.X &&
+                   Position.Y <= pos.Y &&
+                   Position.Y + Height >= pos.Y;
+
+        }
     }
 }

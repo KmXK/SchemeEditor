@@ -60,7 +60,8 @@ namespace SchemeEditor
         {
             TabPage tabPage = new TabPage("Untilted.asch")
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                BackColor = Color.White
             };
 
             Panel panel = new Panel
@@ -82,6 +83,7 @@ namespace SchemeEditor
 
             _schemes.Add(scheme);
             pictureBox.Image = scheme.DrawScheme();
+            pictureBox.MouseDown += SchemeMouseDown;
             
             EditorForm_Resize(this, null);
 
@@ -101,6 +103,25 @@ namespace SchemeEditor
                                    ((tabPage.Height < pictureBox.Image.Height)
                                        ? SystemInformation.VerticalScrollBarWidth
                                        : 0));
+        }
+
+        private void SchemeMouseDown(object sender, MouseEventArgs e)
+        {
+            var currentScheme = _schemes[tabControl1.SelectedIndex];
+
+            float mul = ((SchemePicture) sender).PictureMultiplier;
+
+            BlockPosition pos = currentScheme.GetPageCoordsByGlobal(
+                (int) (e.X / mul), (int) (e.Y / mul));
+
+            if (pos.PageIndex != -1)
+            {
+                if (currentScheme.SelectBlockByCoords(pos))
+                {
+                    ((SchemePicture) sender).Image.Dispose();
+                    ((SchemePicture) sender).Image = currentScheme.GetBitmap();
+                }
+            }
         }
     }
 }
