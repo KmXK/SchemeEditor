@@ -5,6 +5,7 @@
         public int BlocksOnPage;
         public int HorizontalInterval;
         public int VerticalInterval;
+        public int PagesInterval;
         public int StandartWidth;
         public int StandartHeight;
         public string StartBlockText, EndBlockText;

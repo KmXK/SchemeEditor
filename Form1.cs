@@ -17,9 +17,10 @@ namespace SchemeEditor
 
             SchemeSettings settings = new SchemeSettings()
             {
-                BlocksOnPage = 4,
+                BlocksOnPage = 6,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
+                PagesInterval = 150,
                 StandartHeight = 50,
                 StandartWidth = 100,
                 ConnectorSize = 30,
@@ -31,12 +32,14 @@ namespace SchemeEditor
 
             Scheme scheme = new Scheme(settings);
             
-            Bitmap[] bitmaps = scheme.DrawScheme();
+            //Bitmap[] bitmaps = scheme.DrawSchemePages();
+            Bitmap bitmap = scheme.DrawScheme();
+            bitmap.Save("SomeFolder/bitmap.bmp");
             
-            LoadSchemePictures(bitmaps);
+            //SaveSchemePictures(bitmaps);
         }
 
-        private void LoadSchemePictures(Bitmap[] bitmaps)
+        private void SaveSchemePictures(Bitmap[] bitmaps)
         {
             int i = 0;
             if (!Directory.Exists("SomeFolder/"))

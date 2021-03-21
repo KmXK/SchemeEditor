@@ -16,17 +16,15 @@ namespace SchemeEditor
         
         private SchemeSettings _settings;
 
-        public Block MainBlock => _mainBlock;
+        public Block MainBlock { get; private set; }
+        public Block SelectedBlock { get; private set; }
 
         private List<int> _pageHeights;
         private Bitmap[] _bitmaps;
         private Graphics[] _graphics;
         private Font _font;
-        
-        // Список битмапов
-        // Список graphics для рисования по битмапам
-        // Сделать получение битмапов и их создание
 
+        #region Scheme
         public Scheme(SchemeSettings settings)
         {  
             SetSettings(settings);
@@ -48,7 +46,7 @@ namespace SchemeEditor
 
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
             ifBlock.Width = _settings.StandartWidth;
-            ifBlock.Height = _settings.StandartHeight*2;
+            ifBlock.Height = _settings.StandartHeight;
             bigIf.AddChild(ifBlock, 0, 0);
             
             Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
@@ -92,8 +90,9 @@ namespace SchemeEditor
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
             _mainBlock.AddChild(end, 0,3);
-        }
 
+            SelectedBlock = ifBlock;
+        }
         public void SetSettings(SchemeSettings settings)
         {
             _settings = settings;
@@ -112,8 +111,39 @@ namespace SchemeEditor
             while (g.MeasureString("1", _font).Height < height * PictureMultiplier)
                 _font = new Font("Times New Roman", _settings.FontSize+i++); 
         }
-        
-        public Bitmap[] DrawScheme()
+        public Bitmap DrawScheme()
+        {
+            Bitmap bitmap;
+            Bitmap[] bitmaps = DrawSchemePages();
+
+            int width = bitmaps[0].Width;
+            int height = bitmaps[0].Height;
+
+            int[] bitmapYs = new int[bitmaps.Length];
+            bitmapYs[0] = 0;
+
+            for (int i = 1; i < bitmaps.Length; i++)
+            {
+                height += _settings.PagesInterval;
+                
+                bitmapYs[i] = height;
+                
+                height += bitmaps[i].Height;
+            }
+
+            bitmap = new Bitmap(width, height);
+
+            using (var graphics = Graphics.FromImage(bitmap))
+            {
+                for (int i = 0; i < bitmaps.Length; i++)
+                {
+                    graphics.DrawImage(bitmaps[i], new Point(0, bitmapYs[i]));
+                }
+            }
+
+            return bitmap;
+        }
+        public Bitmap[] DrawSchemePages()
         {
             _mainBlock.Position = new BlockPosition(
                 0,
@@ -144,7 +174,6 @@ namespace SchemeEditor
             
             return _bitmaps;
         }
-
         private void InitializeBitmaps()
         {
             _bitmaps = new Bitmap[_pageHeights.Count];
@@ -170,6 +199,7 @@ namespace SchemeEditor
                 _graphics[i].TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
             }
         }
+        #endregion
 
         #region BlockDrawing
         private void DrawBlock(Block block, Pen pen)
@@ -177,9 +207,14 @@ namespace SchemeEditor
             if (block.Type != BlockType.Main)
             {
                 Graphics g = _graphics[block.Position.PageIndex];
-                DrawBlockFigure(block, pen);
+
+                if (block == SelectedBlock)
+                    pen.Color = Color.Red;
+                DrawBlockFigure(g, block, block.Position.X, block.Position.Y, pen);
+
+                pen.Color = Color.Black;
                 DrawBlockLines(block, pen);
-                DrawBlockText(block);
+                DrawBlockText(g, block);
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
@@ -191,14 +226,10 @@ namespace SchemeEditor
             }
         }
 
-        private void DrawBlockFigure(Block block, Pen pen)
+        private void DrawBlockFigure(Graphics graphics, Block block, int x, int y, Pen pen)
         {
-            int x = block.Position.X,
-                y = block.Position.Y,
-                width = block.Width,
+            int width = block.Width,
                 height = block.Height;
-
-            Graphics graphics = _graphics[block.Position.PageIndex];
 
             Point[] points;
             
@@ -244,10 +275,8 @@ namespace SchemeEditor
             }
         }
 
-        private void DrawBlockText(Block block)
+        private void DrawBlockText(Graphics graphics, Block block)
         {
-            Graphics graphics = _graphics[block.Position.PageIndex];
-            
             var fontHeight = (int)graphics.MeasureString("1", _font).Height;
 
             int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
@@ -337,9 +366,7 @@ namespace SchemeEditor
                         new Point(lastColumnCenter + (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2)
                     };
 
-                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
                     _graphics[block.EndPosition.PageIndex].DrawLines(pen, points);
-                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.HighQuality;
                 }
 
                 // Дополнение колонок
@@ -613,6 +640,15 @@ namespace SchemeEditor
                 }
             }
         }
+        #endregion
+        
+        #region Selection
+
+        public void SelectBlock(Block block)
+        {
+            SelectedBlock = block;
+        }
+        
         #endregion
     }
 }
