@@ -111,6 +111,7 @@ namespace SchemeEditor
             _settings.StandartHeight *= PictureMultiplier;
             _settings.PageOffset *= PictureMultiplier;
             _settings.ConnectorSize *= PictureMultiplier;
+            _settings.PagesInterval *= PictureMultiplier;
 
             _font = new Font("Times New Roman", _settings.FontSize);
             int i = 1;
@@ -201,7 +202,7 @@ namespace SchemeEditor
 
             for (int i = 1; i < bitmaps.Length; i++)
             {
-                height += _settings.PagesInterval;
+                height += _settings.PagesInterval - _settings.PageOffset * 2;
                 
                 bitmapYs[i] = height;
                 
@@ -317,8 +318,6 @@ namespace SchemeEditor
         private void DrawBlockLines(Block block, Pen pen)
         {
             Graphics graphics = _graphics[block.Position.PageIndex];
-            
-            graphics.SmoothingMode = SmoothingMode.None;
 
             int x = block.Position.X,
                 y = block.Position.Y,
@@ -330,13 +329,12 @@ namespace SchemeEditor
 
             if (block.Type != BlockType.Start)
             {
-                graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
-                //graphics.DrawLine(pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
+                DrawLine(graphics, pen,x + width / 2, y, x + width / 2, y - vertInt / 2);
             }
 
             if (block.Type != BlockType.End)
             {
-                graphics.DrawLine(pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
+                DrawLine(graphics, pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
             }
 
             if (block.ColumnCount > 1)
@@ -355,13 +353,11 @@ namespace SchemeEditor
                         new Point(centerSecondColumn, y + height + vertInt / 2)
                     };
 
-                    graphics.DrawLines(pen, points);
+                    DrawLines(graphics, pen, points);
 
-                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
-                    _graphics[block.EndPosition.PageIndex].DrawLine(pen, x + width / 2 - (int)pen.Width / 2,
-                        block.EndPosition.Y + vertInt / 2, centerSecondColumn + (int)pen.Width / 2,
+                    DrawLine(_graphics[block.EndPosition.PageIndex], pen, x + width / 2 - (int) pen.Width / 2,
+                        block.EndPosition.Y + vertInt / 2, centerSecondColumn + (int) pen.Width / 2,
                         block.EndPosition.Y + vertInt / 2);
-                    _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.HighQuality;
                 }
                 // Case
                 else if (block.ColumnCount > 2)
@@ -382,7 +378,7 @@ namespace SchemeEditor
                         new Point(lastColumnCenter, y + height + vertInt),
                     };
 
-                    graphics.DrawLines(pen, points);
+                    DrawLines(graphics, pen, points);
 
                     points = new[]
                     {
@@ -390,7 +386,7 @@ namespace SchemeEditor
                         new Point(lastColumnCenter + (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2)
                     };
 
-                    _graphics[block.EndPosition.PageIndex].DrawLines(pen, points);
+                    DrawLines(_graphics[block.EndPosition.PageIndex], pen, points);
                 }
 
                 // Дополнение колонок
@@ -424,7 +420,8 @@ namespace SchemeEditor
                     // Если колонка на одной странице
                     if (lastColumnPos.PageIndex == block.EndPosition.PageIndex)
                     {
-                        _graphics[lastColumnPos.PageIndex].DrawLine(pen, lastColumnPos.X, lastColumnPos.Y, lastColumnPos.X,
+                        DrawLine(_graphics[lastColumnPos.PageIndex], pen, lastColumnPos.X, lastColumnPos.Y,
+                            lastColumnPos.X,
                             block.EndPosition.Y + vertInt / 2 + (int) pen.Width / 2);
                     }
                     // Линия закончилась на одной странице, нужно довести до другой
@@ -433,17 +430,15 @@ namespace SchemeEditor
                         if (block.GetChildCount(b) > 0)
                         {
                             var lastChild = block.GetChild(b, block.GetChildCount(b) - 1);
-                            
-                            graphics.DrawLine(pen, lastColumnPos.X, lastColumnPos.Y,
+
+                            DrawLine(graphics, pen, lastColumnPos.X, lastColumnPos.Y,
                                 lastColumnPos.X,
                                 _pageHeights[lastChild.EndPosition.PageIndex] + _settings.VerticalInterval / 2);
 
-                            _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.None;
-                            _graphics[block.EndPosition.PageIndex].DrawLine(pen,
+                            DrawLine(_graphics[block.EndPosition.PageIndex], pen,
                                 lastColumnPos.X, block.EndPosition.Y + _settings.VerticalInterval / 2, lastColumnPos.X,
                                 _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
                             );
-                            _graphics[block.EndPosition.PageIndex].SmoothingMode = SmoothingMode.HighQuality;
                             
                             _connectorPairs.Add(
                                 new ConnectorPair(
@@ -469,6 +464,20 @@ namespace SchemeEditor
             graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
 
+        private void DrawLine(Graphics graphics, Pen pen, int x1, int y1, int x2, int y2)
+        {
+            graphics.SmoothingMode = SmoothingMode.None;
+            graphics.DrawLine(pen, x1,y1,x2,y2);
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+        }
+
+        private void DrawLines(Graphics graphics, Pen pen, Point[] points)
+        {
+            graphics.SmoothingMode = SmoothingMode.None;
+            graphics.DrawLines(pen, points);
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+        }
+
         #endregion
         
         #region Connectors
@@ -481,20 +490,21 @@ namespace SchemeEditor
                 
                 var firstGraph = _graphics[pair.FirstPage];
                 var secondGraph = _graphics[pair.SecondPage];
+                
 
                 firstGraph.DrawEllipse(pen, pair.X, pair.FirstConY, _settings.ConnectorSize, _settings.ConnectorSize);
-                firstGraph.DrawLine(pen, pair.X + _settings.ConnectorSize / 2, pair.FirstConY,
+                DrawLine(firstGraph, pen, pair.X + _settings.ConnectorSize / 2, pair.FirstConY,
                     pair.X + _settings.ConnectorSize / 2, pair.FirstConY - _settings.VerticalInterval / 2);
 
                 secondGraph.DrawEllipse(pen, pair.X, _settings.PageOffset, _settings.ConnectorSize,
                     _settings.ConnectorSize);
-                secondGraph.DrawLine(
-                    pen,
+                DrawLine(secondGraph, pen,
                     pair.X + _settings.ConnectorSize / 2,
                     _settings.PageOffset + _settings.ConnectorSize,
                     pair.X + _settings.ConnectorSize / 2,
                     _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
                 );
+                
             }
         }
         
@@ -738,8 +748,9 @@ namespace SchemeEditor
             int dy = 0;
             for (int i = 0; i < _pageHeights.Count; i++)
             {
-                int height = dy + _pageHeights[i] + _settings.VerticalInterval + _settings.ConnectorSize;
-                if (y <= height)
+                int height = dy + _pageHeights[i] - _settings.PageOffset + _settings.VerticalInterval + _settings.ConnectorSize;
+                
+                if (y <= height + _settings.PageOffset)
                 {
                     var pos = new BlockPosition(i, x, y - dy);
                     return pos;
@@ -760,7 +771,7 @@ namespace SchemeEditor
             
             for (int i = 0; i < pos.PageIndex; i++)
             {
-                y += _pageHeights[i] + _settings.VerticalInterval + _settings.ConnectorSize + _settings.PageOffset +
+                y += _pageHeights[i] - _settings.PageOffset + _settings.VerticalInterval + _settings.ConnectorSize +
                      _settings.PagesInterval;
             }
         }

@@ -24,7 +24,7 @@ namespace SchemeEditor
                 BlocksOnPage = 4,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
-                PagesInterval = 150,
+                PagesInterval = 50,
                 StandartHeight = 50,
                 StandartWidth = 100,
                 ConnectorSize = 30,
