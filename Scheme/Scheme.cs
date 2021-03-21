@@ -21,6 +21,7 @@ namespace SchemeEditor
 
         private List<int> _pageHeights;
         private Bitmap[] _bitmaps;
+        private Bitmap _globalBitmap;
         private Graphics[] _graphics;
         private Font _font;
 
@@ -91,7 +92,15 @@ namespace SchemeEditor
             end.Height = _settings.StandartHeight;
             _mainBlock.AddChild(end, 0,3);
 
-            SelectedBlock = ifBlock;
+            SelectedBlock = _mainBlock;
+        }
+        ~Scheme()
+        {
+            for (int i = 0; i < _bitmaps.Length; i++)
+            {
+                _bitmaps[i].Dispose();
+                _globalBitmap.Dispose();
+            }
         }
         public void SetSettings(SchemeSettings settings)
         {
@@ -115,7 +124,14 @@ namespace SchemeEditor
         {
             Bitmap[] bitmaps = DrawSchemePages();
 
-            return ConnectBitmaps(bitmaps);
+            _globalBitmap = ConnectBitmaps(bitmaps);
+
+            for (int i = 0; i < bitmaps.Length; i++)
+            {
+                bitmaps[i].Dispose();
+            }
+
+            return _globalBitmap;
         }
         public Bitmap[] DrawSchemePages()
         {
@@ -205,7 +221,7 @@ namespace SchemeEditor
         }
         public Bitmap GetBitmap()
         {
-            return ConnectBitmaps(_bitmaps);
+            return _globalBitmap;
         }
         #endregion
 
@@ -393,7 +409,14 @@ namespace SchemeEditor
                     {
                         lastColumnPos = block.Position;
                         lastColumnPos.Y += height + vertInt / 2;
-                        lastColumnPos.X = block.ColumnXs[b];
+                        if (block.ColumnCount == 2)
+                        {
+                            lastColumnPos.X = block.Position.X;
+                        }
+                        else
+                        {
+                            lastColumnPos.X = block.ColumnXs[b];
+                        }
                         if (block.ColumnCount == 2 && b == 0)
                             lastColumnPos.X += block.Width / 2;
                     }
@@ -659,18 +682,22 @@ namespace SchemeEditor
         {
             if (SelectedBlock != block)
             {
-                var g1 = Graphics.FromImage(_bitmaps[SelectedBlock.Position.PageIndex]);
-                var g2 = Graphics.FromImage(_bitmaps[block.Position.PageIndex]);
+                Graphics graphics = Graphics.FromImage(_globalBitmap);
 
+                int x, y;
+                if (block != MainBlock)
+                {
+                    GetGlobalCoordsByPage(block.Position, out x, out y);
+                    DrawBlockFigure(graphics, block, x, y, new Pen(Color.Red, PictureMultiplier));
+                }
 
-                DrawBlockFigure(g1, SelectedBlock, SelectedBlock.Position.X, SelectedBlock.Position.Y,
-                    new Pen(Color.Black, PictureMultiplier));
+                if (SelectedBlock != MainBlock)
+                {
+                    GetGlobalCoordsByPage(SelectedBlock.Position, out x, out y);
+                    DrawBlockFigure(graphics, SelectedBlock, x, y, new Pen(Color.Black, PictureMultiplier));
+                }
                 
-                DrawBlockFigure(g2, block, block.Position.X, block.Position.Y,
-                    new Pen(Color.Red, PictureMultiplier));
-                
-                g1.Dispose();
-                g2.Dispose();
+                graphics.Dispose();
                 
                 SelectedBlock = block;
             }
@@ -724,6 +751,18 @@ namespace SchemeEditor
             }
 
             return new BlockPosition(-1, -1, -1);
+        }
+
+        public void GetGlobalCoordsByPage(BlockPosition pos, out int x, out int y)
+        {
+            x = pos.X;
+            y = pos.Y;
+            
+            for (int i = 0; i < pos.PageIndex; i++)
+            {
+                y += _pageHeights[i] + _settings.VerticalInterval + _settings.ConnectorSize + _settings.PageOffset +
+                     _settings.PagesInterval;
+            }
         }
         
         #endregion

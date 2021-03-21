@@ -118,7 +118,6 @@ namespace SchemeEditor
             {
                 if (currentScheme.SelectBlockByCoords(pos))
                 {
-                    ((SchemePicture) sender).Image.Dispose();
                     ((SchemePicture) sender).Image = currentScheme.GetBitmap();
                 }
             }
