@@ -8,7 +8,6 @@
         public int PagesInterval;
         public int StandartWidth;
         public int StandartHeight;
-        public string StartBlockText, EndBlockText;
         public int PageOffset;
         public int ConnectorSize;
         public int FontSize;

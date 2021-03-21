@@ -10,7 +10,7 @@ namespace SchemeEditor
     {
         private Block _mainBlock;
         
-        private const int PictureMultiplier = 4;
+        private const int PictureMultiplier = 2;
         
         private List<ConnectorPair> _connectorPairs;
         
@@ -34,7 +34,7 @@ namespace SchemeEditor
             _mainBlock.Width = _settings.StandartWidth;
             _mainBlock.Height = _settings.StandartHeight;
 
-            Block start = new Block(BlockType.Start, new[] {_settings.StartBlockText}, new string[0]);
+            Block start = new Block(BlockType.Start, new[] {"Вход"}, new string[0]);
             start.Width = _settings.StandartWidth;
             start.Height = _settings.StandartHeight;
             _mainBlock.AddChild(start, 0,0);
@@ -86,7 +86,7 @@ namespace SchemeEditor
             someBlock3.Height = _settings.StandartHeight;
             _mainBlock.AddChild(someBlock3, 0, 2);
             
-            Block end = new Block(BlockType.End, new[] {_settings.EndBlockText}, new string[0]);
+            Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
             _mainBlock.AddChild(end, 0,3);
