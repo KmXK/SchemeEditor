@@ -11,8 +11,6 @@ namespace SchemeEditor
         private List<Block>[] _children;
         public Block Parent { get; private set; }
 
-
-        
         #region Visual
         public int ColumnCount => _children.Length;
         public int[] ColumnXs { get; private set; }
@@ -22,6 +20,7 @@ namespace SchemeEditor
         public int Width { get; set; }
         public int ChildrenWidth { get; set; }
         public int Height { get; set; }
+        public int FontSize { get; set; }
         #endregion
 
 

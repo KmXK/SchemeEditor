@@ -10,12 +10,13 @@ namespace SchemeEditor
     {
         private Block _mainBlock;
         
-        private const int PictureMultiplier = 5;
+        public readonly int PictureMultiplier = 5;
         
         private List<ConnectorPair> _connectorPairs;
         
         private SchemeSettings _settings;
 
+        public SchemeSettings Settings => _settings;
         public Block MainBlock => _mainBlock;
         public Block SelectedBlock { get; private set; }
 
@@ -38,58 +39,69 @@ namespace SchemeEditor
             Block start = new Block(BlockType.Start, new[] {"Вход"}, new string[0]);
             start.Width = _settings.StandartWidth;
             start.Height = _settings.StandartHeight;
+            start.FontSize = _settings.FontSize;
             _mainBlock.AddChild(start, 0,0);
             
             Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             bigIf.Width = _settings.StandartWidth;
             bigIf.Height = _settings.StandartHeight;
+            bigIf.FontSize = _settings.FontSize;
             _mainBlock.AddChild(bigIf, 0, 1);
 
             Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
             ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight;
+            ifBlock.FontSize = _settings.FontSize;
             bigIf.AddChild(ifBlock, 0, 0);
             
             Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock1.Width = _settings.StandartWidth+100;
             someBlock1.Height = _settings.StandartHeight;
+            someBlock1.FontSize = _settings.FontSize;
             ifBlock.AddChild(someBlock1, 0, 0);
             
             Block littleIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             littleIf.Width = _settings.StandartWidth;
             littleIf.Height = _settings.StandartHeight;
+            littleIf.FontSize = _settings.FontSize;
             ifBlock.AddChild(littleIf, 1, 0);
 
 
             Block someBlock7 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock7.Width = _settings.StandartWidth;
             someBlock7.Height = _settings.StandartHeight;
+            someBlock7.FontSize = _settings.FontSize;
             littleIf.AddChild(someBlock7, 0, 0);
             
             Block someBlock8 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock8.Width = _settings.StandartWidth;
             someBlock8.Height = _settings.StandartHeight;
+            someBlock8.FontSize = _settings.FontSize;
             littleIf.AddChild(someBlock8, 1, 0);
             
             
             Block someBlock6 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock6.Width = _settings.StandartWidth;
             someBlock6.Height = _settings.StandartHeight;
+            someBlock6.FontSize = _settings.FontSize;
             ifBlock.AddChild(someBlock6, 2, 0);
             
             Block someBlock4 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
             someBlock4.Width = _settings.StandartWidth;
             someBlock4.Height = _settings.StandartHeight;
+            someBlock4.FontSize = _settings.FontSize;
             bigIf.AddChild(someBlock4, 1, 0);
 
             Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло", "123"}, new string[0]);
             someBlock3.Width = _settings.StandartWidth;
             someBlock3.Height = _settings.StandartHeight;
+            someBlock3.FontSize = _settings.FontSize;
             _mainBlock.AddChild(someBlock3, 0, 2);
             
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
+            end.FontSize = _settings.FontSize;
             _mainBlock.AddChild(end, 0,3);
 
             SelectedBlock = _mainBlock;
@@ -113,13 +125,16 @@ namespace SchemeEditor
             _settings.ConnectorSize *= PictureMultiplier;
             _settings.PagesInterval *= PictureMultiplier;
 
-            _font = new Font("Times New Roman", _settings.FontSize);
+            /*_font = new Font("Times New Roman", _settings.FontSize);
             int i = 1;
 
             var g = Graphics.FromImage(new Bitmap(1, 1));
             var height = g.MeasureString("1", _font).Height;
             while (g.MeasureString("1", _font).Height < height * PictureMultiplier)
-                _font = new Font("Times New Roman", _settings.FontSize+i++); 
+                _font = new Font("Times New Roman", _settings.FontSize + i++);*/
+
+            _settings.FontSize *= PictureMultiplier;
+            _font = new Font("Times New Roman", _settings.FontSize);
         }
         public Bitmap DrawScheme()
         {
@@ -293,7 +308,8 @@ namespace SchemeEditor
                     };
                     graphics.DrawLines(pen, points);
                     break;
-                case BlockType.Loop:
+                case BlockType.StartLoop:
+                case BlockType.EndLoop:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -302,6 +318,8 @@ namespace SchemeEditor
 
         private void DrawBlockText(Graphics graphics, Block block)
         {
+            _font = new Font("Times New Roman", block.FontSize / 2);
+            
             var fontHeight = (int)graphics.MeasureString("1", _font).Height;
 
             int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;

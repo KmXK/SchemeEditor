@@ -21,7 +21,7 @@ namespace SchemeEditor
 
             SchemeSettings settings = new SchemeSettings()
             {
-                BlocksOnPage = 4,
+                BlocksOnPage = 10,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
                 PagesInterval = 50,
@@ -29,11 +29,12 @@ namespace SchemeEditor
                 StandartWidth = 100,
                 ConnectorSize = 30,
                 PageOffset = 10,
-                FontSize = 11
+                FontSize = 16
             };
 
             Scheme scheme = new Scheme(settings);
             
+            AddScheme(scheme);
             AddScheme(scheme);
             
             //Bitmap[] bitmaps = scheme.DrawSchemePages();
@@ -110,7 +111,13 @@ namespace SchemeEditor
 
         private void EditBlock(object sender, EventArgs e)
         {
-            
+            BlockEditingForm beForm = new BlockEditingForm();
+            beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
+                _schemes[tabControl1.SelectedIndex].SelectedBlock);
+            if (beForm.ShowDialog() == DialogResult.OK)
+            {
+                UpdateSchemePicture();
+            }
         }
 
         private void FormResize(object sender, EventArgs e)
@@ -148,6 +155,13 @@ namespace SchemeEditor
                     ((SchemePicture) sender).Image = currentScheme.GetBitmap();
                 }
             }
+        }
+
+        private void UpdateSchemePicture()
+        {
+            ((PictureBox) tabControl1.SelectedTab.Controls["panel"].Controls["pb"]).Image =
+                _schemes[tabControl1.SelectedIndex].DrawScheme();
+            FormResize(this, null);
         }
     }
 }

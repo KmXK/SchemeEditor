@@ -46,6 +46,12 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="BlockEditingForm.cs">
+          <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="BlockEditingForm.Designer.cs">
+          <DependentUpon>BlockEditingForm.cs</DependentUpon>
+        </Compile>
         <Compile Include="Block\Block.cs" />
         <Compile Include="Block\BlockPosition.cs" />
         <Compile Include="Block\BlockType.cs" />
@@ -67,6 +73,9 @@
         <Compile Include="StartPanel.Designer.cs">
           <DependentUpon>StartPanel.cs</DependentUpon>
         </Compile>
+        <EmbeddedResource Include="BlockEditingForm.resx">
+          <DependentUpon>BlockEditingForm.cs</DependentUpon>
+        </EmbeddedResource>
         <EmbeddedResource Include="EditorForm.resx">
           <DependentUpon>EditorForm.cs</DependentUpon>
         </EmbeddedResource>
