@@ -380,13 +380,13 @@ namespace SchemeEditor
                 // Case
                 else if (block.ColumnCount > 2)
                 {
-                    int firstColumnCenter = (block.GetChildCount(0) > 0
+                    int firstColumnCenter = block.GetChildCount(0) > 0
                         ? block.GetChild(0, 0).Position.X + block.GetChild(0, 0).Width / 2
-                        : block.ColumnXs[0]);
-                    int lastColumnCenter = (block.GetChildCount(block.ColumnCount - 1) > 0
+                        : block.ColumnXs[0];
+                    int lastColumnCenter = block.GetChildCount(block.ColumnCount - 1) > 0
                         ? block.GetChild(block.ColumnCount - 1, 0).Position.X +
                           block.GetChild(block.ColumnCount - 1, 0).Width / 2
-                        : block.ColumnXs[0] + block.ChildrenWidth);
+                        : block.ColumnXs[block.ColumnCount - 1];
 
                     Point[] points = new[]
                     {
@@ -597,7 +597,10 @@ namespace SchemeEditor
                     }
                 }
 
-                if (block.GetChildCount(branchIndex) > 0 &&
+                if (block.ColumnCount > 2 && block.GetChildCount(branchIndex) == 0)
+                    childPos.Y += _settings.VerticalInterval / 2;
+
+                if ((block.ColumnCount > 2 || block.GetChildCount(branchIndex) > 0) &&
                     ((childPos.Y > lastPosition.Y && childPos.PageIndex == lastPosition.PageIndex) ||
                      childPos.PageIndex > lastPosition.PageIndex))
                 {
@@ -692,6 +695,11 @@ namespace SchemeEditor
             var pos = block.Position;
             pos.X += shift;
             block.Position = pos;
+
+            for (int i = 0; i < block.ColumnCount; i++)
+            {
+                block.ColumnXs[i] += shift;
+            }
 
             for (int bi = 0; bi < block.ColumnCount; bi++)
             {

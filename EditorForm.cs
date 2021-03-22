@@ -97,10 +97,13 @@ namespace SchemeEditor
             // TODO:
         }
 
-        private void AddBlockAfter(object sender, EventArgs e)
+        private void AddBlock(object sender, EventArgs e)
         {
+            bool isAfter = ((ToolStripMenuItem) sender).Name.Contains("после");
+            
             var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
-            if (selBlock.Type == BlockType.Main || selBlock.Type == BlockType.Start)
+            if (selBlock.Type == BlockType.Main || 
+                (isAfter ? selBlock.Type == BlockType.End : selBlock.Type == BlockType.Start))
                 return;
             
             BlockEditingForm beForm = new BlockEditingForm();
@@ -108,7 +111,7 @@ namespace SchemeEditor
             Block block = new Block(BlockType.Default, new string[0], new string[0]);
             
             selBlock.Parent.GetChildIndex(selBlock, out int branchIndex, out int index);
-            selBlock.Parent.AddChild(block, branchIndex, index+1);
+            selBlock.Parent.AddChild(block, branchIndex, index + (isAfter ? 1 : 0));
             
             //block.Parent.AddChild();
             
@@ -119,33 +122,7 @@ namespace SchemeEditor
             }
             else
             {
-                selBlock.Parent.RemoveChild(branchIndex, index + 1);
-            }
-        }
-
-        private void AddBlockBefore(object sender, EventArgs e)
-        {
-            var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
-            if (selBlock.Type == BlockType.Main || selBlock.Type == BlockType.Start)
-                return;
-            
-            BlockEditingForm beForm = new BlockEditingForm();
-
-            Block block = new Block(BlockType.Default, new string[0], new string[0]);
-            
-            selBlock.Parent.GetChildIndex(selBlock, out int branchIndex, out int index);
-            selBlock.Parent.AddChild(block, branchIndex, index);
-            
-            //block.Parent.AddChild();
-            
-            beForm.SetStartData(_schemes[tabControl1.SelectedIndex], block);
-            if (beForm.ShowDialog() == DialogResult.OK)
-            {
-                UpdateSchemePicture();
-            }
-            else
-            {
-                selBlock.Parent.RemoveChild(branchIndex, index);
+                selBlock.Parent.RemoveChild(branchIndex, index + (isAfter ? 1 : 0));
             }
         }
 
@@ -159,8 +136,26 @@ namespace SchemeEditor
             if (_schemes[tabControl1.SelectedIndex].SelectedBlock.Type != BlockType.Main)
             {
                 BlockEditingForm beForm = new BlockEditingForm();
-                beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
-                    _schemes[tabControl1.SelectedIndex].SelectedBlock);
+
+                var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
+                selBlock.Parent.GetChildIndex(selBlock, out int branchIndex, out int index);
+
+                if (selBlock.Type == BlockType.StartLoop)
+                {
+                    beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
+                        selBlock, selBlock.Parent.GetChild(branchIndex, index + 1));
+                }
+                else if (selBlock.Type == BlockType.EndLoop)
+                {
+                    beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
+                        selBlock, selBlock.Parent.GetChild(branchIndex, index - 1));
+                }
+                else
+                {
+                    beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
+                        selBlock);
+                }
+                
                 if (beForm.ShowDialog() == DialogResult.OK)
                 {
                     UpdateSchemePicture();

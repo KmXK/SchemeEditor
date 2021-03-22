@@ -37,6 +37,8 @@ namespace SchemeEditor
             this.textBlock = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.branchContainer = new System.Windows.Forms.Panel();
+            this.label7 = new System.Windows.Forms.Label();
+            this.textBlock2 = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.branchSubButton = new System.Windows.Forms.Button();
             this.branchAddButton = new System.Windows.Forms.Button();
@@ -70,7 +72,6 @@ namespace SchemeEditor
             // 
             this.typeBox.DisplayMember = "1";
             this.typeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.typeBox.Enabled = false;
             this.typeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
             this.typeBox.FormattingEnabled = true;
             this.typeBox.Items.AddRange(new object[] {"Блок условия", "Блок цикла", "Обычный блок", "Предопределённый блок"});
@@ -115,14 +116,36 @@ namespace SchemeEditor
             // branchContainer
             // 
             this.branchContainer.AutoScroll = true;
-            this.branchContainer.Location = new System.Drawing.Point(290, 54);
+            this.branchContainer.Location = new System.Drawing.Point(290, 56);
             this.branchContainer.Margin = new System.Windows.Forms.Padding(2);
             this.branchContainer.Name = "branchContainer";
             this.branchContainer.Size = new System.Drawing.Size(232, 145);
             this.branchContainer.TabIndex = 5;
             // 
+            // label7
+            // 
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
+            this.label7.Location = new System.Drawing.Point(290, 97);
+            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(83, 24);
+            this.label7.TabIndex = 8;
+            this.label7.Text = "Текст:";
+            // 
+            // textBlock2
+            // 
+            this.textBlock2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
+            this.textBlock2.Location = new System.Drawing.Point(290, 124);
+            this.textBlock2.Margin = new System.Windows.Forms.Padding(2);
+            this.textBlock2.Multiline = true;
+            this.textBlock2.Name = "textBlock2";
+            this.textBlock2.Size = new System.Drawing.Size(234, 77);
+            this.textBlock2.TabIndex = 9;
+            // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label7);
+            this.groupBox1.Controls.Add(this.textBlock2);
             this.groupBox1.Controls.Add(this.branchSubButton);
             this.groupBox1.Controls.Add(this.branchAddButton);
             this.groupBox1.Controls.Add(this.label1);
@@ -296,6 +319,9 @@ namespace SchemeEditor
             ((System.ComponentModel.ISupportInitialize) (this.widthBox)).EndInit();
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox textBlock2;
 
         private System.Windows.Forms.Button branchAddButton;
         private System.Windows.Forms.Button branchSubButton;

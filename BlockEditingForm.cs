@@ -9,7 +9,7 @@ namespace SchemeEditor
     public partial class BlockEditingForm : Form
     {
         private Scheme _scheme;
-        private Block[] _blocks;
+        private List<Block> _blocks;
 
         private List<string> _branchNames;
 
@@ -19,6 +19,8 @@ namespace SchemeEditor
         public BlockEditingForm()
         {
             InitializeComponent();
+            _blocks = new List<Block>();
+            _branchNames = new List<string>();
         }
 
         public void SetStartData(Scheme scheme, Block block)
@@ -52,7 +54,7 @@ namespace SchemeEditor
             
             _startType = _currentType;
 
-            _blocks = new[] {block};
+            _blocks = new List<Block>(){block};
             _scheme = scheme;
             
             SetBlockSizesData();
@@ -67,13 +69,14 @@ namespace SchemeEditor
             typeBox.SelectedIndex = 1;
             _startType = _currentType;
 
-            _blocks = new[] {block1, block2};
+            _blocks = new List<Block>() {block1, block2};
             _scheme = scheme;
             _branchNames = new List<string>(1);
             
             SetBlockSizesData();
-            
-            // todo
+
+            textBlock.Lines = _blocks[0].Text;
+            textBlock2.Lines = _blocks[1].Text;
         }
 
         private void SetBlockSizesData()
@@ -99,7 +102,7 @@ namespace SchemeEditor
         private void acceptButton_Click(object sender, EventArgs e)
         {
             _blocks[0].Text = textBlock.Lines;
-            for (int i = 0; i < _blocks.Length; i++)
+            for (int i = 0; i < _blocks.Count; i++)
             {
                 _blocks[i].Width = (int)widthBox.Value * _scheme.PictureMultiplier;
                 _blocks[i].Height = (int)heightBox.Value * _scheme.PictureMultiplier;
@@ -119,11 +122,16 @@ namespace SchemeEditor
                 else if (_currentType == BlockType.StartLoop)
                 {
                     _blocks[0].Parent.GetChildIndex(_blocks[0], out int branchIndex, out int index);
-                    
-                    // TODO :_blocks[0].Parent.AddChild();
+
+                    _blocks[0].Parent.AddChild(_blocks[1], branchIndex, index + 1);
                 }
 
                 _blocks[0].SetData(_currentType, textBlock.Lines, _branchNames.ToArray());
+            }
+
+            if (_currentType == BlockType.StartLoop)
+            {
+                _blocks[1].Text = textBlock2.Lines;
             }
 
             if (_currentType == BlockType.Condition)
@@ -141,13 +149,36 @@ namespace SchemeEditor
             switch (typeBox.SelectedIndex)
             {
                 case 0: _currentType = BlockType.Condition; break;
-                case 1: _currentType = BlockType.StartLoop; break;
+                case 1: _currentType = BlockType.StartLoop;  break;
                 case 2: _currentType = BlockType.Default; break;
                 case 3: _currentType = BlockType.PredefProc; break;
                 case 4: _currentType = BlockType.Start; break;
                 default:
                     throw new ArgumentException();
             }
+
+            if (_currentType == BlockType.StartLoop)
+            {
+                if (_blocks.Count == 1)
+                {
+                    _blocks.Add(new Block(BlockType.EndLoop, new string[0], new string[0]));
+                }
+
+                label7.Visible = true;
+                textBlock2.Visible = true;
+                textBlock2.Lines = new string[0];
+            }
+            else
+            {
+                if (_blocks.Count == 2)
+                {
+                    _blocks.RemoveAt(1);
+                }
+                
+                label7.Visible = false;
+                textBlock2.Visible = false;
+            }
+            
 
             SetBranchNames(_currentType == BlockType.Condition);
         }
@@ -176,6 +207,18 @@ namespace SchemeEditor
                     box.Width = branchContainer.ClientSize.Width;
                     y += box.Height;
                     branchContainer.Controls.Add(box);
+                }
+            }
+            else
+            {
+                if (_currentType == BlockType.PredefProc ||
+                    _currentType == BlockType.Default)
+                {
+                    _branchNames.Clear();
+                }
+                else if(_branchNames.Count > 1)
+                {
+                    _branchNames = new List<string>() {_branchNames[0]};
                 }
             }
         }
