@@ -8,11 +8,11 @@ namespace SchemeEditor
         public BlockType Type { get; private set; }
         public string[] Text { get; set; }
         public string[] BranchNames { get; private set; }
-        private List<Block>[] _children;
+        private List<List<Block>> _children;
         public Block Parent { get; private set; }
 
         #region Visual
-        public int ColumnCount => _children.Length;
+        public int ColumnCount => _children.Count;
         public int[] ColumnXs { get; private set; }
 
         public BlockPosition Position { get; set; }
@@ -29,25 +29,32 @@ namespace SchemeEditor
             Type = type;
             Text = text;
             BranchNames = new string[0];
+            _children = new List<List<Block>>(1);
             SetBranchNames(branchNames);
         }
-        private void SetBranchNames(string[] names)
+        public void SetBranchNames(string[] names)
         {
-            int pastCount = BranchNames.Length; 
             BranchNames = names;
-            
-            _children = new List<Block>[names.Length];
-            ColumnXs = new int[names.Length];
 
-            for (int i = pastCount; i < names.Length; i++)
+            if (_children.Count != names.Length)
             {
-                _children[i] = new List<Block>();
+                for (int i = names.Length; i < _children.Count; i++)
+                {
+                    _children.RemoveAt(i);
+                }
+                
+                for (int i = _children.Count; i < names.Length; i++)
+                {
+                    _children.Add(new List<Block>());
+                }
             }
+
+            ColumnXs = new int[names.Length];
         }
 
         private bool DoesBranchExist(int branchIndex)
         {
-            return branchIndex >= 0 && branchIndex < _children.Length;
+            return branchIndex >= 0 && branchIndex < _children.Count;
         }
 
         public Block GetChild(int branchIndex, int index)
@@ -80,6 +87,18 @@ namespace SchemeEditor
             {
                 _children[branchIndex].Insert(index, block);
                 block.Parent = this;
+            }
+            else
+            {
+                throw new IndexOutOfRangeException($"BranchIndex = {branchIndex}, Index = {index}.");
+            }
+        }
+
+        public void RemoveChild(int branchIndex, int index)
+        {
+            if (DoesBranchExist(branchIndex) && index >= 0 && index < _children[branchIndex].Count)
+            {
+                _children[branchIndex].RemoveAt(index);
             }
             else
             {

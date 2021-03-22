@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -9,6 +11,11 @@ namespace SchemeEditor
         private Scheme _scheme;
         private Block[] _blocks;
 
+        private List<string> _branchNames;
+
+        private BlockType _currentType;
+        private BlockType _startType;
+
         public BlockEditingForm()
         {
             InitializeComponent();
@@ -16,7 +23,7 @@ namespace SchemeEditor
 
         public void SetStartData(Scheme scheme, Block block)
         {
-            
+            _branchNames = block.BranchNames.ToList();
             
             if (block.Type == BlockType.End || block.Type == BlockType.Start)
             {
@@ -26,6 +33,7 @@ namespace SchemeEditor
             }
             else
             {
+                typeBox.Enabled = true;
                 switch (block.Type)
                 {
                     case BlockType.Default:
@@ -41,6 +49,8 @@ namespace SchemeEditor
                         throw new ArgumentOutOfRangeException();
                 }
             }
+            
+            _startType = _currentType;
 
             _blocks = new[] {block};
             _scheme = scheme;
@@ -49,29 +59,41 @@ namespace SchemeEditor
             
             textBlock.Lines = _blocks[0].Text;
         }
-
         public void SetStartData(Scheme scheme, Block block1, Block block2)
         {
             if (block1.Type != BlockType.StartLoop || block2.Type != BlockType.EndLoop)
                 throw new ArgumentException();
-
-
+            
+            typeBox.SelectedIndex = 1;
+            _startType = _currentType;
 
             _blocks = new[] {block1, block2};
             _scheme = scheme;
+            _branchNames = new List<string>(1);
+            
+            SetBlockSizesData();
             
             // todo
         }
 
         private void SetBlockSizesData()
         {
-            label6.Text = $"Ширина (по умолчанию {_scheme.Settings.StandartWidth / _scheme.PictureMultiplier}): ";
-            label4.Text = $"Высота (по умолчанию {_scheme.Settings.StandartHeight / _scheme.PictureMultiplier}): ";
-            label5.Text = $"Размер шрифта (по умолчанию {_scheme.Settings.FontSize / _scheme.PictureMultiplier}): ";
+            label6.Text = $@"Ширина (по умолчанию {_scheme.Settings.StandartWidth / _scheme.PictureMultiplier}): ";
+            label4.Text = $@"Высота (по умолчанию {_scheme.Settings.StandartHeight / _scheme.PictureMultiplier}): ";
+            label5.Text = $@"Размер шрифта (по умолчанию {_scheme.Settings.FontSize / _scheme.PictureMultiplier}): ";
 
-            widthBox.Value = _blocks[0].Width / _scheme.PictureMultiplier;
-            heightBox.Value = _blocks[0].Height / _scheme.PictureMultiplier;
-            fontSizeBox.Value = _blocks[0].FontSize / _scheme.PictureMultiplier;
+            if (_blocks[0].Width == 0)
+            {
+                widthBox.Value = _scheme.Settings.StandartWidth / _scheme.PictureMultiplier;
+                heightBox.Value = _scheme.Settings.StandartHeight / _scheme.PictureMultiplier;
+                fontSizeBox.Value = _scheme.Settings.FontSize / _scheme.PictureMultiplier;
+            }
+            else
+            {
+                widthBox.Value = _blocks[0].Width / _scheme.PictureMultiplier;
+                heightBox.Value = _blocks[0].Height / _scheme.PictureMultiplier;
+                fontSizeBox.Value = _blocks[0].FontSize / _scheme.PictureMultiplier;
+            }
         }
 
         private void acceptButton_Click(object sender, EventArgs e)
@@ -82,6 +104,94 @@ namespace SchemeEditor
                 _blocks[i].Width = (int)widthBox.Value * _scheme.PictureMultiplier;
                 _blocks[i].Height = (int)heightBox.Value * _scheme.PictureMultiplier;
                 _blocks[i].FontSize = (int)fontSizeBox.Value * _scheme.PictureMultiplier;
+            }
+
+            if (_currentType != _startType)
+            {
+                // Был цикл, стал не цикл
+                if (_startType == BlockType.StartLoop)
+                {
+                    _blocks[0].Parent.GetChildIndex(_blocks[0], out int branchIndex, out int index);
+
+                    // Удаляем второй блок цикла
+                    _blocks[0].Parent.RemoveChild(branchIndex, index + 1);
+                }
+                else if (_currentType == BlockType.StartLoop)
+                {
+                    _blocks[0].Parent.GetChildIndex(_blocks[0], out int branchIndex, out int index);
+                    
+                    // TODO :_blocks[0].Parent.AddChild();
+                }
+
+                _blocks[0] = new Block(_currentType, textBlock.Lines, _branchNames.ToArray());
+            }
+
+            if (_currentType == BlockType.Condition)
+            {
+                for (int i = 0; i < branchContainer.Controls.Count; i++)
+                {
+                    _branchNames[i] = ((TextBox) branchContainer.Controls[i]).Text;
+                }
+                _blocks[0].SetBranchNames(_branchNames.ToArray());
+            }
+        }
+
+        private void typeBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (typeBox.SelectedIndex)
+            {
+                case 0: _currentType = BlockType.Condition; break;
+                case 1: _currentType = BlockType.StartLoop; break;
+                case 2: _currentType = BlockType.Default; break;
+                case 3: _currentType = BlockType.PredefProc; break;
+                case 4: _currentType = BlockType.Start; break;
+                default:
+                    throw new ArgumentException();
+            }
+
+            SetBranchNames(_currentType == BlockType.Condition);
+        }
+
+        private void SetBranchNames(bool isShow)
+        {
+            branchContainer.Visible = isShow;
+            branchAddButton.Visible = isShow;
+            branchSubButton.Visible = isShow;
+            label3.Visible = isShow;
+            
+            if (isShow)
+            {
+                branchContainer.Controls.Clear();
+
+                if (_branchNames.Count < 2)
+                    _branchNames = new List<string>() {"", ""};
+
+                int y = 0;
+                for (int i = 0; i < _branchNames.Count; i++)
+                {
+                    TextBox box = new TextBox();
+                    box.Text = _branchNames[i];
+                    box.Font = new Font(box.Font.FontFamily, 12);
+                    box.Location = new Point(0, y - i);
+                    box.Width = branchContainer.ClientSize.Width;
+                    y += box.Height;
+                    branchContainer.Controls.Add(box);
+                }
+            }
+        }
+
+        private void branchAddButton_Click(object sender, EventArgs e)
+        {
+            _branchNames.Add("");
+            SetBranchNames(true);
+        }
+
+        private void branchSubButton_Click(object sender, EventArgs e)
+        {
+            if (_branchNames.Count > 2)
+            {
+                _branchNames.RemoveAt(_branchNames.Count - 1);
+                SetBranchNames(true);
             }
         }
     }

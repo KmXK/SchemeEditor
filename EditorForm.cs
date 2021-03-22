@@ -99,9 +99,19 @@ namespace SchemeEditor
 
         private void AddBlockToScheme(object sender, EventArgs e)
         {
-            // TODO
+            BlockEditingForm beForm = new BlockEditingForm();
+
+            Block block = new Block(BlockType.Default, new string[0], new string[0]);
             
-            
+            beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
+                block);
+            if (beForm.ShowDialog() == DialogResult.OK)
+            {
+                var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
+                selBlock.Parent.GetChildIndex(selBlock, out int branchIndex, out int index);
+                selBlock.Parent.AddChild(block, branchIndex, index + 1);
+                UpdateSchemePicture();
+            }
         }
 
         private void RemoveBlock(object sender, EventArgs e)
@@ -111,12 +121,15 @@ namespace SchemeEditor
 
         private void EditBlock(object sender, EventArgs e)
         {
-            BlockEditingForm beForm = new BlockEditingForm();
-            beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
-                _schemes[tabControl1.SelectedIndex].SelectedBlock);
-            if (beForm.ShowDialog() == DialogResult.OK)
+            if (_schemes[tabControl1.SelectedIndex].SelectedBlock.Type != BlockType.Main)
             {
-                UpdateSchemePicture();
+                BlockEditingForm beForm = new BlockEditingForm();
+                beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
+                    _schemes[tabControl1.SelectedIndex].SelectedBlock);
+                if (beForm.ShowDialog() == DialogResult.OK)
+                {
+                    UpdateSchemePicture();
+                }
             }
         }
 
@@ -161,6 +174,11 @@ namespace SchemeEditor
         {
             ((PictureBox) tabControl1.SelectedTab.Controls["panel"].Controls["pb"]).Image =
                 _schemes[tabControl1.SelectedIndex].DrawScheme();
+            FormResize(this, null);
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {   
             FormResize(this, null);
         }
     }
