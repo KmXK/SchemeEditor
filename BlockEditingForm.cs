@@ -123,7 +123,7 @@ namespace SchemeEditor
                     // TODO :_blocks[0].Parent.AddChild();
                 }
 
-                _blocks[0] = new Block(_currentType, textBlock.Lines, _branchNames.ToArray());
+                _blocks[0].SetData(_currentType, textBlock.Lines, _branchNames.ToArray());
             }
 
             if (_currentType == BlockType.Condition)

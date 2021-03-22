@@ -26,6 +26,11 @@ namespace SchemeEditor
 
         public Block(BlockType type, string[] text, string[] branchNames)
         {
+            SetData(type, text, branchNames);
+        }
+
+        public void SetData(BlockType type, string[] text, string[] branchNames)
+        {
             Type = type;
             Text = text;
             BranchNames = new string[0];
