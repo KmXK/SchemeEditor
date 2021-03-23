@@ -12,6 +12,7 @@ namespace SchemeEditor
     public partial class EditorForm : Form
     {
         private List<Scheme> _schemes;
+        private Scheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
         
         public EditorForm()
         {
@@ -128,7 +129,29 @@ namespace SchemeEditor
 
         private void RemoveBlock(object sender, EventArgs e)
         {
-            
+            var selectedBlock = SelectedScheme.SelectedBlock;
+            if (selectedBlock.Type != BlockType.Main && 
+                selectedBlock.Type != BlockType.End &&
+                selectedBlock.Type != BlockType.Start)
+            {
+                selectedBlock.Parent.GetChildIndex(selectedBlock, out int branchIndex,
+                    out int index);
+
+                if (selectedBlock.Type== BlockType.StartLoop)
+                {
+                    selectedBlock.Parent.RemoveChild(branchIndex, index+1);
+                }
+                else if (selectedBlock.Type == BlockType.EndLoop)
+                {
+                    selectedBlock.Parent.RemoveChild(branchIndex, index-1);
+                }
+                
+                selectedBlock.Parent.RemoveChild(branchIndex, index);
+                
+                SelectedScheme.SelectBlock(SelectedScheme.MainBlock);
+                
+                UpdateSchemePicture();
+            }
         }
 
         private void EditBlock(object sender, EventArgs e)

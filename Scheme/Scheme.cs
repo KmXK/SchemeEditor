@@ -362,7 +362,7 @@ namespace SchemeEditor
                 {
                     int centerSecondColumn = block.GetChildCount(1) > 0
                         ? block.GetChild(1, 0).Position.X + block.GetChild(1, 0).Width / 2
-                        : x + block.ChildrenWidth;
+                        : block.ColumnXs[1];
 
                     Point[] points = new[]
                     {
@@ -423,16 +423,14 @@ namespace SchemeEditor
                     {
                         lastColumnPos = block.Position;
                         lastColumnPos.Y += height + vertInt / 2;
-                        if (block.ColumnCount == 2)
+                        if (block.ColumnCount == 2 && b == 0)
                         {
-                            lastColumnPos.X = block.Position.X;
+                            lastColumnPos.X = block.Position.X + block.Width / 2;
                         }
                         else
                         {
                             lastColumnPos.X = block.ColumnXs[b];
                         }
-                        if (block.ColumnCount == 2 && b == 0)
-                            lastColumnPos.X += block.Width / 2;
                     }
 
                     // Если колонка на одной странице
