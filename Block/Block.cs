@@ -23,7 +23,6 @@ namespace SchemeEditor
         public int FontSize { get; set; }
         #endregion
 
-
         public Block(BlockType type, string[] text, string[] branchNames)
         {
             SetData(type, text, branchNames);

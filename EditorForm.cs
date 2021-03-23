@@ -13,6 +13,8 @@ namespace SchemeEditor
     {
         private List<Scheme> _schemes;
         private Scheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
+
+        private int _columnCount;
         
         public EditorForm()
         {
@@ -90,7 +92,6 @@ namespace SchemeEditor
             tabControl1.SelectedIndex = tabControl1.TabCount - 1;
             
             FormResize(this, null);
-
         }
 
         private void RemoveScheme()
@@ -126,6 +127,8 @@ namespace SchemeEditor
                 selBlock.Parent.RemoveChild(branchIndex, index + (isAfter ? 1 : 0));
             }
         }
+        
+        
 
         private void RemoveBlock(object sender, EventArgs e)
         {
@@ -149,6 +152,7 @@ namespace SchemeEditor
                 selectedBlock.Parent.RemoveChild(branchIndex, index);
                 
                 SelectedScheme.SelectBlock(SelectedScheme.MainBlock);
+                SelectedBlockChanged();
                 
                 UpdateSchemePicture();
             }
@@ -218,6 +222,7 @@ namespace SchemeEditor
             {
                 if (currentScheme.SelectBlockByCoords(pos))
                 {
+                    SelectedBlockChanged();
                     ((SchemePicture) sender).Image = currentScheme.GetBitmap();
                 }
             }
@@ -233,6 +238,74 @@ namespace SchemeEditor
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {   
             FormResize(this, null);
+        }
+
+        private void SelectedBlockChanged()
+        {
+            var selBlock = SelectedScheme.SelectedBlock;
+
+            addBlockInside.Click -= AddBlockInside;
+
+            if (selBlock.ColumnCount == 0)
+            {
+                addBlockInside.Visible = false;
+            }
+            else
+            {
+                addBlockInside.Visible = true;
+                if (selBlock.ColumnCount >= 2 && addBlockInside.DropDownItems.Count != selBlock.ColumnCount)
+                {
+                    addBlockInside.DropDownItems.Clear();
+
+                    for (int i = 0; i < selBlock.ColumnCount; i++)
+                    {
+                        ToolStripMenuItem item = new ToolStripMenuItem();
+                        item.Name = i.ToString();
+                        item.Text = $"Добавить в {i+1} колонку";
+                        item.Click += AddBlockInside;
+                        addBlockInside.DropDownItems.Add(item);
+                    }
+                }
+                else if(selBlock.ColumnCount == 1)
+                {
+                    addBlockInside.DropDownItems.Clear();
+                    addBlockInside.Click += AddBlockInside;
+                }
+            }
+        }
+
+        private void AddBlockInside(object sender, EventArgs eventArgs)
+        {
+            string name = ((ToolStripMenuItem) sender).Name;
+            int branchIndex;
+            if (name == addBlockInside.Name)
+            {
+                branchIndex = 0;
+            }
+            else
+            {
+                branchIndex = Convert.ToInt32(name);
+            }
+
+            var selBlock = SelectedScheme.SelectedBlock;
+
+            var block = new Block(BlockType.Default, new string[0], new string[0]);
+
+            selBlock.AddChild(block, branchIndex, 0);
+            
+            //block.Parent.AddChild();
+
+            var beForm = new BlockEditingForm();
+
+            beForm.SetStartData(_schemes[tabControl1.SelectedIndex], block);
+            if (beForm.ShowDialog() == DialogResult.OK)
+            {
+                UpdateSchemePicture();
+            }
+            else
+            {
+                selBlock.RemoveChild(branchIndex, 0);
+            }
         }
     }
 }

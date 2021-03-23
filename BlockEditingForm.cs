@@ -102,11 +102,11 @@ namespace SchemeEditor
         private void acceptButton_Click(object sender, EventArgs e)
         {
             _blocks[0].Text = textBlock.Lines;
-            for (int i = 0; i < _blocks.Count; i++)
+            foreach (var block in _blocks)
             {
-                _blocks[i].Width = (int)widthBox.Value * _scheme.PictureMultiplier;
-                _blocks[i].Height = (int)heightBox.Value * _scheme.PictureMultiplier;
-                _blocks[i].FontSize = (int)fontSizeBox.Value * _scheme.PictureMultiplier;
+                block.Width = (int)widthBox.Value * _scheme.PictureMultiplier;
+                block.Height = (int)heightBox.Value * _scheme.PictureMultiplier;
+                block.FontSize = (int)fontSizeBox.Value * _scheme.PictureMultiplier;
             }
 
             if (_currentType != _startType)
@@ -216,9 +216,14 @@ namespace SchemeEditor
                 {
                     _branchNames.Clear();
                 }
-                else if(_branchNames.Count > 1)
+                else
                 {
-                    _branchNames = new List<string>() {_branchNames[0]};
+                    if(_branchNames.Count > 0)
+                        _branchNames = new List<string>() {_branchNames[0]};
+                    else
+                    {
+                        _branchNames = new List<string>() {""};
+                    }
                 }
             }
         }

@@ -36,6 +36,7 @@
             this.добавитьБлокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.послеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.доToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addBlockInside = new System.Windows.Forms.ToolStripMenuItem();
             this.удалитьБлокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.изменитьБлокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.настройкиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,12 +48,12 @@
             // 
             this.tabControl1.Alignment = System.Windows.Forms.TabAlignment.Bottom;
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 24);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
+            this.tabControl1.Location = new System.Drawing.Point(0, 28);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(784, 537);
+            this.tabControl1.Size = new System.Drawing.Size(1045, 662);
             this.tabControl1.TabIndex = 0;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             // 
@@ -61,81 +62,88 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.файлToolStripMenuItem, this.редактироватьToolStripMenuItem, this.настройкиToolStripMenuItem, this.помощьToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(784, 24);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(1045, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // файлToolStripMenuItem
             // 
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
-            this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.файлToolStripMenuItem.Size = new System.Drawing.Size(57, 24);
             this.файлToolStripMenuItem.Text = "Файл";
             // 
             // редактироватьToolStripMenuItem
             // 
             this.редактироватьToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.добавитьБлокToolStripMenuItem, this.удалитьБлокToolStripMenuItem, this.изменитьБлокToolStripMenuItem});
             this.редактироватьToolStripMenuItem.Name = "редактироватьToolStripMenuItem";
-            this.редактироватьToolStripMenuItem.Size = new System.Drawing.Size(99, 20);
+            this.редактироватьToolStripMenuItem.Size = new System.Drawing.Size(123, 24);
             this.редактироватьToolStripMenuItem.Text = "Редактировать";
             // 
             // добавитьБлокToolStripMenuItem
             // 
-            this.добавитьБлокToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.послеToolStripMenuItem, this.доToolStripMenuItem});
+            this.добавитьБлокToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.послеToolStripMenuItem, this.доToolStripMenuItem, this.addBlockInside});
             this.добавитьБлокToolStripMenuItem.Name = "добавитьБлокToolStripMenuItem";
-            this.добавитьБлокToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.добавитьБлокToolStripMenuItem.Size = new System.Drawing.Size(184, 24);
             this.добавитьБлокToolStripMenuItem.Text = "Добавить блок";
             // 
             // послеToolStripMenuItem
             // 
             this.послеToolStripMenuItem.Name = "послеToolStripMenuItem";
-            this.послеToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.послеToolStripMenuItem.Size = new System.Drawing.Size(152, 24);
             this.послеToolStripMenuItem.Text = "После";
             this.послеToolStripMenuItem.Click += new System.EventHandler(this.AddBlock);
             // 
             // доToolStripMenuItem
             // 
             this.доToolStripMenuItem.Name = "доToolStripMenuItem";
-            this.доToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.доToolStripMenuItem.Size = new System.Drawing.Size(152, 24);
             this.доToolStripMenuItem.Text = "До";
             this.доToolStripMenuItem.Click += new System.EventHandler(this.AddBlock);
+            // 
+            // addBlockInside
+            // 
+            this.addBlockInside.Name = "addBlockInside";
+            this.addBlockInside.Size = new System.Drawing.Size(152, 24);
+            this.addBlockInside.Text = "Внутрь";
             // 
             // удалитьБлокToolStripMenuItem
             // 
             this.удалитьБлокToolStripMenuItem.Name = "удалитьБлокToolStripMenuItem";
-            this.удалитьБлокToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.удалитьБлокToolStripMenuItem.Size = new System.Drawing.Size(184, 24);
             this.удалитьБлокToolStripMenuItem.Text = "Удалить блок";
             this.удалитьБлокToolStripMenuItem.Click += new System.EventHandler(this.RemoveBlock);
             // 
             // изменитьБлокToolStripMenuItem
             // 
             this.изменитьБлокToolStripMenuItem.Name = "изменитьБлокToolStripMenuItem";
-            this.изменитьБлокToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.изменитьБлокToolStripMenuItem.Size = new System.Drawing.Size(184, 24);
             this.изменитьБлокToolStripMenuItem.Text = "Изменить блок";
             this.изменитьБлокToolStripMenuItem.Click += new System.EventHandler(this.EditBlock);
             // 
             // настройкиToolStripMenuItem
             // 
             this.настройкиToolStripMenuItem.Name = "настройкиToolStripMenuItem";
-            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
+            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(96, 24);
             this.настройкиToolStripMenuItem.Text = "Настройки";
             // 
             // помощьToolStripMenuItem
             // 
             this.помощьToolStripMenuItem.Name = "помощьToolStripMenuItem";
-            this.помощьToolStripMenuItem.Size = new System.Drawing.Size(68, 20);
+            this.помощьToolStripMenuItem.Size = new System.Drawing.Size(81, 24);
             this.помощьToolStripMenuItem.Text = "Помощь";
             // 
             // EditorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(784, 561);
+            this.ClientSize = new System.Drawing.Size(1045, 690);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(2);
-            this.MinimumSize = new System.Drawing.Size(400, 400);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.MinimumSize = new System.Drawing.Size(527, 482);
             this.Name = "EditorForm";
             this.ShowIcon = false;
             this.Text = "SchemeEditor";
@@ -145,6 +153,8 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.ToolStripMenuItem addBlockInside;
 
         private System.Windows.Forms.ToolStripMenuItem доToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem послеToolStripMenuItem;

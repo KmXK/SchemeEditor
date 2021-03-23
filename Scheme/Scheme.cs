@@ -584,8 +584,9 @@ namespace SchemeEditor
                     var child = block.GetChild(branchIndex, i);
                     child.Position = childPos;
 
+                    int x = childPos.X;
                     CalculateBlockCoords(child, out childPos, ref childIndexPage);
-                    
+                    childPos.X = x;
                     // Если позиция центра другая
                     
                     if (i != block.GetChildCount(branchIndex) - 1)
@@ -639,7 +640,8 @@ namespace SchemeEditor
                     ShiftBlockWithChildren(block, delta);
                 }
             }
-            else if (block.ColumnCount > 0 && block.GetChildCount(0) > 0)
+            else if (block.ColumnCount > 0 && block.GetChildCount(0) > 0 &&
+                     block.Type != BlockType.Main)
             {
                 var firstChild = block.GetChild(0, 0);
 
@@ -654,7 +656,7 @@ namespace SchemeEditor
         private int AlignColumn(Block block, int branchIndex)
         {
             int centerX = 0;
-            if(block.ColumnCount<=2 && branchIndex == 0)
+            if(block.ColumnCount<=2 && branchIndex == 0 && block.Type != BlockType.Main)
                 centerX = block.Position.X + block.Width / 2;
 
             for (int i = 0; i < block.GetChildCount(branchIndex); i++)
