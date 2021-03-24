@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using SchemeEditor.Blocks;
 
-namespace SchemeEditor
+namespace SchemeEditor.Schemes
 {
     public class Scheme
     {

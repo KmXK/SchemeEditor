@@ -36,7 +36,7 @@
             this.createEmptyScheme = new System.Windows.Forms.ToolStripMenuItem();
             this.createSchemeFromCode = new System.Windows.Forms.ToolStripMenuItem();
             this.openScheme = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveScheme = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSchemeAs = new System.Windows.Forms.ToolStripMenuItem();
             this.closeScheme = new System.Windows.Forms.ToolStripMenuItem();
             this.редактироватьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -80,7 +80,7 @@
             // 
             // файлToolStripMenuItem
             // 
-            this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.создатьСхемуToolStripMenuItem, this.openScheme, this.toolStripMenuItem1, this.saveSchemeAs, this.closeScheme});
+            this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.создатьСхемуToolStripMenuItem, this.openScheme, this.saveScheme, this.saveSchemeAs, this.closeScheme});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             this.файлToolStripMenuItem.Size = new System.Drawing.Size(57, 24);
             this.файлToolStripMenuItem.Text = "Файл";
@@ -113,13 +113,13 @@
             this.openScheme.Text = "Открыть схему";
             this.openScheme.Click += new System.EventHandler(this.openScheme_Click);
             // 
-            // toolStripMenuItem1
+            // saveScheme
             // 
-            this.toolStripMenuItem1.Enabled = false;
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 24);
-            this.toolStripMenuItem1.Text = "Сохранить";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            this.saveScheme.Enabled = false;
+            this.saveScheme.Name = "saveScheme";
+            this.saveScheme.Size = new System.Drawing.Size(180, 24);
+            this.saveScheme.Text = "Сохранить";
+            this.saveScheme.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // saveSchemeAs
             // 
@@ -258,7 +258,7 @@
         private System.Windows.Forms.ToolStripMenuItem createSchemeFromCode;
         private System.Windows.Forms.ToolStripMenuItem openScheme;
         private System.Windows.Forms.ToolStripMenuItem saveSchemeAs;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem saveScheme;
         private System.Windows.Forms.ToolStripMenuItem создатьСхемуToolStripMenuItem;
 
         private System.Windows.Forms.Button zoomPlusButton;

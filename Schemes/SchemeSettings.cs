@@ -1,4 +1,4 @@
-﻿namespace SchemeEditor
+﻿namespace SchemeEditor.Schemes
 {
     public struct SchemeSettings
     {
