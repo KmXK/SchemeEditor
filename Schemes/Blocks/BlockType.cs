@@ -1,4 +1,4 @@
-﻿namespace SchemeEditor.Blocks
+﻿namespace SchemeEditor.Schemes.Blocks
 {
     public enum BlockType
     {

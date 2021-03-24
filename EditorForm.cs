@@ -6,7 +6,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using SchemeEditor.Blocks;
+using SchemeEditor.Schemes.Blocks;
 using SchemeEditor.Schemes;
 
 namespace SchemeEditor

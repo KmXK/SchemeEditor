@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SchemeEditor.Blocks
+namespace SchemeEditor.Schemes.Blocks
 {
     public struct BlockPosition
     {

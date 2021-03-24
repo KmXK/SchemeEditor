@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using SchemeEditor.Blocks;
+using SchemeEditor.Schemes.Blocks;
 
 namespace SchemeEditor.Schemes
 {
