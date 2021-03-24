@@ -61,6 +61,7 @@
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SchemePicture.cs" />
+        <Compile Include="Schemes\Blocks\Arrow.cs" />
         <Compile Include="Schemes\Blocks\Block.cs" />
         <Compile Include="Schemes\Blocks\BlockPosition.cs" />
         <Compile Include="Schemes\Blocks\BlockType.cs" />

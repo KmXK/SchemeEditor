@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Linq;
 using SchemeEditor.Schemes.Blocks;
 
 namespace SchemeEditor.Schemes
@@ -14,6 +15,7 @@ namespace SchemeEditor.Schemes
         public readonly int PictureMultiplier = 5;
         
         private List<ConnectorPair> _connectorPairs;
+        private List<Arrow> _arrows;
         
         private SchemeSettings _settings;
 
@@ -158,6 +160,7 @@ namespace SchemeEditor.Schemes
                 _settings.PageOffset
             );
             _connectorPairs = new List<ConnectorPair>();
+            _arrows = new List<Arrow>();
             
             // Просчёт расположения блоков
             int blockIndexPage = 0;
@@ -172,6 +175,7 @@ namespace SchemeEditor.Schemes
 
             DrawBlock(_mainBlock, pen);
             DrawConnectors(pen);
+            DrawArrows(pen);
 
             // Удаление вспомогательных средств
             for (int i = 0; i < _bitmaps.Length; i++)
@@ -335,6 +339,23 @@ namespace SchemeEditor.Schemes
                     };
                     graphics.DrawLines(pen, points);
                     break;
+                case BlockType.PredefProc:
+                    points = new[]
+                    {
+                        new Point(x, y),
+                        new Point(x + width, y),
+                        new Point(x + width, y + height),
+                        new Point(x, y + height),
+                        new Point(x, y),
+                        new Point(x + width, y)
+                    };
+                    
+                    graphics.DrawLines(pen, points);
+
+                    graphics.DrawLine(pen, x + width / 10, y, x + width / 10, y + height);
+                    graphics.DrawLine(pen, x + 9 * width / 10, y, x +  9 *width / 10, y + height);
+                    
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -371,12 +392,12 @@ namespace SchemeEditor.Schemes
 
             if (block.Type != BlockType.Start)
             {
-                DrawLine(graphics, pen,x + width / 2, y, x + width / 2, y - vertInt / 2);
+                DrawStraightLine(graphics, pen,x + width / 2, y, x + width / 2, y - vertInt / 2);
             }
 
             if (block.Type != BlockType.End)
             {
-                DrawLine(graphics, pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
+                DrawStraightLine(graphics, pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
             }
 
             if (block.ColumnCount > 1)
@@ -395,9 +416,9 @@ namespace SchemeEditor.Schemes
                         new Point(centerSecondColumn, y + height + vertInt / 2)
                     };
 
-                    DrawLines(graphics, pen, points);
+                    DrawStraightLines(graphics, pen, points);
 
-                    DrawLine(_graphics[block.EndPosition.PageIndex], pen, x + width / 2 - (int) pen.Width / 2,
+                    DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen, x + width / 2 - (int) pen.Width / 2,
                         block.EndPosition.Y + vertInt / 2, centerSecondColumn + (int) pen.Width / 2,
                         block.EndPosition.Y + vertInt / 2);
                 }
@@ -420,7 +441,7 @@ namespace SchemeEditor.Schemes
                         new Point(lastColumnCenter, y + height + vertInt),
                     };
 
-                    DrawLines(graphics, pen, points);
+                    DrawStraightLines(graphics, pen, points);
 
                     points = new[]
                     {
@@ -428,7 +449,7 @@ namespace SchemeEditor.Schemes
                         new Point(lastColumnCenter + (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2)
                     };
 
-                    DrawLines(_graphics[block.EndPosition.PageIndex], pen, points);
+                    DrawStraightLines(_graphics[block.EndPosition.PageIndex], pen, points);
                 }
 
                 // Дополнение колонок
@@ -460,7 +481,7 @@ namespace SchemeEditor.Schemes
                     // Если колонка на одной странице
                     if (lastColumnPos.PageIndex == block.EndPosition.PageIndex)
                     {
-                        DrawLine(_graphics[lastColumnPos.PageIndex], pen, lastColumnPos.X, lastColumnPos.Y,
+                        DrawStraightLine(_graphics[lastColumnPos.PageIndex], pen, lastColumnPos.X, lastColumnPos.Y,
                             lastColumnPos.X,
                             block.EndPosition.Y + vertInt / 2 + (int) pen.Width / 2);
                     }
@@ -471,11 +492,11 @@ namespace SchemeEditor.Schemes
                         {
                             var lastChild = block.GetChild(b, block.GetChildCount(b) - 1);
 
-                            DrawLine(graphics, pen, lastColumnPos.X, lastColumnPos.Y,
+                            DrawStraightLine(graphics, pen, lastColumnPos.X, lastColumnPos.Y,
                                 lastColumnPos.X,
                                 _pageHeights[lastChild.EndPosition.PageIndex] + _settings.VerticalInterval / 2);
 
-                            DrawLine(_graphics[block.EndPosition.PageIndex], pen,
+                            DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen,
                                 lastColumnPos.X, block.EndPosition.Y + _settings.VerticalInterval / 2, lastColumnPos.X,
                                 _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
                             );
@@ -504,18 +525,76 @@ namespace SchemeEditor.Schemes
             graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
 
-        private void DrawLine(Graphics graphics, Pen pen, int x1, int y1, int x2, int y2)
+        private void DrawStraightLine(Graphics graphics, Pen pen, int x1, int y1, int x2, int y2)
         {
             graphics.SmoothingMode = SmoothingMode.None;
             graphics.DrawLine(pen, x1,y1,x2,y2);
             graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
 
-        private void DrawLines(Graphics graphics, Pen pen, Point[] points)
+        private void DrawStraightLines(Graphics graphics, Pen pen, Point[] points)
         {
             graphics.SmoothingMode = SmoothingMode.None;
             graphics.DrawLines(pen, points);
             graphics.SmoothingMode = SmoothingMode.HighQuality;
+        }
+
+        private void DrawArrows(Pen pen)
+        {
+            for (int i = 0; i < _arrows.Count; i++)
+            {
+                var arrow = _arrows[i];
+
+                var colorUnderArrow = _bitmaps[arrow.Position.PageIndex].GetPixel(arrow.Position.X,
+                    arrow.Position.Y + 2 * PictureMultiplier);
+
+                if(_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
+                    _arrows.RemoveAt(i--);
+                else if(!arrow.CanBeHidden || 
+                        colorUnderArrow.ToString()!="ff000000")
+                {
+                    int length = 10 * PictureMultiplier;
+                    var angle = 25 * Math.PI / 180;
+                    var points = new PointF[3]
+                    {
+                        new PointF(arrow.Position.X - pen.Width / 2, arrow.Position.Y),
+                        new PointF(arrow.Position.X, arrow.Position.Y),
+                        new PointF(arrow.Position.X, arrow.Position.Y)
+                    };
+
+                    switch (arrow.Direction)
+                    {
+                        case Arrow.ArrowDirection.Right:
+                            points[0].X -= length * (float)Math.Cos(angle);
+                            points[0].Y += length * (float)Math.Sin(angle);
+                            
+                            points[2].X -= length * (float)Math.Cos(angle);
+                            points[2].Y -= length * (float)Math.Sin(angle);
+                            break;
+                        case Arrow.ArrowDirection.Left:
+                            points[0].X += length * (float)Math.Cos(angle);
+                            points[0].Y -= length * (float)Math.Sin(angle);
+
+                            points[2].X += length * (float)Math.Cos(angle);
+                            points[2].Y += length * (float)Math.Sin(angle);
+                            break;
+                        case Arrow.ArrowDirection.Down:
+                            points[0].X += length * (float)Math.Sin(angle);
+                            points[0].Y -= length * (float)Math.Cos(angle);
+                            
+                            points[2].X -= length * (float)Math.Sin(angle);
+                            points[2].Y -= length * (float)Math.Cos(angle);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+
+                    var graphics = _graphics[arrow.Position.PageIndex];
+
+                    graphics.DrawLine(pen, points[0], points[1]);
+                    graphics.DrawLine(pen, points[1], points[2]);
+                }
+            }
         }
 
         #endregion
@@ -533,12 +612,12 @@ namespace SchemeEditor.Schemes
                 
 
                 firstGraph.DrawEllipse(pen, pair.X, pair.FirstConY, _settings.ConnectorSize, _settings.ConnectorSize);
-                DrawLine(firstGraph, pen, pair.X + _settings.ConnectorSize / 2, pair.FirstConY,
+                DrawStraightLine(firstGraph, pen, pair.X + _settings.ConnectorSize / 2, pair.FirstConY,
                     pair.X + _settings.ConnectorSize / 2, pair.FirstConY - _settings.VerticalInterval / 2);
 
                 secondGraph.DrawEllipse(pen, pair.X, _settings.PageOffset, _settings.ConnectorSize,
                     _settings.ConnectorSize);
-                DrawLine(secondGraph, pen,
+                DrawStraightLine(secondGraph, pen,
                     pair.X + _settings.ConnectorSize / 2,
                     _settings.PageOffset + _settings.ConnectorSize,
                     pair.X + _settings.ConnectorSize / 2,
@@ -572,6 +651,7 @@ namespace SchemeEditor.Schemes
 
             block.ChildrenWidth = 0;
 
+            
             for (int branchIndex = 0; branchIndex < block.ColumnCount; branchIndex++)
             {
                 BlockPosition childPos = startChildPos;
@@ -647,6 +727,7 @@ namespace SchemeEditor.Schemes
                 block.ChildrenWidth += deltaColumnX;
             }
 
+            
             if (block.ColumnCount > 2)
             {
                 var pos = block.Position;
@@ -673,8 +754,37 @@ namespace SchemeEditor.Schemes
                 pos.X = firstChild.Position.X + firstChild.Width / 2 - block.Width / 2;
                 block.Position = pos;
             }
-
+            
             block.EndPosition = lastPosition;
+            
+            
+            // Добавление стрелок
+            if(block.ColumnCount == 2)
+            {
+                if(block.GetChildCount(1) > 0)
+                {
+                    var child = block.GetChild(1, 0);
+                    _arrows.Add(new Arrow(
+                        new BlockPosition(
+                            child.Position.PageIndex,
+                            child.Position.X + child.Width / 2,
+                            child.Position.Y
+                        ),
+                        Arrow.ArrowDirection.Down,
+                        false
+                    ));
+                }
+                
+                _arrows.Add(new Arrow(
+                    new BlockPosition(
+                        block.EndPosition.PageIndex,
+                        block.Position.X + block.Width / 2,
+                        block.EndPosition.Y + _settings.VerticalInterval / 2
+                    ),
+                    Arrow.ArrowDirection.Left,
+                    true
+                ));
+            }
         }
 
         private int AlignColumn(Block block, int branchIndex)
@@ -734,6 +844,7 @@ namespace SchemeEditor.Schemes
                 }
             }
         }
+        
         #endregion
         
         #region Selection
