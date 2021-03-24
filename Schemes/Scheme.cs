@@ -400,7 +400,7 @@ namespace SchemeEditor.Schemes
                 DrawStraightLine(graphics, pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
             }
 
-            if (block.ColumnCount > 1)
+            /*if (block.ColumnCount > 1)
             {
                 // If
                 if (block.ColumnCount == 2)
@@ -500,17 +500,18 @@ namespace SchemeEditor.Schemes
                                 lastColumnPos.X, block.EndPosition.Y + _settings.VerticalInterval / 2, lastColumnPos.X,
                                 _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
                             );
-                            
-                            _connectorPairs.Add(
+                                
+                            // TODO
+                            /*_connectorPairs.Add(
                                 new ConnectorPair(
-                                    
+
                                     lastChild.EndPosition.PageIndex,
                                     block.EndPosition.PageIndex,
-                                    _pageHeights[lastChild.EndPosition.PageIndex]+_settings.VerticalInterval,
+                                    _pageHeights[lastChild.EndPosition.PageIndex] + _settings.VerticalInterval,
                                     lastColumnPos.X - _settings.ConnectorSize / 2
-                                    
-                                    )
-                                );
+
+                                )
+                            );#1#
                         }
                         else
                         {
@@ -520,9 +521,35 @@ namespace SchemeEditor.Schemes
                         }
                     }
                 }
+            }*/
+            
+            // Добавление стрелок
+            if(block.ColumnCount == 2)
+            {
+                if(block.GetChildCount(1) > 0)
+                {
+                    var child = block.GetChild(1, 0);
+                    _arrows.Add(new Arrow(
+                        new BlockPosition(
+                            child.Position.PageIndex,
+                            child.Position.X + child.Width / 2,
+                            child.Position.Y
+                        ),
+                        Arrow.ArrowDirection.Down,
+                        false
+                    ));
+                }
+                
+                _arrows.Add(new Arrow(
+                    new BlockPosition(
+                        block.EndPosition.PageIndex,
+                        block.Position.X + block.Width / 2,
+                        block.EndPosition.Y + _settings.VerticalInterval / 2
+                    ),
+                    Arrow.ArrowDirection.Left,
+                    true
+                ));
             }
-
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
 
         private void DrawStraightLine(Graphics graphics, Pen pen, int x1, int y1, int x2, int y2)
@@ -547,11 +574,13 @@ namespace SchemeEditor.Schemes
 
                 var colorUnderArrow = _bitmaps[arrow.Position.PageIndex].GetPixel(arrow.Position.X,
                     arrow.Position.Y + 2 * PictureMultiplier);
+                
+                
 
                 if(_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
                     _arrows.RemoveAt(i--);
-                else if(!arrow.CanBeHidden || 
-                        colorUnderArrow.ToString()!="ff000000")
+                else if (!arrow.CanBeHidden ||
+                         colorUnderArrow.Name == "ff000000")
                 {
                     int length = 10 * PictureMultiplier;
                     var angle = 25 * Math.PI / 180;
@@ -606,23 +635,26 @@ namespace SchemeEditor.Schemes
             for (int c = 0; c < _connectorPairs.Count; c++)
             {
                 var pair = _connectorPairs[c];
+
+                var pos1 = pair.Connector1.Position;
+                var pos2 = pair.Connector2.Position;
                 
-                var firstGraph = _graphics[pair.FirstPage];
-                var secondGraph = _graphics[pair.SecondPage];
+                var firstGraph = _graphics[pos1.PageIndex];
+                var secondGraph = _graphics[pos2.PageIndex];
                 
 
-                firstGraph.DrawEllipse(pen, pair.X, pair.FirstConY, _settings.ConnectorSize, _settings.ConnectorSize);
-                DrawStraightLine(firstGraph, pen, pair.X + _settings.ConnectorSize / 2, pair.FirstConY,
-                    pair.X + _settings.ConnectorSize / 2, pair.FirstConY - _settings.VerticalInterval / 2);
+                firstGraph.DrawEllipse(pen, pos1.X, pos1.Y, _settings.ConnectorSize, _settings.ConnectorSize);
+                /*DrawStraightLine(firstGraph, pen, pos1.X + _settings.ConnectorSize / 2, pair.FirstConY,
+                    pair.X + _settings.ConnectorSize / 2, pair.FirstConY - _settings.VerticalInterval / 2);*/
 
-                secondGraph.DrawEllipse(pen, pair.X, _settings.PageOffset, _settings.ConnectorSize,
+                secondGraph.DrawEllipse(pen, pos2.X, pos2.Y, _settings.ConnectorSize,
                     _settings.ConnectorSize);
-                DrawStraightLine(secondGraph, pen,
+                /*DrawStraightLine(secondGraph, pen,
                     pair.X + _settings.ConnectorSize / 2,
                     _settings.PageOffset + _settings.ConnectorSize,
                     pair.X + _settings.ConnectorSize / 2,
                     _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
-                );
+                );*/
                 
             }
         }
@@ -646,9 +678,7 @@ namespace SchemeEditor.Schemes
 
             lastPosition = block.Position;
             lastPosition.Y += block.Height;
-
             int firstChildBlockIndexPage = blockIndexPage + 1;
-
             block.ChildrenWidth = 0;
 
             
@@ -665,13 +695,35 @@ namespace SchemeEditor.Schemes
                     if (childIndexPage >= _settings.BlocksOnPage &&
                         block.GetChild(branchIndex, i).Type != BlockType.End)
                     {
-                        _connectorPairs.Add(
+                        // TODO:
+                        /*_connectorPairs.Add(
                             new ConnectorPair(
                                 childPos.PageIndex,
                                 childPos.PageIndex + 1,
                                 childPos.Y,
                                 block.GetChild(branchIndex, i),
                                 block.GetChild(branchIndex, i).Width / 2 - _settings.ConnectorSize / 2)
+                        );*/
+                        _connectorPairs.Add(
+                            new ConnectorPair(
+
+                                new Connector(
+                                    Connector.ConnectorType.AtTheEndOfThePage,
+                                    _settings,
+                                    childPos.PageIndex,
+                                    block.GetChild(branchIndex, i),
+                                    _pageHeights[childPos.PageIndex] +
+                                    _settings.VerticalInterval
+                                ),
+                                new Connector(
+                                    Connector.ConnectorType.AtTheStartOfThePage,
+                                    _settings,
+                                    childPos.PageIndex + 1,
+                                    block.GetChild(branchIndex, i),
+                                    _settings.PageOffset
+                                )
+
+                            )
                         );
                         
                         childIndexPage = 2;
@@ -727,7 +779,7 @@ namespace SchemeEditor.Schemes
                 block.ChildrenWidth += deltaColumnX;
             }
 
-            
+            // Сдвиги блоков
             if (block.ColumnCount > 2)
             {
                 var pos = block.Position;
@@ -756,35 +808,6 @@ namespace SchemeEditor.Schemes
             }
             
             block.EndPosition = lastPosition;
-            
-            
-            // Добавление стрелок
-            if(block.ColumnCount == 2)
-            {
-                if(block.GetChildCount(1) > 0)
-                {
-                    var child = block.GetChild(1, 0);
-                    _arrows.Add(new Arrow(
-                        new BlockPosition(
-                            child.Position.PageIndex,
-                            child.Position.X + child.Width / 2,
-                            child.Position.Y
-                        ),
-                        Arrow.ArrowDirection.Down,
-                        false
-                    ));
-                }
-                
-                _arrows.Add(new Arrow(
-                    new BlockPosition(
-                        block.EndPosition.PageIndex,
-                        block.Position.X + block.Width / 2,
-                        block.EndPosition.Y + _settings.VerticalInterval / 2
-                    ),
-                    Arrow.ArrowDirection.Left,
-                    true
-                ));
-            }
         }
 
         private int AlignColumn(Block block, int branchIndex)

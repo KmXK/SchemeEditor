@@ -1,50 +1,14 @@
 ﻿namespace SchemeEditor.Schemes.Blocks
 {
-    public struct ConnectorPair
+    public class ConnectorPair
     {
-        public int FirstPage { get; private set; }
-        public int FirstConY { get; private set; }
-        public int SecondPage { get; private set; }
+        public Connector Connector1 { get; private set; }  
+        public Connector Connector2 { get; private set; }
 
-        public int X
+        public ConnectorPair(Connector connector1, Connector connector2)
         {
-            get
-            {
-                if (_blockNearConnector == null)
-                {
-                    return _x;
-                }
-                else
-                {
-                    return _blockNearConnector.Position.X + _shiftX;
-                }
-            }
-        }
-        
-        private Block _blockNearConnector;
-        private int _x;
-        private int _shiftX;
-        
-        public ConnectorPair(int firstPage, int secondPage, int firstConY, Block block, int shiftX)
-        {
-            this.FirstPage = firstPage;
-            this.FirstConY = firstConY;
-            this.SecondPage = secondPage;
-            this._blockNearConnector = block;
-            this._shiftX = shiftX;
-
-            this._x = 0;
-        }
-        
-        public ConnectorPair(int firstPage, int secondPage, int firstConY, int x)
-        {
-            this.FirstPage = firstPage;
-            this.FirstConY = firstConY;
-            this.SecondPage = secondPage;
-            this._x = x;
-
-            this._blockNearConnector = null;
-            _shiftX = 0;
+            Connector1 = connector1;
+            Connector2 = connector2;
         }
     }
 }

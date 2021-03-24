@@ -65,6 +65,7 @@
         <Compile Include="Schemes\Blocks\Block.cs" />
         <Compile Include="Schemes\Blocks\BlockPosition.cs" />
         <Compile Include="Schemes\Blocks\BlockType.cs" />
+        <Compile Include="Schemes\Blocks\Connector.cs" />
         <Compile Include="Schemes\Blocks\ConnectorPair.cs" />
         <Compile Include="Schemes\Scheme.cs" />
         <Compile Include="Schemes\SchemeSettings.cs" />

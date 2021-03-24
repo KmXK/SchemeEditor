@@ -30,7 +30,7 @@ namespace SchemeEditor
 
             _defaultSettings = new SchemeSettings()
             {
-                BlocksOnPage = 10,
+                BlocksOnPage = 3,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
                 PagesInterval = 50,
