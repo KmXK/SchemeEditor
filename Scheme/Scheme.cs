@@ -42,7 +42,7 @@ namespace SchemeEditor
             start.FontSize = _settings.FontSize;
             _mainBlock.AddChild(start, 0,0);
             
-            Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
+            /*Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             bigIf.Width = _settings.StandartWidth;
             bigIf.Height = _settings.StandartHeight;
             bigIf.FontSize = _settings.FontSize;
@@ -96,13 +96,13 @@ namespace SchemeEditor
             someBlock3.Width = _settings.StandartWidth;
             someBlock3.Height = _settings.StandartHeight;
             someBlock3.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(someBlock3, 0, 2);
+            _mainBlock.AddChild(someBlock3, 0, 2);*/
             
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
             end.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(end, 0,3);
+            _mainBlock.AddChild(end, 0,1);
 
             SelectedBlock = _mainBlock;
         }
@@ -309,7 +309,30 @@ namespace SchemeEditor
                     graphics.DrawLines(pen, points);
                     break;
                 case BlockType.StartLoop:
+                    points = new[]
+                    {
+                        new Point(x, y + height / 3),
+                        new Point(x + height/3, y),
+                        new Point(x + width - height/3, y),
+                        new Point(x + width, y + height / 3),
+                        new Point(x + width, y + height),
+                        new Point(x, y + height),
+                        new Point(x, y+height/3)
+                    };
+                    graphics.DrawLines(pen, points);
+                    break;
                 case BlockType.EndLoop:
+                    points = new[]
+                    {
+                        new Point(x,y),
+                        new Point(x+width,y),
+                        new Point(x+width, y+2*height/3),
+                        new Point(x+width-height/3, y+height),
+                        new Point(x+height/3, y+height),
+                        new Point(x,y+2*height/3),
+                        new Point(x,y)
+                    };
+                    graphics.DrawLines(pen, points);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

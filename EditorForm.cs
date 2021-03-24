@@ -14,7 +14,11 @@ namespace SchemeEditor
         private List<Scheme> _schemes;
         private Scheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
 
+        private float _zoomMultiplier = 1f;
+
         private int _columnCount;
+
+        private SchemeSettings _defaultSettings;
         
         public EditorForm()
         {
@@ -22,7 +26,7 @@ namespace SchemeEditor
 
             _schemes = new List<Scheme>(0);
 
-            SchemeSettings settings = new SchemeSettings()
+            _defaultSettings = new SchemeSettings()
             {
                 BlocksOnPage = 10,
                 HorizontalInterval =  50,
@@ -35,16 +39,9 @@ namespace SchemeEditor
                 FontSize = 16
             };
 
-            Scheme scheme = new Scheme(settings);
+            Scheme scheme = new Scheme(_defaultSettings);
             
             AddScheme(scheme);
-            AddScheme(scheme);
-            
-            //Bitmap[] bitmaps = scheme.DrawSchemePages();
-            Bitmap bitmap = scheme.DrawScheme();
-            bitmap.Save("SomeFolder/bitmap.bmp");
-            
-            //SaveSchemePictures(bitmaps);
         }
 
         private void SaveBitmaps(Bitmap[] bitmaps)
@@ -86,12 +83,11 @@ namespace SchemeEditor
             tabControl1.Controls.Add(tabPage);
 
             _schemes.Add(scheme);
-            pictureBox.Image = scheme.DrawScheme();
             pictureBox.MouseDown += SchemeMouseDown;
 
             tabControl1.SelectedIndex = tabControl1.TabCount - 1;
             
-            FormResize(this, null);
+            UpdateSchemePicture();
         }
 
         private void RemoveScheme()
@@ -103,10 +99,17 @@ namespace SchemeEditor
         {
             bool isAfter = ((ToolStripMenuItem) sender).Name.Contains("после");
             
+            
             var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
-            if (selBlock.Type == BlockType.Main || 
+            if (selBlock.Type == BlockType.Main || (!isAfter && selBlock.Type == BlockType.EndLoop) ||
                 (isAfter ? selBlock.Type == BlockType.End : selBlock.Type == BlockType.Start))
                 return;
+
+            if (isAfter && selBlock.Type == BlockType.StartLoop)
+            {
+                AddBlockInside(new ToolStripMenuItem(""){Name = "0"}, null);
+                return;
+            }
             
             BlockEditingForm beForm = new BlockEditingForm();
 
@@ -127,8 +130,6 @@ namespace SchemeEditor
                 selBlock.Parent.RemoveChild(branchIndex, index + (isAfter ? 1 : 0));
             }
         }
-        
-        
 
         private void RemoveBlock(object sender, EventArgs e)
         {
@@ -147,6 +148,7 @@ namespace SchemeEditor
                 else if (selectedBlock.Type == BlockType.EndLoop)
                 {
                     selectedBlock.Parent.RemoveChild(branchIndex, index-1);
+                    index--;
                 }
                 
                 selectedBlock.Parent.RemoveChild(branchIndex, index);
@@ -175,7 +177,7 @@ namespace SchemeEditor
                 else if (selBlock.Type == BlockType.EndLoop)
                 {
                     beForm.SetStartData(_schemes[tabControl1.SelectedIndex],
-                        selBlock, selBlock.Parent.GetChild(branchIndex, index - 1));
+                         selBlock.Parent.GetChild(branchIndex, index - 1), selBlock);
                 }
                 else
                 {
@@ -203,10 +205,28 @@ namespace SchemeEditor
             
             panel.Size = tabPage.ClientSize;
 
-            pictureBox.ModifyWidth(panel.Width -
-                                   (tabPage.Height < pictureBox.Image.Height
-                                       ? SystemInformation.VerticalScrollBarWidth
-                                       : 0));
+            Point loc = new Point();
+
+            if (pictureBox.Width < panel.Width)
+            {
+                loc.X = (panel.Width - pictureBox.Width)/2;
+            }
+            else
+            {
+                loc.X = 0;
+            }
+
+            if (pictureBox.Height < panel.Height)
+            {
+                loc.Y = (panel.Height - pictureBox.Height) / 2;
+            }
+            else
+            {
+                loc.Y = 0;
+            }
+
+            loc.Y= panel.AutoScrollPosition.Y;
+            pictureBox.Location = loc;
         }
 
         private void SchemeMouseDown(object sender, MouseEventArgs e)
@@ -230,8 +250,23 @@ namespace SchemeEditor
 
         private void UpdateSchemePicture()
         {
+            if (_schemes.Count == 0)
+                return;
+            
+            var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
             ((PictureBox) tabControl1.SelectedTab.Controls["panel"].Controls["pb"]).Image =
                 _schemes[tabControl1.SelectedIndex].DrawScheme();
+            
+            CalculateSchemePictureSize();
+        }
+
+        private void CalculateSchemePictureSize()
+        {
+            var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
+            int pictureWidth = (int) (pictureBox.Image.Width /
+                                      (SelectedScheme.PictureMultiplier * _zoomMultiplier));
+
+            pictureBox.ModifyWidth(pictureWidth);
             FormResize(this, null);
         }
 
@@ -305,6 +340,65 @@ namespace SchemeEditor
             else
             {
                 selBlock.RemoveChild(branchIndex, 0);
+            }
+        }
+
+        private void zoomPlusButton_Click(object sender, EventArgs e)
+        {
+            if (_zoomMultiplier > 1 / 5f)
+            {
+                _zoomMultiplier -= 0.05f;
+                CalculateSchemePictureSize();
+            }
+        }
+
+        private void zoomMinusButton_Click(object sender, EventArgs e)
+        {
+            if (_zoomMultiplier < 4)
+            {
+                _zoomMultiplier += 0.05f;
+                CalculateSchemePictureSize();
+            }
+        }
+
+        private void createEmptyScheme_Click(object sender, EventArgs e)
+        {
+            Scheme scheme = new Scheme(_defaultSettings);
+            
+            AddScheme(scheme);
+        }
+
+        private void createSchemeFromCode_Click(object sender, EventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void openScheme_Click(object sender, EventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void saveSchemeAs_Click(object sender, EventArgs e)
+        {
+            throw new System.NotImplementedException();
+            
+            //Bitmap bitmap = scheme.DrawScheme();
+            //bitmap.Save("SomeFolder/bitmap.bmp");
+        }
+
+        private void closeScheme_Click(object sender, EventArgs e)
+        {
+            if (_schemes.Count != 0)
+            {
+                int index = tabControl1.SelectedIndex;
+                _schemes.RemoveAt(index);
+                tabControl1.Controls.RemoveAt(index);
+                UpdateSchemePicture();
             }
         }
     }
