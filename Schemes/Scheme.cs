@@ -11,12 +11,12 @@ namespace SchemeEditor.Schemes
     public class Scheme
     {
         private Block _mainBlock;
-        
+
         public readonly int PictureMultiplier = 5;
-        
+
         private List<ConnectorPair> _connectorPairs;
         private List<Arrow> _arrows;
-        
+
         private SchemeSettings _settings;
 
         public SchemeSettings Settings => _settings;
@@ -30,10 +30,11 @@ namespace SchemeEditor.Schemes
         private Font _font;
 
         #region Scheme
+
         public Scheme(SchemeSettings settings)
-        {  
+        {
             SetSettings(settings);
-            
+
             // Создание блока-контейнера (такой один на всей схеме)
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
             _mainBlock.Width = _settings.StandartWidth;
@@ -43,8 +44,8 @@ namespace SchemeEditor.Schemes
             start.Width = _settings.StandartWidth;
             start.Height = _settings.StandartHeight;
             start.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(start, 0,0);
-            
+            _mainBlock.AddChild(start, 0, 0);
+
             /*Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
             bigIf.Width = _settings.StandartWidth;
             bigIf.Height = _settings.StandartHeight;
@@ -100,15 +101,16 @@ namespace SchemeEditor.Schemes
             someBlock3.Height = _settings.StandartHeight;
             someBlock3.FontSize = _settings.FontSize;
             _mainBlock.AddChild(someBlock3, 0, 2);*/
-            
+
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
             end.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(end, 0,1);
+            _mainBlock.AddChild(end, 0, 1);
 
             SelectedBlock = _mainBlock;
         }
+
         ~Scheme()
         {
             for (int i = 0; i < _bitmaps.Length; i++)
@@ -117,6 +119,7 @@ namespace SchemeEditor.Schemes
                 _globalBitmap.Dispose();
             }
         }
+
         public void SetSettings(SchemeSettings settings)
         {
             _settings = settings;
@@ -139,6 +142,7 @@ namespace SchemeEditor.Schemes
             _settings.FontSize *= PictureMultiplier;
             _font = new Font("Times New Roman", _settings.FontSize);
         }
+
         public Bitmap DrawScheme()
         {
             Bitmap[] bitmaps = DrawSchemePages();
@@ -152,6 +156,7 @@ namespace SchemeEditor.Schemes
 
             return _globalBitmap;
         }
+
         public Bitmap[] DrawSchemePages()
         {
             _mainBlock.Position = new BlockPosition(
@@ -161,12 +166,12 @@ namespace SchemeEditor.Schemes
             );
             _connectorPairs = new List<ConnectorPair>();
             _arrows = new List<Arrow>();
-            
+
             // Просчёт расположения блоков
             int blockIndexPage = 0;
             _pageHeights = new List<int>() {0};
-            CalculateBlockCoords(_mainBlock, out _,  ref blockIndexPage);
-            
+            CalculateBlockCoords(_mainBlock, out _, ref blockIndexPage);
+
             // Создание графических структур
             InitializeBitmaps();
 
@@ -182,14 +187,15 @@ namespace SchemeEditor.Schemes
             {
                 _graphics[i].Dispose();
             }
-            
+
             return _bitmaps;
         }
+
         private void InitializeBitmaps()
         {
             _bitmaps = new Bitmap[_pageHeights.Count];
             _graphics = new Graphics[_pageHeights.Count];
-            
+
             for (int i = 0; i < _bitmaps.Length; i++)
             {
                 int normalWidth = _mainBlock.ChildrenWidth + 2 * _settings.PageOffset,
@@ -210,6 +216,7 @@ namespace SchemeEditor.Schemes
                 _graphics[i].TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
             }
         }
+
         private Bitmap ConnectBitmaps(Bitmap[] bitmaps)
         {
             Bitmap bitmap;
@@ -223,9 +230,9 @@ namespace SchemeEditor.Schemes
             for (int i = 1; i < bitmaps.Length; i++)
             {
                 height += _settings.PagesInterval - _settings.PageOffset * 2;
-                
+
                 bitmapYs[i] = height;
-                
+
                 height += bitmaps[i].Height;
             }
 
@@ -236,17 +243,21 @@ namespace SchemeEditor.Schemes
             {
                 graphics.DrawImage(bitmaps[i], new Point(0, bitmapYs[i]));
             }
+
             graphics.Dispose();
 
             return bitmap;
         }
+
         public Bitmap GetBitmap()
         {
             return _globalBitmap;
         }
+
         #endregion
 
         #region BlockDrawing
+
         private void DrawBlock(Block block, Pen pen)
         {
             if (block.Type != BlockType.Main)
@@ -277,7 +288,7 @@ namespace SchemeEditor.Schemes
                 height = block.Height;
 
             Point[] points;
-            
+
             switch (block.Type)
             {
                 case BlockType.Start:
@@ -298,7 +309,7 @@ namespace SchemeEditor.Schemes
                         new Point(x, y),
                         new Point(x + width, y)
                     };
-                    
+
                     graphics.DrawLines(pen, points);
                     break;
                 case BlockType.Condition:
@@ -317,25 +328,25 @@ namespace SchemeEditor.Schemes
                     points = new[]
                     {
                         new Point(x, y + height / 3),
-                        new Point(x + height/3, y),
-                        new Point(x + width - height/3, y),
+                        new Point(x + height / 3, y),
+                        new Point(x + width - height / 3, y),
                         new Point(x + width, y + height / 3),
                         new Point(x + width, y + height),
                         new Point(x, y + height),
-                        new Point(x, y+height/3)
+                        new Point(x, y + height / 3)
                     };
                     graphics.DrawLines(pen, points);
                     break;
                 case BlockType.EndLoop:
                     points = new[]
                     {
-                        new Point(x,y),
-                        new Point(x+width,y),
-                        new Point(x+width, y+2*height/3),
-                        new Point(x+width-height/3, y+height),
-                        new Point(x+height/3, y+height),
-                        new Point(x,y+2*height/3),
-                        new Point(x,y)
+                        new Point(x, y),
+                        new Point(x + width, y),
+                        new Point(x + width, y + 2 * height / 3),
+                        new Point(x + width - height / 3, y + height),
+                        new Point(x + height / 3, y + height),
+                        new Point(x, y + 2 * height / 3),
+                        new Point(x, y)
                     };
                     graphics.DrawLines(pen, points);
                     break;
@@ -349,12 +360,12 @@ namespace SchemeEditor.Schemes
                         new Point(x, y),
                         new Point(x + width, y)
                     };
-                    
+
                     graphics.DrawLines(pen, points);
 
                     graphics.DrawLine(pen, x + width / 10, y, x + width / 10, y + height);
-                    graphics.DrawLine(pen, x + 9 * width / 10, y, x +  9 *width / 10, y + height);
-                    
+                    graphics.DrawLine(pen, x + 9 * width / 10, y, x + 9 * width / 10, y + height);
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -364,8 +375,8 @@ namespace SchemeEditor.Schemes
         private void DrawBlockText(Graphics graphics, Block block)
         {
             _font = new Font("Times New Roman", block.FontSize / 2);
-            
-            var fontHeight = (int)graphics.MeasureString("1", _font).Height;
+
+            var fontHeight = (int) graphics.MeasureString("1", _font).Height;
 
             int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
 
@@ -392,7 +403,7 @@ namespace SchemeEditor.Schemes
 
             if (block.Type != BlockType.Start)
             {
-                DrawStraightLine(graphics, pen,x + width / 2, y, x + width / 2, y - vertInt / 2);
+                DrawStraightLine(graphics, pen, x + width / 2, y, x + width / 2, y - vertInt / 2);
             }
 
             if (block.Type != BlockType.End)
@@ -522,11 +533,11 @@ namespace SchemeEditor.Schemes
                     }
                 }
             }*/
-            
+
             // Добавление стрелок
-            if(block.ColumnCount == 2)
+            if (block.ColumnCount == 2)
             {
-                if(block.GetChildCount(1) > 0)
+                if (block.GetChildCount(1) > 0)
                 {
                     var child = block.GetChild(1, 0);
                     _arrows.Add(new Arrow(
@@ -539,7 +550,7 @@ namespace SchemeEditor.Schemes
                         false
                     ));
                 }
-                
+
                 _arrows.Add(new Arrow(
                     new BlockPosition(
                         block.EndPosition.PageIndex,
@@ -555,7 +566,7 @@ namespace SchemeEditor.Schemes
         private void DrawStraightLine(Graphics graphics, Pen pen, int x1, int y1, int x2, int y2)
         {
             graphics.SmoothingMode = SmoothingMode.None;
-            graphics.DrawLine(pen, x1,y1,x2,y2);
+            graphics.DrawLine(pen, x1, y1, x2, y2);
             graphics.SmoothingMode = SmoothingMode.HighQuality;
         }
 
@@ -574,10 +585,10 @@ namespace SchemeEditor.Schemes
 
                 var colorUnderArrow = _bitmaps[arrow.Position.PageIndex].GetPixel(arrow.Position.X,
                     arrow.Position.Y + 2 * PictureMultiplier);
-                
-                
 
-                if(_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
+
+
+                if (_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
                     _arrows.RemoveAt(i--);
                 else if (!arrow.CanBeHidden ||
                          colorUnderArrow.Name == "ff000000")
@@ -594,25 +605,25 @@ namespace SchemeEditor.Schemes
                     switch (arrow.Direction)
                     {
                         case Arrow.ArrowDirection.Right:
-                            points[0].X -= length * (float)Math.Cos(angle);
-                            points[0].Y += length * (float)Math.Sin(angle);
-                            
-                            points[2].X -= length * (float)Math.Cos(angle);
-                            points[2].Y -= length * (float)Math.Sin(angle);
+                            points[0].X -= length * (float) Math.Cos(angle);
+                            points[0].Y += length * (float) Math.Sin(angle);
+
+                            points[2].X -= length * (float) Math.Cos(angle);
+                            points[2].Y -= length * (float) Math.Sin(angle);
                             break;
                         case Arrow.ArrowDirection.Left:
-                            points[0].X += length * (float)Math.Cos(angle);
-                            points[0].Y -= length * (float)Math.Sin(angle);
+                            points[0].X += length * (float) Math.Cos(angle);
+                            points[0].Y -= length * (float) Math.Sin(angle);
 
-                            points[2].X += length * (float)Math.Cos(angle);
-                            points[2].Y += length * (float)Math.Sin(angle);
+                            points[2].X += length * (float) Math.Cos(angle);
+                            points[2].Y += length * (float) Math.Sin(angle);
                             break;
                         case Arrow.ArrowDirection.Down:
-                            points[0].X += length * (float)Math.Sin(angle);
-                            points[0].Y -= length * (float)Math.Cos(angle);
-                            
-                            points[2].X -= length * (float)Math.Sin(angle);
-                            points[2].Y -= length * (float)Math.Cos(angle);
+                            points[0].X += length * (float) Math.Sin(angle);
+                            points[0].Y -= length * (float) Math.Cos(angle);
+
+                            points[2].X -= length * (float) Math.Sin(angle);
+                            points[2].Y -= length * (float) Math.Cos(angle);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -627,7 +638,7 @@ namespace SchemeEditor.Schemes
         }
 
         #endregion
-        
+
         #region Connectors
 
         private void DrawConnectors(Pen pen)
@@ -638,31 +649,60 @@ namespace SchemeEditor.Schemes
 
                 var pos1 = pair.Connector1.Position;
                 var pos2 = pair.Connector2.Position;
-                
+
                 var firstGraph = _graphics[pos1.PageIndex];
                 var secondGraph = _graphics[pos2.PageIndex];
-                
+
 
                 firstGraph.DrawEllipse(pen, pos1.X, pos1.Y, _settings.ConnectorSize, _settings.ConnectorSize);
-                /*DrawStraightLine(firstGraph, pen, pos1.X + _settings.ConnectorSize / 2, pair.FirstConY,
-                    pair.X + _settings.ConnectorSize / 2, pair.FirstConY - _settings.VerticalInterval / 2);*/
+                switch (pair.Connector1.Type)
+                {
+                    case Connector.ConnectorType.AtTheEndOfThePage:
+                    case Connector.ConnectorType.UnderBlock:
+                        DrawStraightLine(firstGraph, pen,
+                            pos1.X + _settings.ConnectorSize / 2,
+                            pos1.Y, pos1.X + _settings.ConnectorSize / 2,
+                            pos1.Y - _settings.VerticalInterval / 2);
+                        break;
+                    case Connector.ConnectorType.FromBlock:
+                        DrawStraightLine(firstGraph, pen,
+                            pos1.X,
+                            pos1.Y + _settings.ConnectorSize / 2,
+                            pos1.X - _settings.HorizontalInterval,
+                            pos1.Y + _settings.ConnectorSize / 2
+                        );
+                        // Добавить стрелочку
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
 
                 secondGraph.DrawEllipse(pen, pos2.X, pos2.Y, _settings.ConnectorSize,
                     _settings.ConnectorSize);
-                /*DrawStraightLine(secondGraph, pen,
-                    pair.X + _settings.ConnectorSize / 2,
-                    _settings.PageOffset + _settings.ConnectorSize,
-                    pair.X + _settings.ConnectorSize / 2,
-                    _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
-                );*/
-                
+                if (pair.Connector2.Type == Connector.ConnectorType.AtTheStartOfThePage)
+                {
+                    DrawStraightLine(secondGraph, pen,
+                        pos2.X + _settings.ConnectorSize / 2,
+                        pos2.Y + _settings.ConnectorSize, pos2.X + _settings.ConnectorSize / 2,
+                        pos2.Y + _settings.ConnectorSize + _settings.VerticalInterval / 2);
+                }
+                else if (pair.Connector2.Type == Connector.ConnectorType.AfterBlock)
+                {
+
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+
             }
         }
-        
+
         #endregion
 
         #region Calculations
-        
+
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
             BlockPosition startChildPos = block.Position;
@@ -681,7 +721,7 @@ namespace SchemeEditor.Schemes
             int firstChildBlockIndexPage = blockIndexPage + 1;
             block.ChildrenWidth = 0;
 
-            
+
             for (int branchIndex = 0; branchIndex < block.ColumnCount; branchIndex++)
             {
                 BlockPosition childPos = startChildPos;
@@ -695,15 +735,6 @@ namespace SchemeEditor.Schemes
                     if (childIndexPage >= _settings.BlocksOnPage &&
                         block.GetChild(branchIndex, i).Type != BlockType.End)
                     {
-                        // TODO:
-                        /*_connectorPairs.Add(
-                            new ConnectorPair(
-                                childPos.PageIndex,
-                                childPos.PageIndex + 1,
-                                childPos.Y,
-                                block.GetChild(branchIndex, i),
-                                block.GetChild(branchIndex, i).Width / 2 - _settings.ConnectorSize / 2)
-                        );*/
                         _connectorPairs.Add(
                             new ConnectorPair(
 
@@ -725,7 +756,7 @@ namespace SchemeEditor.Schemes
 
                             )
                         );
-                        
+
                         childIndexPage = 2;
                         childPos.PageIndex++;
                         childPos.Y = _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval;
@@ -735,7 +766,7 @@ namespace SchemeEditor.Schemes
                             _pageHeights.Add(0);
                         }
                     }
-                    
+
                     // Устанавливаем координаты блока
                     var child = block.GetChild(branchIndex, i);
                     child.Position = childPos;
@@ -744,7 +775,7 @@ namespace SchemeEditor.Schemes
                     CalculateBlockCoords(child, out childPos, ref childIndexPage);
                     childPos.X = x;
                     // Если позиция центра другая
-                    
+
                     if (i != block.GetChildCount(branchIndex) - 1)
                     {
                         childPos.Y += _settings.VerticalInterval;
@@ -764,16 +795,16 @@ namespace SchemeEditor.Schemes
                 }
 
                 int maxWidth = 0;
-                
+
                 // Вызов метода для выравнивая текущей колонки,
                 // который возвращает макс ширину
                 maxWidth = AlignColumn(block, branchIndex);
-                
+
                 int deltaColumnX = maxWidth;
-                
+
                 if (branchIndex != block.ColumnCount - 1)
                     deltaColumnX += _settings.HorizontalInterval;
-                
+
                 startChildPos.X += deltaColumnX;
 
                 block.ChildrenWidth += deltaColumnX;
@@ -783,7 +814,7 @@ namespace SchemeEditor.Schemes
             if (block.ColumnCount > 2)
             {
                 var pos = block.Position;
-                if(block.Width<=block.ChildrenWidth)
+                if (block.Width <= block.ChildrenWidth)
                 {
                     pos.X = block.Position.X + block.ChildrenWidth / 2 - block.Width / 2;
                     block.Position = pos;
@@ -792,7 +823,7 @@ namespace SchemeEditor.Schemes
                 {
                     var delta = block.Width / 2 - block.ChildrenWidth / 2;
 
-                    pos.X = block.Position.X  - delta;
+                    pos.X = block.Position.X - delta;
                     block.Position = pos;
                     ShiftBlockWithChildren(block, delta);
                 }
@@ -808,6 +839,36 @@ namespace SchemeEditor.Schemes
             }
             
             block.EndPosition = lastPosition;
+
+            // Если есть соединители, нужно сдвинуть If
+            if (block.ColumnCount == 2 && block.GetChildCount(1) == 0 &&
+                block.EndPosition.PageIndex != block.Position.PageIndex)
+            {
+                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize);
+
+                block.ChildrenWidth = Math.Max(
+                    block.ChildrenWidth,
+                    block.Width + 2 * _settings.HorizontalInterval + 2 * _settings.ConnectorSize
+                );
+
+                _connectorPairs.Add(
+                    new ConnectorPair(
+                        new Connector(
+                            Connector.ConnectorType.FromBlock,
+                            _settings,
+                            block
+                        ),
+                        new Connector(
+
+                            Connector.ConnectorType.AfterBlock,
+                            _settings,
+                            block
+
+                        )
+                    )
+                );
+            }
+
         }
 
         private int AlignColumn(Block block, int branchIndex)
@@ -883,12 +944,14 @@ namespace SchemeEditor.Schemes
                 {
                     GetGlobalCoordsByPage(block.Position, out x, out y);
                     DrawBlockFigure(graphics, block, x, y, new Pen(Color.Red, PictureMultiplier));
+                    DrawBlockText(graphics, block);
                 }
 
                 if (SelectedBlock != MainBlock)
                 {
                     GetGlobalCoordsByPage(SelectedBlock.Position, out x, out y);
                     DrawBlockFigure(graphics, SelectedBlock, x, y, new Pen(Color.Black, PictureMultiplier));
+                    DrawBlockText(graphics, SelectedBlock);
                 }
                 
                 graphics.Dispose();
