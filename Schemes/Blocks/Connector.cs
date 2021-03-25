@@ -8,6 +8,7 @@ namespace SchemeEditor.Schemes.Blocks
         private ConnectorType _type;
 
         public ConnectorType Type => _type;
+        public Block TargetBlock => _targetBlock;
 
         private Block _targetBlock;
         private int _pageIndex;

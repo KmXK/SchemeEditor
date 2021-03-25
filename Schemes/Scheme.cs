@@ -46,67 +46,29 @@ namespace SchemeEditor.Schemes
             start.FontSize = _settings.FontSize;
             _mainBlock.AddChild(start, 0, 0);
 
-            /*Block bigIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
-            bigIf.Width = _settings.StandartWidth;
-            bigIf.Height = _settings.StandartHeight;
-            bigIf.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(bigIf, 0, 1);
-
-            Block ifBlock = new Block(BlockType.Condition, new[] {"Хелло"}, new string[3]);
+            Block ifBlock = new Block(BlockType.Condition, new[] {"Вход"}, new string[2]);
             ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight;
             ifBlock.FontSize = _settings.FontSize;
-            bigIf.AddChild(ifBlock, 0, 0);
+            _mainBlock.AddChild(ifBlock, 0, 1);
             
-            Block someBlock1 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock1.Width = _settings.StandartWidth+100;
-            someBlock1.Height = _settings.StandartHeight;
-            someBlock1.FontSize = _settings.FontSize;
-            ifBlock.AddChild(someBlock1, 0, 0);
+            Block caseBlock = new Block(BlockType.Condition, new[] {"Вход"}, new string[4]);
+            caseBlock.Width = _settings.StandartWidth;
+            caseBlock.Height = _settings.StandartHeight;
+            caseBlock.FontSize = _settings.FontSize;
+            ifBlock.AddChild(caseBlock, 1, 0);
             
-            Block littleIf = new Block(BlockType.Condition, new[] {"Хелло"}, new string[2]);
-            littleIf.Width = _settings.StandartWidth;
-            littleIf.Height = _settings.StandartHeight;
-            littleIf.FontSize = _settings.FontSize;
-            ifBlock.AddChild(littleIf, 1, 0);
-
-
-            Block someBlock7 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock7.Width = _settings.StandartWidth;
-            someBlock7.Height = _settings.StandartHeight;
-            someBlock7.FontSize = _settings.FontSize;
-            littleIf.AddChild(someBlock7, 0, 0);
-            
-            Block someBlock8 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock8.Width = _settings.StandartWidth;
-            someBlock8.Height = _settings.StandartHeight;
-            someBlock8.FontSize = _settings.FontSize;
-            littleIf.AddChild(someBlock8, 1, 0);
-            
-            
-            Block someBlock6 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock6.Width = _settings.StandartWidth;
-            someBlock6.Height = _settings.StandartHeight;
-            someBlock6.FontSize = _settings.FontSize;
-            ifBlock.AddChild(someBlock6, 2, 0);
-            
-            Block someBlock4 = new Block(BlockType.Default, new[] {"Хелло"}, new string[0]);
-            someBlock4.Width = _settings.StandartWidth;
-            someBlock4.Height = _settings.StandartHeight;
-            someBlock4.FontSize = _settings.FontSize;
-            bigIf.AddChild(someBlock4, 1, 0);
-
-            Block someBlock3 = new Block(BlockType.Default, new[] {"Хелло", "123"}, new string[0]);
-            someBlock3.Width = _settings.StandartWidth;
-            someBlock3.Height = _settings.StandartHeight;
-            someBlock3.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(someBlock3, 0, 2);*/
+            Block block = new Block(BlockType.Default, new[] {"Вход"}, new string[0]);
+            block.Width = _settings.StandartWidth;
+            block.Height = _settings.StandartHeight;
+            block.FontSize = _settings.FontSize;
+            _mainBlock.AddChild(block, 0, 2);
 
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
             end.FontSize = _settings.FontSize;
-            _mainBlock.AddChild(end, 0, 1);
+            _mainBlock.AddChild(end, 0, 3);
 
             SelectedBlock = _mainBlock;
         }
@@ -411,155 +373,142 @@ namespace SchemeEditor.Schemes
                 DrawStraightLine(graphics, pen, x + width / 2, y + height, x + width / 2, y + height + vertInt / 2);
             }
 
-            /*if (block.ColumnCount > 1)
+
+            if (block.ColumnCount > 1)
             {
-                // If
                 if (block.ColumnCount == 2)
                 {
-                    int centerSecondColumn = block.GetChildCount(1) > 0
-                        ? block.GetChild(1, 0).Position.X + block.GetChild(1, 0).Width / 2
-                        : block.ColumnXs[1];
-
-                    Point[] points = new[]
+                    // Если вторая колонка - просто обход на этой же странице
+                    if (block.GetChildCount(1) == 0 &&
+                        block.Position.PageIndex == block.EndPosition.PageIndex)
                     {
-                        new Point(x + width, y + height / 2),
-                        new Point(centerSecondColumn, y + height / 2),
-                        new Point(centerSecondColumn, y + height + vertInt / 2)
-                    };
-
-                    DrawStraightLines(graphics, pen, points);
-
-                    DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen, x + width / 2 - (int) pen.Width / 2,
-                        block.EndPosition.Y + vertInt / 2, centerSecondColumn + (int) pen.Width / 2,
-                        block.EndPosition.Y + vertInt / 2);
-                }
-                // Case
-                else if (block.ColumnCount > 2)
-                {
-                    int firstColumnCenter = block.GetChildCount(0) > 0
-                        ? block.GetChild(0, 0).Position.X + block.GetChild(0, 0).Width / 2
-                        : block.ColumnXs[0];
-                    int lastColumnCenter = block.GetChildCount(block.ColumnCount - 1) > 0
-                        ? block.GetChild(block.ColumnCount - 1, 0).Position.X +
-                          block.GetChild(block.ColumnCount - 1, 0).Width / 2
-                        : block.ColumnXs[block.ColumnCount - 1];
-
-                    Point[] points = new[]
-                    {
-                        new Point(firstColumnCenter, y + height + vertInt),
-                        new Point(firstColumnCenter, y + height + vertInt / 2),
-                        new Point(lastColumnCenter, y + height + vertInt / 2),
-                        new Point(lastColumnCenter, y + height + vertInt),
-                    };
-
-                    DrawStraightLines(graphics, pen, points);
-
-                    points = new[]
-                    {
-                        new Point(firstColumnCenter - (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2),
-                        new Point(lastColumnCenter + (int)pen.Width / 2, block.EndPosition.Y + vertInt / 2)
-                    };
-
-                    DrawStraightLines(_graphics[block.EndPosition.PageIndex], pen, points);
-                }
-
-                // Дополнение колонок
-                for (int b = 0; b < block.ColumnCount; b++)
-                {
-                    // Позиция конца отрисовки линии
-                    BlockPosition lastColumnPos;
-                    if (block.GetChildCount(b) > 0)
-                    {
-                        var lastChild = block.GetChild(b, block.GetChildCount(b) - 1);
-                        lastColumnPos = lastChild.EndPosition;
-                        lastColumnPos.X = lastChild.Position.X + lastChild.Width / 2;
-                        lastColumnPos.Y += vertInt / 2;
+                        DrawStraightLines(graphics, pen,
+                            new[]
+                            {
+                                new Point(x + width, y + height / 2),
+                                new Point(block.ColumnXs[1], y + height / 2),
+                                new Point(block.ColumnXs[1], block.EndPosition.Y + _settings.VerticalInterval / 2),
+                                new Point(x + width / 2, block.EndPosition.Y + _settings.VerticalInterval / 2)
+                            });
+                        // Стрелочка
                     }
-                    else
+                    // Если вторая колонка не пустая
+                    else if (block.GetChildCount(1) > 0)
                     {
-                        lastColumnPos = block.Position;
-                        lastColumnPos.Y += height + vertInt / 2;
-                        if (block.ColumnCount == 2 && b == 0)
+                        var lastChildSecondColumn = block.GetChild(1,
+                            block.GetChildCount(1) - 1);
+                        DrawStraightLines(graphics, pen,
+                            new[]
+                            {
+                                new Point(x + width, y + height / 2),
+                                new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
+                                    y + height / 2),
+                                new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
+                                    y + height + _settings.VerticalInterval),
+                            });
+                        // TODO: Стрелочка
+
+                        if (lastChildSecondColumn.Position.PageIndex == block.EndPosition.PageIndex)
                         {
-                            lastColumnPos.X = block.Position.X + block.Width / 2;
+                            DrawStraightLines(_graphics[lastChildSecondColumn.EndPosition.PageIndex], pen,
+                                new[]
+                                {
+                                    new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
+                                        lastChildSecondColumn.Position.Y + lastChildSecondColumn.Height),
+                                    new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
+                                        block.EndPosition.Y + _settings.VerticalInterval / 2),
+                                    new Point(x + width / 2,
+                                        block.EndPosition.Y + _settings.VerticalInterval / 2),
+                                });
                         }
                         else
                         {
-                            lastColumnPos.X = block.ColumnXs[b];
-                        }
-                    }
+                            DrawStraightLine(_graphics[lastChildSecondColumn.EndPosition.PageIndex], pen,
+                                lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
+                                lastChildSecondColumn.EndPosition.Y,
+                                lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
+                                lastChildSecondColumn.EndPosition.Y + _settings.VerticalInterval);
 
-                    // Если колонка на одной странице
-                    if (lastColumnPos.PageIndex == block.EndPosition.PageIndex)
-                    {
-                        DrawStraightLine(_graphics[lastColumnPos.PageIndex], pen, lastColumnPos.X, lastColumnPos.Y,
-                            lastColumnPos.X,
-                            block.EndPosition.Y + vertInt / 2 + (int) pen.Width / 2);
-                    }
-                    // Линия закончилась на одной странице, нужно довести до другой
-                    else
-                    {
-                        if (block.GetChildCount(b) > 0)
-                        {
-                            var lastChild = block.GetChild(b, block.GetChildCount(b) - 1);
-
-                            DrawStraightLine(graphics, pen, lastColumnPos.X, lastColumnPos.Y,
-                                lastColumnPos.X,
-                                _pageHeights[lastChild.EndPosition.PageIndex] + _settings.VerticalInterval / 2);
-
-                            DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen,
-                                lastColumnPos.X, block.EndPosition.Y + _settings.VerticalInterval / 2, lastColumnPos.X,
-                                _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2
-                            );
-                                
-                            // TODO
-                            /*_connectorPairs.Add(
+                            _connectorPairs.Add(
                                 new ConnectorPair(
-
-                                    lastChild.EndPosition.PageIndex,
-                                    block.EndPosition.PageIndex,
-                                    _pageHeights[lastChild.EndPosition.PageIndex] + _settings.VerticalInterval,
-                                    lastColumnPos.X - _settings.ConnectorSize / 2
-
+                                    new Connector(
+                                        Connector.ConnectorType.UnderBlock,
+                                        _settings,
+                                        lastChildSecondColumn
+                                    ),
+                                    new Connector(
+                                        Connector.ConnectorType.AfterBlock,
+                                        _settings,
+                                        block
+                                    )
                                 )
-                            );#1#
-                        }
-                        else
-                        {
-                            // TODO: Подумать над соединителем для пустой колонки Case и IF
-                            // т.е. надо же как-то выделять ширину для соединителя, но как? Ведь мы не знаем, будем
-                            // ли мы его использовать в момент просчёта ширины каждого столбца
+                            );
                         }
                     }
-                }
-            }*/
 
-            // Добавление стрелок
-            if (block.ColumnCount == 2)
-            {
-                if (block.GetChildCount(1) > 0)
+
+                    BlockPosition lastPositionFirstColumn;
+                    int firstColumnCenterX = block.Position.X + block.Width / 2;
+                    // Первая колонка
+                    if (block.GetChildCount(0) == 0)
+                    {
+                        lastPositionFirstColumn = new BlockPosition(
+                            block.Position.PageIndex,
+                            block.Position.X,
+                            block.Position.Y + block.Height
+                        );
+                    }
+                    else
+                    {
+                        var lastBlock = block.GetChild(0, block.GetChildCount(0) - 1);
+                        lastPositionFirstColumn = new BlockPosition(
+                            lastBlock.Position.PageIndex,
+                            lastBlock.Position.X,
+                            lastBlock.Position.Y + lastBlock.Height
+                        );
+                    }
+                    
+                    DrawStraightLine(_graphics[lastPositionFirstColumn.PageIndex], pen,
+                        firstColumnCenterX,
+                        lastPositionFirstColumn.Y,
+                        firstColumnCenterX,
+                        lastPositionFirstColumn.PageIndex == block.EndPosition.PageIndex
+                                ? block.EndPosition.Y + _settings.VerticalInterval / 2
+                                : _pageHeights[lastPositionFirstColumn.PageIndex] + _settings.VerticalInterval / 2);
+                        
+                        if (lastPositionFirstColumn.PageIndex != block.EndPosition.PageIndex)
+                        {
+                            DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen,
+                                firstColumnCenterX,
+                                _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2,
+                                firstColumnCenterX,
+                                block.EndPosition.Y + _settings.VerticalInterval / 2
+                            );
+
+                            _connectorPairs.Add(
+                                new ConnectorPair(
+                                    new Connector(
+                                        Connector.ConnectorType.AtTheEndOfThePage,
+                                        _settings,
+                                        lastPositionFirstColumn.PageIndex,
+                                        block,
+                                        _pageHeights[lastPositionFirstColumn.PageIndex] + _settings.VerticalInterval
+                                    ),
+                                    new Connector(
+                                        Connector.ConnectorType.AtTheStartOfThePage,
+                                        _settings,
+                                        block.EndPosition.PageIndex,
+                                        block,
+                                        _settings.PageOffset
+                                    )
+                                )
+                            );
+                        }
+                }
+                else
                 {
-                    var child = block.GetChild(1, 0);
-                    _arrows.Add(new Arrow(
-                        new BlockPosition(
-                            child.Position.PageIndex,
-                            child.Position.X + child.Width / 2,
-                            child.Position.Y
-                        ),
-                        Arrow.ArrowDirection.Down,
-                        false
-                    ));
+                    
                 }
-
-                _arrows.Add(new Arrow(
-                    new BlockPosition(
-                        block.EndPosition.PageIndex,
-                        block.Position.X + block.Width / 2,
-                        block.EndPosition.Y + _settings.VerticalInterval / 2
-                    ),
-                    Arrow.ArrowDirection.Left,
-                    true
-                ));
             }
         }
 
@@ -689,7 +638,13 @@ namespace SchemeEditor.Schemes
                 }
                 else if (pair.Connector2.Type == Connector.ConnectorType.AfterBlock)
                 {
-
+                    DrawStraightLine(secondGraph, pen,
+                        pos2.X + _settings.ConnectorSize,
+                        pos2.Y + _settings.ConnectorSize / 2,
+                        pos2.X + _settings.ConnectorSize + _settings.HorizontalInterval +
+                        pair.Connector2.TargetBlock.Width / 2,
+                        pos2.Y + _settings.ConnectorSize / 2
+                    );
                 }
                 else
                 {
@@ -705,11 +660,11 @@ namespace SchemeEditor.Schemes
 
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
-            BlockPosition startChildPos = block.Position;
+            BlockPosition startChildPos = block.Position;/*
 
             _pageHeights[block.Position.PageIndex] = Math.Max(
                 block.Position.Y + block.Height,
-                _pageHeights[block.Position.PageIndex]);
+                _pageHeights[block.Position.PageIndex]);*/
 
             if (block.Type != BlockType.Main)
             {
@@ -839,17 +794,22 @@ namespace SchemeEditor.Schemes
             }
             
             block.EndPosition = lastPosition;
+            
+            _pageHeights[block.EndPosition.PageIndex] = Math.Max(
+                block.EndPosition.Y,
+                _pageHeights[block.EndPosition.PageIndex]);
 
-            // Если есть соединители, нужно сдвинуть If
+            
+            
             if (block.ColumnCount == 2 && block.GetChildCount(1) == 0 &&
                 block.EndPosition.PageIndex != block.Position.PageIndex)
             {
                 ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize);
 
                 block.ChildrenWidth = Math.Max(
-                    block.ChildrenWidth,
-                    block.Width + 2 * _settings.HorizontalInterval + 2 * _settings.ConnectorSize
-                );
+                                          block.ChildrenWidth,
+                                          block.Width + _settings.HorizontalInterval + _settings.ConnectorSize)
+                                      + _settings.HorizontalInterval + _settings.ConnectorSize;
 
                 _connectorPairs.Add(
                     new ConnectorPair(
@@ -867,6 +827,17 @@ namespace SchemeEditor.Schemes
                         )
                     )
                 );
+            }
+            else if(block.ColumnCount == 2 && 
+                    block.GetChildCount(1) > 0 &&
+                    block.GetChild(1,block.GetChildCount(1) - 1).Position.PageIndex !=
+                    block.EndPosition.PageIndex)
+            {
+                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize);
+
+                block.ChildrenWidth = Math.Max(
+                    block.ChildrenWidth,
+                    block.Width) + _settings.HorizontalInterval + _settings.ConnectorSize;
             }
 
         }
