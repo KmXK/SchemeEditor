@@ -41,36 +41,36 @@ namespace SchemeEditor.Schemes
             // Создание блока-контейнера (такой один на всей схеме)
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
             _mainBlock.Width = _settings.StandartWidth;
-            _mainBlock.Height = _settings.StandartHeight;
+            _mainBlock.Height = _settings.FontSize;
 
             Block start = new Block(BlockType.Start, new[] {"Вход"}, new string[0]);
             start.Width = _settings.StandartWidth;
             start.Height = _settings.StandartHeight;
-            start.FontSize = (int)_font.Size;
+            start.FontSize = _settings.FontSize;
             _mainBlock.AddChild(start, 0, 0);
 
             Block ifBlock = new Block(BlockType.Condition, new[] {"Вход"}, new string[2]);
             ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight;
-            ifBlock.FontSize = (int)_font.Size;
+            ifBlock.FontSize = _settings.FontSize;
             _mainBlock.AddChild(ifBlock, 0, 1);
             
             Block caseBlock = new Block(BlockType.Condition, new[] {"Вход"}, new string[4]);
             caseBlock.Width = _settings.StandartWidth;
             caseBlock.Height = _settings.StandartHeight;
-            caseBlock.FontSize = (int)_font.Size;
+            caseBlock.FontSize = _settings.FontSize;
             ifBlock.AddChild(caseBlock, 1, 0);
             
             Block block = new Block(BlockType.Default, new[] {"Вход"}, new string[0]);
             block.Width = _settings.StandartWidth;
             block.Height = _settings.StandartHeight;
-            block.FontSize = (int)_font.Size;
+            block.FontSize = _settings.FontSize;
             _mainBlock.AddChild(block, 0, 2);
 
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
-            end.FontSize = (int)_font.Size;
+            end.FontSize = _settings.FontSize;
             _mainBlock.AddChild(end, 0, 3);
 
             SelectedBlock = _mainBlock;
@@ -334,16 +334,16 @@ namespace SchemeEditor.Schemes
 
         private void DrawBlockText(Graphics graphics, Block block)
         {
-            _font = new Font("Times New Roman", block.FontSize);
+            var font = new Font("Times New Roman", block.FontSize / 2);
 
-            var fontHeight = (int) graphics.MeasureString("1", _font).Height;
+            var fontHeight = (int) graphics.MeasureString("1", font).Height;
 
             int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
 
             for (int i = 0; i < block.Text.Length; i++)
             {
-                int lineWidth = (int) graphics.MeasureString(block.Text[i], _font).Width;
-                graphics.DrawString(block.Text[i], _font, Brushes.Black,
+                int lineWidth = (int) graphics.MeasureString(block.Text[i], font).Width;
+                graphics.DrawString(block.Text[i], font, Brushes.Black,
                     block.Position.X + block.Width / 2 - lineWidth / 2, y);
                 y += fontHeight;
             }
