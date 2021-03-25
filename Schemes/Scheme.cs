@@ -14,7 +14,10 @@ namespace SchemeEditor.Schemes
 
         public readonly int PictureMultiplier = 5;
 
+        private int _connectorInterval;
         private List<ConnectorPair> _connectorPairs;
+        
+        
         private List<Arrow> _arrows;
 
         private SchemeSettings _settings;
@@ -43,31 +46,31 @@ namespace SchemeEditor.Schemes
             Block start = new Block(BlockType.Start, new[] {"Вход"}, new string[0]);
             start.Width = _settings.StandartWidth;
             start.Height = _settings.StandartHeight;
-            start.FontSize = _settings.FontSize;
+            start.FontSize = (int)_font.Size;
             _mainBlock.AddChild(start, 0, 0);
 
             Block ifBlock = new Block(BlockType.Condition, new[] {"Вход"}, new string[2]);
             ifBlock.Width = _settings.StandartWidth;
             ifBlock.Height = _settings.StandartHeight;
-            ifBlock.FontSize = _settings.FontSize;
+            ifBlock.FontSize = (int)_font.Size;
             _mainBlock.AddChild(ifBlock, 0, 1);
             
             Block caseBlock = new Block(BlockType.Condition, new[] {"Вход"}, new string[4]);
             caseBlock.Width = _settings.StandartWidth;
             caseBlock.Height = _settings.StandartHeight;
-            caseBlock.FontSize = _settings.FontSize;
+            caseBlock.FontSize = (int)_font.Size;
             ifBlock.AddChild(caseBlock, 1, 0);
             
             Block block = new Block(BlockType.Default, new[] {"Вход"}, new string[0]);
             block.Width = _settings.StandartWidth;
             block.Height = _settings.StandartHeight;
-            block.FontSize = _settings.FontSize;
+            block.FontSize = (int)_font.Size;
             _mainBlock.AddChild(block, 0, 2);
 
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
             end.Width = _settings.StandartWidth;
             end.Height = _settings.StandartHeight;
-            end.FontSize = _settings.FontSize;
+            end.FontSize = (int)_font.Size;
             _mainBlock.AddChild(end, 0, 3);
 
             SelectedBlock = _mainBlock;
@@ -93,16 +96,11 @@ namespace SchemeEditor.Schemes
             _settings.ConnectorSize *= PictureMultiplier;
             _settings.PagesInterval *= PictureMultiplier;
 
-            /*_font = new Font("Times New Roman", _settings.FontSize);
-            int i = 1;
-
-            var g = Graphics.FromImage(new Bitmap(1, 1));
-            var height = g.MeasureString("1", _font).Height;
-            while (g.MeasureString("1", _font).Height < height * PictureMultiplier)
-                _font = new Font("Times New Roman", _settings.FontSize + i++);*/
-
             _settings.FontSize *= PictureMultiplier;
-            _font = new Font("Times New Roman", _settings.FontSize);
+            _font = new Font("Times New Roman", _settings.FontSize / 2);
+
+            _connectorInterval = 10 * PictureMultiplier;
+            
         }
 
         public Bitmap DrawScheme()
@@ -336,7 +334,7 @@ namespace SchemeEditor.Schemes
 
         private void DrawBlockText(Graphics graphics, Block block)
         {
-            _font = new Font("Times New Roman", block.FontSize / 2);
+            _font = new Font("Times New Roman", block.FontSize);
 
             var fontHeight = (int) graphics.MeasureString("1", _font).Height;
 
@@ -408,13 +406,13 @@ namespace SchemeEditor.Schemes
                             });
                         // TODO: Стрелочка
 
-                        if (lastChildSecondColumn.Position.PageIndex == block.EndPosition.PageIndex)
+                        if (lastChildSecondColumn.EndPosition.PageIndex == block.EndPosition.PageIndex)
                         {
                             DrawStraightLines(_graphics[lastChildSecondColumn.EndPosition.PageIndex], pen,
                                 new[]
                                 {
                                     new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
-                                        lastChildSecondColumn.Position.Y + lastChildSecondColumn.Height),
+                                        block.EndPosition.Y),
                                     new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
                                         block.EndPosition.Y + _settings.VerticalInterval / 2),
                                     new Point(x + width / 2,
@@ -507,7 +505,115 @@ namespace SchemeEditor.Schemes
                 }
                 else
                 {
+                    int firstX, lastX;
+                    if (block.GetChildCount(0) == 0)
+                    {
+                        firstX = block.ColumnXs[0];
+                    }
+                    else
+                    {
+                        firstX = block.GetChild(0, 0).Position.X + 
+                                 block.GetChild(0, 0).Width / 2;
+                    }
+                    if (block.GetChildCount(block.ColumnCount - 1) == 0)
+                    {
+                        lastX = block.ColumnXs[block.ColumnCount - 1];
+                    }
+                    else
+                    {
+                        lastX = block.GetChild(block.ColumnCount - 1, 0).Position.X + 
+                                 block.GetChild(block.ColumnCount - 1, 0).Width / 2;
+                    }
+
+                    DrawStraightLines(graphics, pen,
+                        new[]
+                        {
+                            new Point(firstX, block.Position.Y + block.Height + _settings.VerticalInterval),
+                            new Point(firstX, block.Position.Y + block.Height + _settings.VerticalInterval / 2),
+                            new Point(lastX, block.Position.Y + block.Height + _settings.VerticalInterval / 2),
+                            new Point(lastX, block.Position.Y + block.Height + _settings.VerticalInterval)
+                        });
+
+
+                    for (int bi = 0; bi < block.ColumnCount; bi++)
+                    {
+                        BlockPosition lastPos;
+                        if (block.GetChildCount(bi) == 0)
+                        {
+                            lastPos = new BlockPosition(
+                                block.Position.PageIndex,
+                                block.ColumnXs[bi],
+                                block.Position.Y + block.Height + _settings.VerticalInterval / 2
+                            );
+                        }
+                        else
+                        {
+                            lastPos = block.GetChild(bi, block.GetChildCount(bi) - 1).EndPosition;
+                            lastPos.X = block.GetChild(bi, block.GetChildCount(bi) - 1).Position.X + 
+                                        block.GetChild(bi, block.GetChildCount(bi) - 1).Width / 2;
+                            lastPos.Y += _settings.VerticalInterval / 2;
+                        }
+
+                        if (lastPos.PageIndex == block.EndPosition.PageIndex)
+                        {
+                            DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen,
+                                lastPos.X, lastPos.Y, lastPos.X, block.EndPosition.Y);
+                        }
+                        else
+                        {
+                            // Могут быть лишние соединители
+                            DrawStraightLine(_graphics[lastPos.PageIndex], pen,
+                                lastPos.X, lastPos.Y, lastPos.X,
+                                _pageHeights[lastPos.PageIndex] + _settings.VerticalInterval / 2);
+
+
+                            _connectorPairs.Add(
+
+                                new ConnectorPair(
+
+                                    new Connector(
+                                        Connector.ConnectorType.AtTheEndOfThePage,
+                                        _settings,
+                                        lastPos.PageIndex,
+                                        block,
+                                        _pageHeights[lastPos.PageIndex] + _settings.VerticalInterval,
+                                        lastPos.X - block.Position.X - block.Width / 2
+                                    ),
+                                    new Connector(
+                                        Connector.ConnectorType.AtTheStartOfThePage,
+                                        _settings,
+                                        block.EndPosition.PageIndex,
+                                        block,
+                                        _settings.PageOffset,
+                                        lastPos.X - block.Position.X - block.Width / 2
+                                    )
+                                )
+
+                            );
+                            
+
+                            DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen,
+                                lastPos.X,
+                                _settings.PageOffset + _settings.ConnectorSize + _settings.VerticalInterval / 2,
+                                lastPos.X, block.EndPosition.Y);
+                        }
+                    }
+
                     
+                    DrawStraightLines(_graphics[block.EndPosition.PageIndex], pen,
+                        new[]
+                        {
+                            new Point(firstX, block.EndPosition.Y - _settings.VerticalInterval / 2),
+                            new Point(firstX, block.EndPosition.Y),
+                            new Point(lastX, block.EndPosition.Y),
+                            new Point(lastX, block.EndPosition.Y - _settings.VerticalInterval / 2)
+                        });
+
+                    DrawStraightLine(_graphics[block.EndPosition.PageIndex], pen,
+                        block.Position.X + block.Width / 2,
+                        block.EndPosition.Y,
+                        block.Position.X + block.Width / 2,
+                        block.EndPosition.Y + _settings.VerticalInterval / 2);
                 }
             }
         }
@@ -592,6 +698,12 @@ namespace SchemeEditor.Schemes
 
         private void DrawConnectors(Pen pen)
         {
+            _connectorPairs = _connectorPairs
+                .OrderBy(cp => cp.Connector1.Position.PageIndex)
+                .ThenBy(cp => cp.Connector1.Position.Y)
+                .ThenBy(cp => cp.Connector1.Position.X)
+                .ToList();
+            
             for (int c = 0; c < _connectorPairs.Count; c++)
             {
                 var pair = _connectorPairs[c];
@@ -602,6 +714,13 @@ namespace SchemeEditor.Schemes
                 var firstGraph = _graphics[pos1.PageIndex];
                 var secondGraph = _graphics[pos2.PageIndex];
 
+                int id = c + 1;
+                
+                var size = firstGraph.MeasureString(id.ToString(), _font);
+                float dx = _settings.ConnectorSize / 2 - size.Width / 2;
+                float dy = _settings.ConnectorSize / 2 - size.Height / 2;
+                
+                
 
                 firstGraph.DrawEllipse(pen, pos1.X, pos1.Y, _settings.ConnectorSize, _settings.ConnectorSize);
                 switch (pair.Connector1.Type)
@@ -626,30 +745,92 @@ namespace SchemeEditor.Schemes
                         throw new ArgumentOutOfRangeException();
                 }
 
+                firstGraph.DrawString(id.ToString(), _font, Brushes.Black, pos1.X + dx, pos1.Y + dy);
 
+                int countParts = 2;
+                for (int i = 0; i < countParts * 2; i+=2)
+                {
+                    firstGraph.DrawLine(pen, pos1.X + _settings.ConnectorSize + i * _connectorInterval /
+                        (countParts * 2),
+                        pos1.Y + _settings.ConnectorSize / 2,
+                        pos1.X + _settings.ConnectorSize + (i + 1) * _connectorInterval / (countParts * 2),
+                        pos1.Y + _settings.ConnectorSize / 2);
+                }
+
+                var textSize = firstGraph.MeasureString($"К стр. {id}", _font).ToSize();
+
+                firstGraph.DrawLines(pen,
+                    new[]
+                    {
+                        new Point(pos1.X + _settings.ConnectorSize + _connectorInterval + textSize.Width,
+                            pos1.Y + _settings.ConnectorSize / 2 - textSize.Height / 2),
+                        new Point(pos1.X + _settings.ConnectorSize + _connectorInterval,
+                            pos1.Y + _settings.ConnectorSize / 2 - textSize.Height / 2),
+                        new Point(pos1.X + _settings.ConnectorSize + _connectorInterval,
+                            pos1.Y + _settings.ConnectorSize / 2 + textSize.Height / 2),
+                        new Point(pos1.X + _settings.ConnectorSize + _connectorInterval + textSize.Width,
+                            pos1.Y + _settings.ConnectorSize / 2 + textSize.Height / 2),
+                    });
+                
+                firstGraph.DrawString($"К стр. {id}", _font, Brushes.Black,
+                    pos1.X + _settings.ConnectorSize + _connectorInterval,
+                    pos1.Y + _settings.ConnectorSize / 2 - textSize.Height / 2);
+                
+                
                 secondGraph.DrawEllipse(pen, pos2.X, pos2.Y, _settings.ConnectorSize,
                     _settings.ConnectorSize);
-                if (pair.Connector2.Type == Connector.ConnectorType.AtTheStartOfThePage)
+                switch (pair.Connector2.Type)
                 {
-                    DrawStraightLine(secondGraph, pen,
-                        pos2.X + _settings.ConnectorSize / 2,
-                        pos2.Y + _settings.ConnectorSize, pos2.X + _settings.ConnectorSize / 2,
-                        pos2.Y + _settings.ConnectorSize + _settings.VerticalInterval / 2);
+                    case Connector.ConnectorType.AtTheStartOfThePage:
+                        DrawStraightLine(secondGraph, pen,
+                            pos2.X + _settings.ConnectorSize / 2,
+                            pos2.Y + _settings.ConnectorSize, pos2.X + _settings.ConnectorSize / 2,
+                            pos2.Y + _settings.ConnectorSize + _settings.VerticalInterval / 2);
+                        break;
+                    case Connector.ConnectorType.AfterBlock:
+                        DrawStraightLine(secondGraph, pen,
+                            pos2.X + _settings.ConnectorSize,
+                            pos2.Y + _settings.ConnectorSize / 2,
+                            pos2.X + _settings.ConnectorSize + _settings.HorizontalInterval +
+                            pair.Connector2.TargetBlock.Width / 2,
+                            pos2.Y + _settings.ConnectorSize / 2
+                        );
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
-                else if (pair.Connector2.Type == Connector.ConnectorType.AfterBlock)
+
+                secondGraph.DrawString(id.ToString(), _font, Brushes.Black, pos2.X + dx, pos2.Y + dy);
+                
+                
+                countParts = 2;
+                for (int i = 0; i < countParts * 2; i+=2)
                 {
-                    DrawStraightLine(secondGraph, pen,
-                        pos2.X + _settings.ConnectorSize,
+                    secondGraph.DrawLine(pen, pos2.X - i * _connectorInterval /
+                        (countParts * 2),
                         pos2.Y + _settings.ConnectorSize / 2,
-                        pos2.X + _settings.ConnectorSize + _settings.HorizontalInterval +
-                        pair.Connector2.TargetBlock.Width / 2,
-                        pos2.Y + _settings.ConnectorSize / 2
-                    );
+                        pos2.X - (i + 1) * _connectorInterval / (countParts * 2),
+                        pos2.Y + _settings.ConnectorSize / 2);
                 }
-                else
-                {
-                    throw new ArgumentOutOfRangeException();
-                }
+                
+                textSize = secondGraph.MeasureString($"Из стр. {id}", _font).ToSize();
+
+                secondGraph.DrawLines(pen,
+                    new[]
+                    {
+                        new Point(pos2.X - _connectorInterval - textSize.Width,
+                            pos2.Y + _settings.ConnectorSize / 2 - textSize.Height / 2),
+                        new Point(pos2.X - _connectorInterval,
+                            pos2.Y + _settings.ConnectorSize / 2 - textSize.Height / 2),
+                        new Point(pos2.X - _connectorInterval,
+                            pos2.Y + _settings.ConnectorSize / 2 + textSize.Height / 2),
+                        new Point(pos2.X - _connectorInterval - textSize.Width,
+                            pos2.Y + _settings.ConnectorSize / 2 + textSize.Height / 2)
+                    });
+                
+                secondGraph.DrawString($"Из стр. {id}", _font, Brushes.Black,
+                    pos2.X - _connectorInterval - textSize.Width,
+                    pos2.Y + _settings.ConnectorSize / 2 - textSize.Height / 2);
 
             }
         }
@@ -660,11 +841,11 @@ namespace SchemeEditor.Schemes
 
         private void CalculateBlockCoords(Block block, out BlockPosition lastPosition, ref int blockIndexPage)
         {
-            BlockPosition startChildPos = block.Position;/*
+            BlockPosition startChildPos = block.Position;
 
             _pageHeights[block.Position.PageIndex] = Math.Max(
                 block.Position.Y + block.Height,
-                _pageHeights[block.Position.PageIndex]);*/
+                _pageHeights[block.Position.PageIndex]);
 
             if (block.Type != BlockType.Main)
             {
@@ -687,8 +868,11 @@ namespace SchemeEditor.Schemes
                 for (int i = 0; i < block.GetChildCount(branchIndex); i++)
                 {
                     // Если блок не помещается на странице
-                    if (childIndexPage >= _settings.BlocksOnPage &&
-                        block.GetChild(branchIndex, i).Type != BlockType.End)
+                    if ((childIndexPage >= _settings.BlocksOnPage &&
+                         block.GetChild(branchIndex, i).Type != BlockType.End) ||
+                        (childIndexPage + 1 >= _settings.BlocksOnPage &&
+                         block.GetChild(branchIndex, i).ColumnCount > 2)
+                        )
                     {
                         _connectorPairs.Add(
                             new ConnectorPair(
@@ -738,7 +922,7 @@ namespace SchemeEditor.Schemes
                     }
                 }
 
-                if (block.ColumnCount > 2 && block.GetChildCount(branchIndex) == 0)
+                if (block.ColumnCount > 2)
                     childPos.Y += _settings.VerticalInterval / 2;
 
                 if ((block.ColumnCount > 2 || block.GetChildCount(branchIndex) > 0) &&
@@ -804,12 +988,15 @@ namespace SchemeEditor.Schemes
             if (block.ColumnCount == 2 && block.GetChildCount(1) == 0 &&
                 block.EndPosition.PageIndex != block.Position.PageIndex)
             {
-                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize);
+                int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10))
+                    .MeasureString("Из стр. 10", _font).Width;
+                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize +
+                                              _connectorInterval + textWidth);
 
                 block.ChildrenWidth = Math.Max(
                                           block.ChildrenWidth,
-                                          block.Width + _settings.HorizontalInterval + _settings.ConnectorSize)
-                                      + _settings.HorizontalInterval + _settings.ConnectorSize;
+                                          block.Width + _settings.HorizontalInterval + _settings.ConnectorSize + textWidth)
+                                      + _settings.HorizontalInterval + _settings.ConnectorSize + textWidth;
 
                 _connectorPairs.Add(
                     new ConnectorPair(
@@ -833,11 +1020,23 @@ namespace SchemeEditor.Schemes
                     block.GetChild(1,block.GetChildCount(1) - 1).Position.PageIndex !=
                     block.EndPosition.PageIndex)
             {
-                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize);
+                int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10))
+                    .MeasureString("Из стр. 10", _font).Width;
+                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize + textWidth);
 
                 block.ChildrenWidth = Math.Max(
                     block.ChildrenWidth,
-                    block.Width) + _settings.HorizontalInterval + _settings.ConnectorSize;
+                    block.Width) + _settings.HorizontalInterval + _settings.ConnectorSize + textWidth;
+            }
+
+            if (block.ColumnCount > 2 &&
+                block.EndPosition.PageIndex != block.Position.PageIndex)
+            {
+                int textWidth = (int) (Graphics.FromImage(new Bitmap(10,10))).MeasureString("Из стр. 10", _font).Width;
+                //ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize +
+                //                              _connectorInterval + textWidth);
+
+                 block.ChildrenWidth += _settings.HorizontalInterval + _settings.ConnectorSize + textWidth;
             }
 
         }

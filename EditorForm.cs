@@ -30,15 +30,15 @@ namespace SchemeEditor
 
             _defaultSettings = new SchemeSettings()
             {
-                BlocksOnPage = 5,
+                BlocksOnPage = 4,
                 HorizontalInterval =  50,
                 VerticalInterval = 50,
                 PagesInterval = 50,
                 StandartHeight = 50,
                 StandartWidth = 100,
                 ConnectorSize = 30,
-                PageOffset = 10,
-                FontSize = 16
+                PageOffset = 30,
+                FontSize = 18
             };
 
             Scheme scheme = new Scheme(_defaultSettings);
