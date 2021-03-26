@@ -2,6 +2,7 @@
 {
     public class ConnectorPair
     {
+        public int Id { get; set; }
         public Connector Connector1 { get; private set; }  
         public Connector Connector2 { get; private set; }
 

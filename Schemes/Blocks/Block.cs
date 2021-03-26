@@ -12,7 +12,7 @@ namespace SchemeEditor.Schemes.Blocks
         public Block Parent { get; private set; }
 
         #region Visual
-        public int ColumnCount => _children.Count;
+        public int ColumnCount => BranchNames.Length;
         public int[] ColumnXs { get; private set; }
 
         public BlockPosition Position { get; set; }
