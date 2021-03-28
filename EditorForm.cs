@@ -21,7 +21,9 @@ namespace SchemeEditor
         private int _columnCount;
 
         private SchemeSettings _defaultSettings;
-        
+
+        public SchemeSettings DefaultSettings => _defaultSettings;
+
         public EditorForm()
         {
             InitializeComponent();
@@ -372,7 +374,8 @@ namespace SchemeEditor
 
         private void createSchemeFromCode_Click(object sender, EventArgs e)
         {
-            throw new System.NotImplementedException();
+            var codeForm = new CodeEditorForm(this);
+            codeForm.ShowDialog();
         }
 
         private void openScheme_Click(object sender, EventArgs e)

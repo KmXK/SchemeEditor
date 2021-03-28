@@ -52,6 +52,15 @@
         <Compile Include="BlockEditingForm.Designer.cs">
           <DependentUpon>BlockEditingForm.cs</DependentUpon>
         </Compile>
+        <Compile Include="CodeEditorForm.cs">
+          <SubType>Form</SubType>
+        </Compile>
+        <Compile Include="CodeEditorForm.Designer.cs">
+          <DependentUpon>CodeEditorForm.cs</DependentUpon>
+        </Compile>
+        <Compile Include="CodeTranslate\DelphiCodeParser.cs" />
+        <Compile Include="CodeTranslate\CodeParser.cs" />
+        <Compile Include="CodeTranslate\ParseResult.cs" />
         <Compile Include="EditorForm.cs">
             <SubType>Form</SubType>
         </Compile>
@@ -77,6 +86,9 @@
         </Compile>
         <EmbeddedResource Include="BlockEditingForm.resx">
           <DependentUpon>BlockEditingForm.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="CodeEditorForm.resx">
+          <DependentUpon>CodeEditorForm.cs</DependentUpon>
         </EmbeddedResource>
         <EmbeddedResource Include="EditorForm.resx">
           <DependentUpon>EditorForm.cs</DependentUpon>
