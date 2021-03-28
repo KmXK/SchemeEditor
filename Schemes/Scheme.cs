@@ -41,7 +41,8 @@ namespace SchemeEditor.Schemes
             // Создание блока-контейнера (такой один на всей схеме)
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
             _mainBlock.Width = _settings.StandartWidth;
-            _mainBlock.Height = _settings.FontSize;
+            _mainBlock.Height = _settings.StandartHeight;
+            _mainBlock.FontSize = _settings.FontSize;
 
             Block start = new Block(BlockType.Start, new[] {"Вход"}, new string[0]);
             start.Width = _settings.StandartWidth;
@@ -60,10 +61,13 @@ namespace SchemeEditor.Schemes
 
         ~Scheme()
         {
-            for (int i = 0; i < _bitmaps.Length; i++)
+            if(_bitmaps!=null)
             {
-                _bitmaps[i].Dispose();
-                _globalBitmap.Dispose();
+                for (int i = 0; i < _bitmaps.Length; i++)
+                {
+                    _bitmaps[i].Dispose();
+                    _globalBitmap.Dispose();
+                }
             }
         }
 

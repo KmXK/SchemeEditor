@@ -21,7 +21,14 @@ namespace SchemeEditor
             var result = parser.ParseCodeToScheme();
             if (result.IsSuccess)
             {
-                // add schemes
+                foreach (var scheme in result.Schemes)
+                {
+                    _editorForm.AddScheme(scheme);
+                }
+            }
+            else
+            {
+                MessageBox.Show(result.ErrorMessage);
             }
         }
     }

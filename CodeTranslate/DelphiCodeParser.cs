@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SchemeEditor.Schemes;
+using SchemeEditor.Schemes.Blocks;
 
 namespace SchemeEditor.CodeTranslate
 {
@@ -46,7 +47,7 @@ namespace SchemeEditor.CodeTranslate
                             return new ParseResult(false, message, null);
                         }
 
-                        i++;
+                        i = areaStart + 1;
                     }
                     
                     areaStart = i;
@@ -55,16 +56,16 @@ namespace SchemeEditor.CodeTranslate
                     if (FindEndOfArea(areaStart, out int areaEnd))
                     {
                         var scheme = new Scheme(_settings);
-                        WriteAreaToScheme(scheme, i + 1, areaEnd - 1);
-                        schemes.Add(scheme);
-
-                        i = areaEnd;
-
+                        
+                        // areaStart указывает на begin схемы
+                        // areaEnd - на end
+                        
+                        // Нужно пройтись по всем операторам и добавить их в scheme.MainBlock
                     }
                     else
                     {
                         return new ParseResult(false,
-                            $"Не найден конец области по индексу {areaStart + 1}",
+                            $"Ожидался end для begin по индексу {areaStart}",
                             null);
                     }
                 }
@@ -73,6 +74,7 @@ namespace SchemeEditor.CodeTranslate
             return new ParseResult(true, "", schemes);
         }
 
+        // Удаление лишних пробелов по краям строк, однострочных комментариев
         private void FormatCode()
         {
             for (int i = 0; i < _code.Length; i++)
@@ -85,16 +87,11 @@ namespace SchemeEditor.CodeTranslate
             }
         }
 
-        private void WriteAreaToScheme(Scheme scheme, int start, int end)
-        {
-            start++;
-            end--;
-        }
-
-        // areaStart - индекс begin области
+        // Найти end для begin
         private bool FindEndOfArea(int areaStart, out int areaEnd)
         {
             areaEnd = areaStart;
+            int nesting = 0;
 
             int line = areaStart;
             while (line <= _code.Length - 1)
@@ -103,8 +100,17 @@ namespace SchemeEditor.CodeTranslate
                     _code[line].ToLower() == "end;" ||
                     _code[line].ToLower() == "end.")
                 {
-                    areaEnd = line;
-                    return true;
+                    nesting--;
+                    
+                    if(nesting == 0)
+                    {
+                        areaEnd = line;
+                        return true;
+                    }
+                }
+                else if (_code[line].ToLower() == "begin")
+                {
+                    nesting++;
                 }
 
                 line++;
@@ -113,6 +119,7 @@ namespace SchemeEditor.CodeTranslate
             return false;
         }
 
+        // Проверка имени подпрограммы
         private bool CheckAreaName(int start, out int end, out string errorMessage)
         {
             errorMessage = "";
@@ -123,6 +130,19 @@ namespace SchemeEditor.CodeTranslate
             var bracketNesting = 0;
             while (_code.Length - 1 >= line)
             {
+                if(line != start)
+                {
+                    foreach (var reservedWord in _reservedWords)
+                    {
+                        if (_code[line].StartsWith(reservedWord + " ") || _code[line] == reservedWord)
+                        {
+                            end = line;
+                            errorMessage = $"Ожидалась точка с запятой в названии подпрограммы по индексу {start}";
+                            return false;
+                        }
+                    }
+                }
+
                 for (int i = 0; i < _code[line].Length; i++)
                 {
                     if (isEnded)
@@ -130,16 +150,16 @@ namespace SchemeEditor.CodeTranslate
                         errorMessage = "После точки запятой ничего не должно быть.";
                         return false;
                     }
-                    
+
                     if (_code[line][i] == '(')
                     {
                         bracketNesting++;
                     }
-                    else if(_code[line][i] == ')')
+                    else if (_code[line][i] == ')')
                     {
                         bracketNesting--;
                     }
-                    else if(_code[line][i] == ';')
+                    else if (_code[line][i] == ';')
                     {
                         isEnded = true;
                         end = line;
@@ -150,14 +170,15 @@ namespace SchemeEditor.CodeTranslate
                 {
                     if (bracketNesting != 0)
                     {
-                        errorMessage = $"Лишняя(ие) скобки в оператора, начинающемся на строке {start}.";
+                        errorMessage = $"Лишняя(ие) скобки в названии подпрограммы, начинающейся на строке {start}.";
                         return false;
                     }
 
                     if (end == _code.Length - 1 ||
-                        !_code[end+1].StartsWith("begin"))
+                        _code[end + 1] != "begin")
                     {
                         errorMessage = $"Ожидался begin на строке {end+1}.";
+                        return false;
                     }
                     
                     end = line;
@@ -167,7 +188,7 @@ namespace SchemeEditor.CodeTranslate
                 line++;
             }
 
-            errorMessage = $"Не закрыта область кода в строке {start}.";
+            errorMessage = $"Не закрыта подпрограмма в строке {start}.";
             return false;
         }
     }
