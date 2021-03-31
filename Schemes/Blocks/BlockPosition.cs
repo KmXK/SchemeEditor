@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace SchemeEditor.Schemes.Blocks
 {
+    [Serializable]
     public struct BlockPosition
     {
         public bool Equals(BlockPosition other)

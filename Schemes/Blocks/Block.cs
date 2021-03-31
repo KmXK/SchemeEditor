@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace SchemeEditor.Schemes.Blocks
 {
+    [Serializable]
     public class Block
     {
         public BlockType Type { get; private set; }

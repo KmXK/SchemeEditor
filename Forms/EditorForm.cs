@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using SchemeEditor.Schemes.Blocks;
 using SchemeEditor.Schemes;
@@ -17,8 +15,6 @@ namespace SchemeEditor
         private Scheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
 
         private float _zoomMultiplier = 1f;
-
-        private int _columnCount;
 
         private SchemeSettings _defaultSettings;
 
@@ -378,24 +374,6 @@ namespace SchemeEditor
             codeForm.Show();
         }
 
-        private void openScheme_Click(object sender, EventArgs e)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void saveSchemeAs_Click(object sender, EventArgs e)
-        {
-            throw new System.NotImplementedException();
-            
-            //Bitmap bitmap = scheme.DrawScheme();
-            //bitmap.Save("SomeFolder/bitmap.bmp");
-        }
-
         private void closeScheme_Click(object sender, EventArgs e)
         {
             if (_schemes.Count != 0)
@@ -418,6 +396,42 @@ namespace SchemeEditor
                 _defaultSettings = form.Settings;
                 SelectedScheme.SetSettings(form.Settings);
                 UpdateSchemePicture();
+            }
+        }
+
+        private void saveCurScheme_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "Файл схемы(*.scheme)|*.scheme";
+                dialog.DefaultExt = "*.scheme";
+                dialog.Title = "Сохранение текущей схемы";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+                    formatter.Serialize(stream, SelectedScheme);
+                    
+                    stream.Close();
+                }
+            }
+        }
+
+        private void openScheme_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "Файл схемы(*.scheme)|*.scheme";
+                dialog.DefaultExt = "*.scheme";
+                dialog.Title = "Открыть схему";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+                    AddScheme((Scheme)formatter.Deserialize(stream));
+                    
+                    stream.Close();
+                }
             }
         }
     }

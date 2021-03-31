@@ -8,16 +8,20 @@ using SchemeEditor.Schemes.Blocks;
 
 namespace SchemeEditor.Schemes
 {
+    [Serializable]
     public class Scheme
     {
         private Block _mainBlock;
 
         public readonly int PictureMultiplier = 5;
 
+        [NonSerialized]
         private int _connectorInterval;
+        [NonSerialized]
         private List<ConnectorPair> _connectorPairs;
         
         
+        [NonSerialized]
         private List<Arrow> _arrows;
 
         private SchemeSettings _settings;
@@ -26,11 +30,14 @@ namespace SchemeEditor.Schemes
         public Block MainBlock => _mainBlock;
         public Block SelectedBlock { get; private set; }
 
+        [NonSerialized]
         private List<int> _pageHeights;
+        [NonSerialized]
         private Bitmap[] _bitmaps;
+        [NonSerialized]
         private Bitmap _globalBitmap;
+        [NonSerialized]
         private Graphics[] _graphics;
-        private Font _font;
 
         #region Scheme
 
@@ -65,8 +72,6 @@ namespace SchemeEditor.Schemes
         public void SetSettings(SchemeSettings settings)
         {
             _settings = GetMultipliedSettings(settings);
-            
-            _font = new Font("Times New Roman", _settings.FontSize / 2);
 
             _connectorInterval = 10 * PictureMultiplier;
             
@@ -400,15 +405,18 @@ namespace SchemeEditor.Schemes
                     }
 
                     int blockCenter = block.Position.X + block.Width / 2;
-                    if (blockCenter - tX > 0 && blockCenter - tX < (int) tSize.Width / 2)
+
+                    if (Math.Abs(tX + tSize.Width / 2 - blockCenter) < PictureMultiplier &&
+                        Math.Sign(tX - blockCenter) != Math.Sign(blockCenter - tX))
                     {
-                        tX = blockCenter;
-                    }
-                    else if (tX + (int) tSize.Width - blockCenter > 0 &&
-                             (tX + (int) tSize.Width - blockCenter < (int) tSize.Width / 2 ||
-                              (tX + tSize.Width / 2 - blockCenter) < 0.5f))
-                    {
-                        tX = blockCenter - (int)tSize.Width;
+                        if (tX - blockCenter > 0)
+                        {
+                            tX = blockCenter;
+                        }
+                        else
+                        {
+                            tX = blockCenter - (int)tSize.Width;
+                        }
                     }
 
                     graphics.DrawString(block.BranchNames[i],
@@ -799,6 +807,8 @@ namespace SchemeEditor.Schemes
                 .ToList();
 
             int id = 1;
+            
+            var font = new Font("Times New Roman", _settings.FontSize / 2);
 
             for (int c = 0; c < _connectorPairs.Count; c++)
             {
@@ -845,7 +855,7 @@ namespace SchemeEditor.Schemes
                 int countParts;
                 Size textSize;
 
-                var size = firstGraph.MeasureString(pair.Id.ToString(), _font);
+                var size = firstGraph.MeasureString(pair.Id.ToString(), font);
                 float dx = _settings.ConnectorSize / 2 - size.Width / 2;
                 float dy = _settings.ConnectorSize / 2 - size.Height / 2;
 
@@ -880,7 +890,7 @@ namespace SchemeEditor.Schemes
                         throw new ArgumentOutOfRangeException();
                 }
 
-                firstGraph.DrawString(pair.Id.ToString(), _font, Brushes.Black, pos1.X + dx, pos1.Y + dy);
+                firstGraph.DrawString(pair.Id.ToString(), font, Brushes.Black, pos1.X + dx, pos1.Y + dy);
 
                 countParts = 2;
                 for (int i = 0; i < countParts * 2; i += 2)
@@ -892,7 +902,7 @@ namespace SchemeEditor.Schemes
                         pos1.Y + _settings.ConnectorSize / 2);
                 }
 
-                textSize = firstGraph.MeasureString($"К стр. {secondPage}", _font).ToSize();
+                textSize = firstGraph.MeasureString($"К стр. {secondPage}", font).ToSize();
 
                 firstGraph.DrawLines(pen,
                     new[]
@@ -907,7 +917,7 @@ namespace SchemeEditor.Schemes
                             pos1.Y + _settings.ConnectorSize / 2 + textSize.Height / 2),
                     });
 
-                firstGraph.DrawString($"К стр. {secondPage}", _font, Brushes.Black,
+                firstGraph.DrawString($"К стр. {secondPage}", font, Brushes.Black,
                     pos1.X + _settings.ConnectorSize + _connectorInterval,
                     pos1.Y + _settings.ConnectorSize / 2 - textSize.Height / 2);
 
@@ -961,7 +971,7 @@ namespace SchemeEditor.Schemes
                     secondGraph.DrawEllipse(pen, pos2.X, pos2.Y, _settings.ConnectorSize,
                         _settings.ConnectorSize);
 
-                    secondGraph.DrawString(pair.Id.ToString(), _font, Brushes.Black, pos2.X + dx, pos2.Y + dy);
+                    secondGraph.DrawString(pair.Id.ToString(), font, Brushes.Black, pos2.X + dx, pos2.Y + dy);
 
 
                     countParts = 2;
@@ -974,7 +984,7 @@ namespace SchemeEditor.Schemes
                             pos2.Y + _settings.ConnectorSize / 2);
                     }
 
-                    textSize = secondGraph.MeasureString($"Из стр. {firstPage}", _font).ToSize();
+                    textSize = secondGraph.MeasureString($"Из стр. {firstPage}", font).ToSize();
 
                     secondGraph.DrawLines(pen,
                         new[]
@@ -989,7 +999,7 @@ namespace SchemeEditor.Schemes
                                 pos2.Y + _settings.ConnectorSize / 2 + textSize.Height / 2)
                         });
 
-                    secondGraph.DrawString($"Из стр. {firstPage}", _font, Brushes.Black,
+                    secondGraph.DrawString($"Из стр. {firstPage}", font, Brushes.Black,
                         pos2.X - _connectorInterval - textSize.Width,
                         pos2.Y + _settings.ConnectorSize / 2 - textSize.Height / 2);
 
@@ -1143,13 +1153,13 @@ namespace SchemeEditor.Schemes
                 block.EndPosition.Y,
                 _pageHeights[block.EndPosition.PageIndex]);
 
-            
+            var font = new Font("Times New Roman", _settings.FontSize / 2);
             
             if (block.ColumnCount == 2 && block.GetChildCount(1) == 0 &&
                 block.EndPosition.PageIndex != block.Position.PageIndex)
             {
                 int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10))
-                    .MeasureString("Из стр. 10", _font).Width;
+                    .MeasureString("Из стр. 10", font).Width;
                 ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize +
                                               _connectorInterval + textWidth);
 
@@ -1198,7 +1208,7 @@ namespace SchemeEditor.Schemes
                     block.EndPosition.PageIndex)
             {
                 int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10))
-                    .MeasureString("Из стр. 10", _font).Width;
+                    .MeasureString("Из стр. 10", font).Width;
                 ShiftBlockWithChildren(block, _settings.HorizontalInterval + _connectorInterval + _settings.ConnectorSize + textWidth);
 
                 block.ChildrenWidth = Math.Max(
@@ -1210,7 +1220,7 @@ namespace SchemeEditor.Schemes
                 block.EndPosition.PageIndex != block.Position.PageIndex)
             {
                 int textWidth = (int) (Graphics.FromImage(new Bitmap(10,10)))
-                    .MeasureString("Из стр. 10", _font).Width;
+                    .MeasureString("Из стр. 10", font).Width;
 
                  block.ChildrenWidth += _settings.HorizontalInterval + _settings.ConnectorSize + textWidth;
                  

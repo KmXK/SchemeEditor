@@ -1,5 +1,8 @@
-﻿namespace SchemeEditor.Schemes
+﻿using System;
+
+namespace SchemeEditor.Schemes
 {
+    [Serializable]
     public struct SchemeSettings
     {
         public int BlocksOnPage;
