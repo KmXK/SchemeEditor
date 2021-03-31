@@ -375,7 +375,7 @@ namespace SchemeEditor
         private void createSchemeFromCode_Click(object sender, EventArgs e)
         {
             var codeForm = new CodeEditorForm(this);
-            codeForm.ShowDialog();
+            codeForm.Show();
         }
 
         private void openScheme_Click(object sender, EventArgs e)
@@ -403,6 +403,20 @@ namespace SchemeEditor
                 int index = tabControl1.SelectedIndex;
                 _schemes.RemoveAt(index);
                 tabControl1.Controls.RemoveAt(index);
+                UpdateSchemePicture();
+            }
+        }
+
+        private void globalSettingsButton_Click(object sender, EventArgs e)
+        {
+            if (_schemes.Count == 0)
+                return;
+
+            SettingsForm form = new SettingsForm(_defaultSettings);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                _defaultSettings = form.Settings;
+                SelectedScheme.SetSettings(form.Settings);
                 UpdateSchemePicture();
             }
         }

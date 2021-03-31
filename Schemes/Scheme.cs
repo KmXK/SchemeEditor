@@ -36,27 +36,18 @@ namespace SchemeEditor.Schemes
 
         public Scheme(SchemeSettings settings)
         {
-            SetSettings(settings);
-
             // Создание блока-контейнера (такой один на всей схеме)
             _mainBlock = new Block(BlockType.Main, new[] {""}, new string[1]);
-            _mainBlock.Width = _settings.StandartWidth;
-            _mainBlock.Height = _settings.StandartHeight;
-            _mainBlock.FontSize = _settings.FontSize;
 
             Block start = new Block(BlockType.Start, new[] {"Вход"}, new string[0]);
-            start.Width = _settings.StandartWidth;
-            start.Height = _settings.StandartHeight;
-            start.FontSize = _settings.FontSize;
             _mainBlock.AddChild(start, 0, 0);
 
             Block end = new Block(BlockType.End, new[] {"Выход"}, new string[0]);
-            end.Width = _settings.StandartWidth;
-            end.Height = _settings.StandartHeight;
-            end.FontSize = _settings.FontSize;
             _mainBlock.AddChild(end, 0, 1);
 
             SelectedBlock = _mainBlock;
+            
+            SetSettings(settings);
         }
 
         ~Scheme()
@@ -73,20 +64,43 @@ namespace SchemeEditor.Schemes
 
         public void SetSettings(SchemeSettings settings)
         {
-            _settings = settings;
-            _settings.HorizontalInterval *= PictureMultiplier;
-            _settings.VerticalInterval *= PictureMultiplier;
-            _settings.StandartWidth *= PictureMultiplier;
-            _settings.StandartHeight *= PictureMultiplier;
-            _settings.PageOffset *= PictureMultiplier;
-            _settings.ConnectorSize *= PictureMultiplier;
-            _settings.PagesInterval *= PictureMultiplier;
-
-            _settings.FontSize *= PictureMultiplier;
+            _settings = GetMultipliedSettings(settings);
+            
             _font = new Font("Times New Roman", _settings.FontSize / 2);
 
             _connectorInterval = 10 * PictureMultiplier;
             
+            SetBlockDefaultSettings(MainBlock);
+        }
+
+        private SchemeSettings GetMultipliedSettings(SchemeSettings settings)
+        {
+            var set = settings;
+            set.HorizontalInterval *= PictureMultiplier;
+            set.VerticalInterval *= PictureMultiplier;
+            set.StandartWidth *= PictureMultiplier;
+            set.StandartHeight *= PictureMultiplier;
+            set.PageOffset *= PictureMultiplier;
+            set.ConnectorSize *= PictureMultiplier;
+            set.PagesInterval *= PictureMultiplier;
+            set.FontSize *= PictureMultiplier;
+            
+            return set;
+        }
+
+        private void SetBlockDefaultSettings(Block block)
+        {
+            block.Width = _settings.StandartWidth;
+            block.Height = _settings.StandartHeight;
+            block.FontSize = _settings.FontSize;
+
+            for (int i = 0; i < block.ColumnCount; i++)
+            {
+                for (int j = 0; j < block.GetChildCount(i); j++)
+                {
+                    SetBlockDefaultSettings(block.GetChild(i, j));
+                }
+            }
         }
 
         public Bitmap DrawScheme()
@@ -216,7 +230,7 @@ namespace SchemeEditor.Schemes
 
                 pen.Color = Color.Black;
                 DrawBlockLines(block, pen);
-                DrawBlockText(g, block);
+                DrawBlockText(g, block, block.Position.X, block.Position.Y);
             }
 
             for (int i = 0; i < block.ColumnCount; i++)
@@ -318,20 +332,20 @@ namespace SchemeEditor.Schemes
             }
         }
 
-        private void DrawBlockText(Graphics graphics, Block block)
+        private void DrawBlockText(Graphics graphics, Block block, int x, int y)
         {
             var font = new Font("Times New Roman", block.FontSize / 2);
 
             var fontHeight = (int) graphics.MeasureString("1", font).Height;
 
-            int y = block.Position.Y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
+            int dy = y + block.Height / 2 - fontHeight / 2 * block.Text.Length;
 
             for (int i = 0; i < block.Text.Length; i++)
             {
                 int lineWidth = (int) graphics.MeasureString(block.Text[i], font).Width;
                 graphics.DrawString(block.Text[i], font, Brushes.Black,
-                    block.Position.X + block.Width / 2 - lineWidth / 2, y);
-                y += fontHeight;
+                    x + block.Width / 2 - lineWidth / 2, dy);
+                dy += fontHeight;
             }
         }
 
@@ -1211,14 +1225,14 @@ namespace SchemeEditor.Schemes
                 {
                     GetGlobalCoordsByPage(block.Position, out x, out y);
                     DrawBlockFigure(graphics, block, x, y, new Pen(Color.Red, PictureMultiplier));
-                    DrawBlockText(graphics, block);
+                    DrawBlockText(graphics, block, x, y);
                 }
 
                 if (SelectedBlock != MainBlock)
                 {
                     GetGlobalCoordsByPage(SelectedBlock.Position, out x, out y);
                     DrawBlockFigure(graphics, SelectedBlock, x, y, new Pen(Color.Black, PictureMultiplier));
-                    DrawBlockText(graphics, SelectedBlock);
+                    DrawBlockText(graphics, SelectedBlock, x, y);
                 }
                 
                 graphics.Dispose();

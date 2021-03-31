@@ -46,9 +46,7 @@
             this.addBlockInside = new System.Windows.Forms.ToolStripMenuItem();
             this.удалитьБлокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.изменитьБлокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.настройкиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.увеличитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.уменьшитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.globalSettingsButton = new System.Windows.Forms.ToolStripMenuItem();
             this.помощьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomMinusButton = new System.Windows.Forms.Button();
             this.zoomPlusButton = new System.Windows.Forms.Button();
@@ -70,7 +68,7 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.файлToolStripMenuItem, this.редактироватьToolStripMenuItem, this.настройкиToolStripMenuItem, this.помощьToolStripMenuItem});
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.файлToolStripMenuItem, this.редактироватьToolStripMenuItem, this.globalSettingsButton, this.помощьToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
@@ -183,22 +181,12 @@
             this.изменитьБлокToolStripMenuItem.Text = "Изменить блок";
             this.изменитьБлокToolStripMenuItem.Click += new System.EventHandler(this.EditBlock);
             // 
-            // настройкиToolStripMenuItem
+            // globalSettingsButton
             // 
-            this.настройкиToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.увеличитьToolStripMenuItem, this.уменьшитьToolStripMenuItem});
-            this.настройкиToolStripMenuItem.Name = "настройкиToolStripMenuItem";
-            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(96, 24);
-            this.настройкиToolStripMenuItem.Text = "Настройки";
-            // 
-            // увеличитьToolStripMenuItem
-            // 
-            this.увеличитьToolStripMenuItem.Name = "увеличитьToolStripMenuItem";
-            this.увеличитьToolStripMenuItem.Size = new System.Drawing.Size(69, 22);
-            // 
-            // уменьшитьToolStripMenuItem
-            // 
-            this.уменьшитьToolStripMenuItem.Name = "уменьшитьToolStripMenuItem";
-            this.уменьшитьToolStripMenuItem.Size = new System.Drawing.Size(69, 22);
+            this.globalSettingsButton.Name = "globalSettingsButton";
+            this.globalSettingsButton.Size = new System.Drawing.Size(96, 24);
+            this.globalSettingsButton.Text = "Настройки";
+            this.globalSettingsButton.Click += new System.EventHandler(this.globalSettingsButton_Click);
             // 
             // помощьToolStripMenuItem
             // 
@@ -265,9 +253,6 @@
 
         private System.Windows.Forms.Button zoomMinusButton;
 
-        private System.Windows.Forms.ToolStripMenuItem увеличитьToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem уменьшитьToolStripMenuItem;
-
         private System.Windows.Forms.ToolStripMenuItem addBlockInside;
 
         private System.Windows.Forms.ToolStripMenuItem доToolStripMenuItem;
@@ -279,7 +264,7 @@
         private System.Windows.Forms.ToolStripMenuItem удалитьБлокToolStripMenuItem;
 
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem настройкиToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem globalSettingsButton;
         private System.Windows.Forms.ToolStripMenuItem помощьToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem файлToolStripMenuItem;
 
