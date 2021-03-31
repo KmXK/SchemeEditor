@@ -535,7 +535,7 @@ namespace SchemeEditor.CodeTranslate
                 _code[i] = _code[i].Trim();
                 if (_code[i].Contains("//"))
                 {
-                    _code[i] = _code[i].Remove(_code[i].IndexOf("//", StringComparison.Ordinal));
+                    _code[i] = _code[i].Remove(_code[i].IndexOf("//", StringComparison.Ordinal)).Trim();
                 }
                 
                 if(_code[i].Length != 0)
