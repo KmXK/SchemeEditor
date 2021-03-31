@@ -403,8 +403,8 @@ namespace SchemeEditor
         {
             using (var dialog = new SaveFileDialog())
             {
-                dialog.Filter = "Файл схемы(*.scheme)|*.scheme";
-                dialog.DefaultExt = "*.scheme";
+                dialog.Filter = "Файл схемы(*.asch)|*.asch";
+                dialog.DefaultExt = "*.asch";
                 dialog.Title = "Сохранение текущей схемы";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
@@ -421,14 +421,58 @@ namespace SchemeEditor
         {
             using (var dialog = new OpenFileDialog())
             {
-                dialog.Filter = "Файл схемы(*.scheme)|*.scheme";
-                dialog.DefaultExt = "*.scheme";
+                dialog.Filter = "Файл схемы(*.asch)|*.asch";
+                dialog.DefaultExt = "*.asch";
                 dialog.Title = "Открыть схему";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                     AddScheme((Scheme)formatter.Deserialize(stream));
+                    
+                    stream.Close();
+                }
+            }
+        }
+
+        private void openSchemeGroup_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "Файл группы схем(*.aschgroup)|*.aschgroup";
+                dialog.DefaultExt = "*.aschgroup";
+                dialog.Title = "Открытие группы схем";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+
+                    while (stream.Position <= stream.Length - 1)
+                    {
+                        AddScheme((Scheme)formatter.Deserialize(stream));
+                    }
+                    
+                    stream.Close();
+                }
+            }
+        }
+
+        private void saveSchemeGroup_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "Файл группы схем(*.aschgroup)|*.aschgroup";
+                dialog.DefaultExt = "*.aschgroup";
+                dialog.Title = "Сохранение группу схем";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+
+                    foreach (var scheme in _schemes)
+                    {
+                        formatter.Serialize(stream, scheme);
+                    }
                     
                     stream.Close();
                 }

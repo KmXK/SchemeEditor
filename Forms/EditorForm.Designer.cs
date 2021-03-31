@@ -125,6 +125,7 @@
             this.openSchemeGroup.Name = "openSchemeGroup";
             this.openSchemeGroup.Size = new System.Drawing.Size(192, 22);
             this.openSchemeGroup.Text = "Открыть группу схем";
+            this.openSchemeGroup.Click += new System.EventHandler(this.openSchemeGroup_Click);
             // 
             // saveSchemeAs
             // 
@@ -145,6 +146,7 @@
             this.saveSchemeGroup.Name = "saveSchemeGroup";
             this.saveSchemeGroup.Size = new System.Drawing.Size(222, 22);
             this.saveSchemeGroup.Text = "Сохранить группу схем";
+            this.saveSchemeGroup.Click += new System.EventHandler(this.saveSchemeGroup_Click);
             // 
             // closeScheme
             // 
