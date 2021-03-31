@@ -347,6 +347,76 @@ namespace SchemeEditor.Schemes
                     x + block.Width / 2 - lineWidth / 2, dy);
                 dy += fontHeight;
             }
+            
+            // Отрисовка названий колонок
+            if (block.ColumnCount == 2)
+            {
+                var tSize1 = graphics.MeasureString(block.BranchNames[0], font);
+                var tSize2 = graphics.MeasureString(block.BranchNames[1], font);
+
+                graphics.DrawString(block.BranchNames[0],
+                    font, Brushes.Black,
+                    block.Position.X + block.Width / 2 - tSize1.Width,
+                    block.Position.Y + block.Height);
+
+                graphics.DrawString(block.BranchNames[1],
+                    font, Brushes.Black,
+                    block.Position.X + block.Width,
+                    block.Position.Y + block.Height / 2 - tSize2.Height);
+            }
+            else if (block.ColumnCount > 2)
+            {
+                for (int i = 0; i < block.ColumnCount; i++)
+                {
+                    var tSize = graphics.MeasureString(block.BranchNames[i], font);
+
+                    int tX;
+                    if (block.GetChildCount(i) == 0)
+                    {
+                        if (i == 0)
+                        {
+                            tX = block.ColumnXs[i];
+                        }
+                        else if (i == block.ColumnCount - 1)
+                        {
+                            tX = block.ColumnXs[i] - (int) tSize.Width;
+                        }
+                        else
+                        {
+                            tX = block.ColumnXs[i] - (int) tSize.Width / 2;
+                        }
+                    }
+                    else
+                    {
+                        tX = block.GetChild(i, 0).Position.X +
+                             block.GetChild(i, 0).Width / 2 -
+                             (int)tSize.Width / 2;
+                        
+                        if (i == 0)
+                            tX += (int) tSize.Width / 2;
+                        else if (i == block.ColumnCount - 1)
+                            tX -= (int) tSize.Width / 2;
+                        
+                    }
+
+                    int blockCenter = block.Position.X + block.Width / 2;
+                    if (blockCenter - tX > 0 && blockCenter - tX < (int) tSize.Width / 2)
+                    {
+                        tX = blockCenter;
+                    }
+                    else if (tX + (int) tSize.Width - blockCenter > 0 &&
+                             (tX + (int) tSize.Width - blockCenter < (int) tSize.Width / 2 ||
+                              (tX + tSize.Width / 2 - blockCenter) < 0.5f))
+                    {
+                        tX = blockCenter - (int)tSize.Width;
+                    }
+
+                    graphics.DrawString(block.BranchNames[i],
+                        font, Brushes.Black,
+                        tX, block.Position.Y + block.Height + _settings.VerticalInterval / 2 -
+                                 tSize.Height);
+                }
+            }
         }
 
         private void DrawBlockLines(Block block, Pen pen)

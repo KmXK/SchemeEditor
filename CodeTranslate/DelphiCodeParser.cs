@@ -39,13 +39,13 @@ namespace SchemeEditor.CodeTranslate
             FormatCode();
             for (int i = 0; i < _code.Length; i++)
             {
-                if (_code[i].StartsWith("function") ||
-                    _code[i].StartsWith("procedure") || 
-                    _code[i].StartsWith("begin"))
+                if (_code[i].ToLower().StartsWith("function") ||
+                    _code[i].ToLower().StartsWith("procedure") || 
+                    _code[i].ToLower().StartsWith("begin"))
                 {
                     int areaStart;
 
-                    if (!_code[i].StartsWith("begin"))
+                    if (!_code[i].ToLower().StartsWith("begin"))
                     {
                         if (!CheckAreaName(i, out areaStart, out string message))
                         {
@@ -102,10 +102,10 @@ namespace SchemeEditor.CodeTranslate
                 {
                     foreach (var reserved in _reservedWords)
                     {
-                        if ((j != start && _code[j].StartsWith(reserved + " ")) ||
-                            _code[j].EndsWith(" " + reserved) ||
-                            _code[j].Contains($" {reserved} ") ||
-                            _code[j] == reserved)
+                        if ((j != start && _code[j].ToLower().StartsWith(reserved + " ")) ||
+                            _code[j].ToLower().EndsWith(" " + reserved) ||
+                            _code[j].ToLower().Contains($" {reserved} ") ||
+                            _code[j].ToLower() == reserved)
                         {
                             errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {start}";
                             return false;
@@ -134,7 +134,7 @@ namespace SchemeEditor.CodeTranslate
                     var line = _code[i];
                     if (i == start)
                     {
-                        if (_code[start].StartsWith("for"))
+                        if (_code[start].ToLower().StartsWith("for"))
                         {
                             line = line.Remove(0, 3).Trim();
                         }
@@ -292,10 +292,10 @@ namespace SchemeEditor.CodeTranslate
                     {
                         foreach (var reserved in _reservedWords)
                         {
-                            if ((i != end && _code[i].StartsWith(reserved + " ")) ||
-                                _code[i].EndsWith(" " + reserved) ||
-                                _code[i].Contains($" {reserved} ") ||
-                                _code[i] == reserved)
+                            if ((i != end && _code[i].ToLower().StartsWith(reserved + " ")) ||
+                                _code[i].ToLower().EndsWith(" " + reserved) ||
+                                _code[i].ToLower().Contains($" {reserved} ") ||
+                                _code[i].ToLower() == reserved)
                             {
                                 errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {end}";
                                 return false;
@@ -343,10 +343,10 @@ namespace SchemeEditor.CodeTranslate
                 {
                     foreach (var reserved in _reservedWords)
                     {
-                        if ((j != start && _code[j].StartsWith(reserved + " ")) ||
-                            _code[j].EndsWith(" " + reserved) ||
-                            _code[j].Contains($" {reserved} ") ||
-                            _code[j] == reserved)
+                        if ((j != start && _code[j].ToLower().StartsWith(reserved + " ")) ||
+                            _code[j].ToLower().EndsWith(" " + reserved) ||
+                            _code[j].ToLower().Contains($" {reserved} ") ||
+                            _code[j].ToLower() == reserved)
                         {
                             errorCode = $"Обнаружено зарезервированное слово внутри условия в строке {start}";
                             return false;
@@ -390,7 +390,7 @@ namespace SchemeEditor.CodeTranslate
                         text.Add(line);
                 }
 
-                Block ifBlock = new Block(BlockType.Condition, text.ToArray(), new string[2])
+                Block ifBlock = new Block(BlockType.Condition, text.ToArray(), new[] {"T", "F"})
                 {
                     Width = _currentSettings.StandartWidth,
                     Height = _currentSettings.StandartHeight,
@@ -402,7 +402,11 @@ namespace SchemeEditor.CodeTranslate
 
                 if (_code[bodyStart].ToLower() == "begin")
                 {
-                    // TODO: Проверить наличие end
+                    if(!FindEndOfArea(bodyStart, out int areaEnd))
+                    {
+                        errorCode = $"Не найден end для begin по строке {bodyStart}";
+                        return false;
+                    }
                     
                     if (ReadOperatorChilds(ifBlock,0, 0, bodyStart + 1, out end, out errorCode))
                     {
