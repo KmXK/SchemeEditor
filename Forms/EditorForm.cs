@@ -16,32 +16,24 @@ namespace SchemeEditor
 
         private float _zoomMultiplier = 1f;
 
-        private SchemeSettings _defaultSettings;
-
-        public SchemeSettings DefaultSettings => _defaultSettings;
+        public static SchemeSettings DefaultSettings = new SchemeSettings()
+        {
+            BlocksOnPage = 4,
+            HorizontalInterval = 50,
+            VerticalInterval = 50,
+            PagesInterval = 50,
+            StandartHeight = 50,
+            StandartWidth = 100,
+            ConnectorSize = 30,
+            PageOffset = 30,
+            FontSize = 18
+        };
 
         public EditorForm()
         {
             InitializeComponent();
 
             _schemes = new List<Scheme>(0);
-
-            _defaultSettings = new SchemeSettings()
-            {
-                BlocksOnPage = 4,
-                HorizontalInterval =  50,
-                VerticalInterval = 50,
-                PagesInterval = 50,
-                StandartHeight = 50,
-                StandartWidth = 100,
-                ConnectorSize = 30,
-                PageOffset = 30,
-                FontSize = 18
-            };
-
-            Scheme scheme = new Scheme(_defaultSettings);
-            
-            AddScheme(scheme);
         }
 
         private void SaveBitmaps(Bitmap[] bitmaps)
@@ -363,7 +355,7 @@ namespace SchemeEditor
 
         private void createEmptyScheme_Click(object sender, EventArgs e)
         {
-            Scheme scheme = new Scheme(_defaultSettings);
+            Scheme scheme = new Scheme(DefaultSettings);
             
             AddScheme(scheme);
         }
@@ -390,10 +382,10 @@ namespace SchemeEditor
             if (_schemes.Count == 0)
                 return;
 
-            SettingsForm form = new SettingsForm(_defaultSettings);
+            SettingsForm form = new SettingsForm(DefaultSettings);
             if (form.ShowDialog() == DialogResult.OK)
             {
-                _defaultSettings = form.Settings;
+                DefaultSettings = form.Settings;
                 SelectedScheme.SetSettings(form.Settings);
                 UpdateSchemePicture();
             }
@@ -426,11 +418,18 @@ namespace SchemeEditor
                 dialog.Title = "Открыть схему";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    var formatter = new BinaryFormatter();
-                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-                    AddScheme((Scheme)formatter.Deserialize(stream));
-                    
-                    stream.Close();
+                    try
+                    {
+                        var formatter = new BinaryFormatter();
+                        var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+                        AddScheme((Scheme) formatter.Deserialize(stream));
+                        stream.Close();
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Ошибка при открытии файла. Попробуйте ещё раз!",
+                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
