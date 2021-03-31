@@ -18,7 +18,7 @@ namespace SchemeEditor
 
         public static SchemeSettings DefaultSettings = new SchemeSettings()
         {
-            BlocksOnPage = 4,
+            BlocksOnPage = 10,
             HorizontalInterval = 50,
             VerticalInterval = 50,
             PagesInterval = 50,
@@ -34,19 +34,6 @@ namespace SchemeEditor
             InitializeComponent();
 
             _schemes = new List<Scheme>(0);
-        }
-
-        private void SaveBitmaps(Bitmap[] bitmaps)
-        {
-            int i = 0;
-            if (!Directory.Exists("SomeFolder/"))
-            {
-                Directory.CreateDirectory("SomeFolder/");
-            }
-            foreach (var bitmap in bitmaps)
-            {
-                bitmap.Save($"SomeFolder/{i++}.bmp");
-            }
         }
 
         public void AddScheme(Scheme scheme)
@@ -76,20 +63,16 @@ namespace SchemeEditor
 
             _schemes.Add(scheme);
             pictureBox.MouseDown += SchemeMouseDown;
+            panel.MouseDown += SchemeMouseDown;
 
             tabControl1.SelectedIndex = tabControl1.TabCount - 1;
             
             UpdateSchemePicture();
         }
 
-        private void RemoveScheme()
-        {
-            // TODO:
-        }
-
         private void AddBlock(object sender, EventArgs e)
         {
-            bool isAfter = ((ToolStripMenuItem) sender).Name.Contains("после");
+            bool isAfter = ((ToolStripMenuItem) sender).Name.ToLower().Contains("after");
             
             
             var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
@@ -224,11 +207,24 @@ namespace SchemeEditor
         private void SchemeMouseDown(object sender, MouseEventArgs e)
         {
             var currentScheme = _schemes[tabControl1.SelectedIndex];
+            
+            if (!(sender is SchemePicture))
+            {
+                currentScheme.SelectBlock(currentScheme.MainBlock);
+                SelectedBlockChanged();
+                
+                ((sender as Panel).Controls[0] as SchemePicture).Image = currentScheme.GetBitmap();
+                tabControl1.ContextMenuStrip = null;
+                return;
+            }
+            
 
             float mul = ((SchemePicture) sender).PictureMultiplier;
 
             BlockPosition pos = currentScheme.GetPageCoordsByGlobal(
                 (int) (e.X / mul), (int) (e.Y / mul));
+            
+            tabControl1.ContextMenuStrip = null;
 
             if (pos.PageIndex != -1)
             {
@@ -236,8 +232,18 @@ namespace SchemeEditor
                 {
                     SelectedBlockChanged();
                     ((SchemePicture) sender).Image = currentScheme.GetBitmap();
+
+                    tabControl1.ContextMenuStrip = contextMenuStrip1;
+                }
+                else
+                {
+                    currentScheme.SelectBlock(currentScheme.MainBlock);
+                    SelectedBlockChanged();
+                
+                    ((SchemePicture) sender).Image = currentScheme.GetBitmap();
                 }
             }
+            
         }
 
         private void UpdateSchemePicture()
@@ -272,17 +278,21 @@ namespace SchemeEditor
             var selBlock = SelectedScheme.SelectedBlock;
 
             addBlockInside.Click -= AddBlockInside;
+            addBlockInside2.Click -= AddBlockInside;
 
             if (selBlock.ColumnCount == 0)
             {
                 addBlockInside.Visible = false;
+                addBlockInside2.Visible = false;
             }
             else
             {
                 addBlockInside.Visible = true;
+                addBlockInside2.Visible = true;
                 if (selBlock.ColumnCount >= 2 && addBlockInside.DropDownItems.Count != selBlock.ColumnCount)
                 {
                     addBlockInside.DropDownItems.Clear();
+                    addBlockInside2.DropDownItems.Clear();
 
                     for (int i = 0; i < selBlock.ColumnCount; i++)
                     {
@@ -291,12 +301,15 @@ namespace SchemeEditor
                         item.Text = $"Добавить в {i+1} колонку";
                         item.Click += AddBlockInside;
                         addBlockInside.DropDownItems.Add(item);
+                        addBlockInside2.DropDownItems.Add(item);
                     }
                 }
                 else if(selBlock.ColumnCount == 1)
                 {
                     addBlockInside.DropDownItems.Clear();
+                    addBlockInside2.DropDownItems.Clear();
                     addBlockInside.Click += AddBlockInside;
+                    addBlockInside2.Click += AddBlockInside;
                 }
             }
         }
@@ -474,6 +487,38 @@ namespace SchemeEditor
                     }
                     
                     stream.Close();
+                }
+            }
+        }
+
+        private void closeAll_Click(object sender, EventArgs e)
+        {
+            while (_schemes.Count > 0)
+            {
+                int index = tabControl1.SelectedIndex;
+                _schemes.RemoveAt(index);
+                tabControl1.Controls.RemoveAt(index);
+            }
+            UpdateSchemePicture();
+        }
+
+        private void helpButton_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Пока ничего тут нет :)", ":)", MessageBoxButtons.OK);
+        }
+
+        private void сохранитьИзображениеСхемыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.ShowNewFolderButton = true;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    int i = 1;
+                    foreach (var bitmap in SelectedScheme.DrawSchemePages())
+                    {
+                        bitmap.Save($"{dialog.SelectedPath}/{i++}.bmp");
+                    }
                 }
             }
         }
