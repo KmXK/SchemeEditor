@@ -14,7 +14,6 @@ namespace SchemeEditor.CodeTranslate
 
         public bool IsSuccess { get; }
         public string ErrorMessage { get; }
-        
         public IEnumerable<Scheme> Schemes { get; }
     }
 }

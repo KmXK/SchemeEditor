@@ -17,7 +17,8 @@ namespace SchemeEditor.CodeTranslate
         private static string[] _reservedWords =
         {
             "begin", "end", "procedure", "function",
-            "var", "uses"
+            "var", "uses", "if", "while", "for",
+            "while", "program", "const"
         };
         
         public DelphiCodeParser(string[] code, SchemeSettings settings)
@@ -79,7 +80,7 @@ namespace SchemeEditor.CodeTranslate
                     else
                     {
                         return new ParseResult(false,
-                            $"Ожидался end для begin по индексу {areaStart}",
+                            $"Ожидался end для begin в строке {areaStart}",
                             null);
                     }
                 }
@@ -88,7 +89,7 @@ namespace SchemeEditor.CodeTranslate
             return new ParseResult(true, "", schemes);
         }
 
-        private bool ReadOperator(Block main, int branchIndex, ref int childIndex, int start, out int end, out string errorCode)
+        private bool ReadOperator(Block block, int branchIndex, ref int childIndex, int start, out int end, out string errorCode)
         {
             end = start;
             if (_code[start].ToLower().StartsWith("for ") || _code[start].ToLower() == "for" ||
@@ -99,6 +100,18 @@ namespace SchemeEditor.CodeTranslate
                 while (!((_code[j].ToLower().StartsWith("end") && _code[j].Length <= 4) ||
                          _code[j].ToLower() == "end"))
                 {
+                    foreach (var reserved in _reservedWords)
+                    {
+                        if ((j != start && _code[j].StartsWith(reserved + " ")) ||
+                            _code[j].EndsWith(" " + reserved) ||
+                            _code[j].Contains($" {reserved} ") ||
+                            _code[j] == reserved)
+                        {
+                            errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {start}";
+                            return false;
+                        }
+                    }
+                    
                     if (_code[j].ToLower().EndsWith(" do") || _code[j].ToLower() == "do")
                     {
                         conditionEnd = j;
@@ -127,7 +140,6 @@ namespace SchemeEditor.CodeTranslate
                         }
                         else
                         {
-                            
                             line = line.Remove(0, 5).Trim();
                         }
                     }
@@ -136,8 +148,9 @@ namespace SchemeEditor.CodeTranslate
                     {
                         line = line.Remove(line.Length - 2, 2).Trim();
                     }
-                    
-                    text.Add(line);
+
+                    if (line.Length != 0)
+                        text.Add(line);
                 }
 
                 // Получение номера цикла
@@ -163,8 +176,8 @@ namespace SchemeEditor.CodeTranslate
                     FontSize = _currentSettings.FontSize
                 };
 
-                main.AddChild(first, branchIndex, childIndex++);
-                main.AddChild(second, branchIndex, childIndex++);
+                block.AddChild(first, branchIndex, childIndex++);
+                block.AddChild(second, branchIndex, childIndex++);
 
                 int bodyIndex = conditionEnd + 1;
 
@@ -172,6 +185,12 @@ namespace SchemeEditor.CodeTranslate
                 
                 if (_code[bodyIndex].ToLower() == "begin")
                 {
+                    if(!FindEndOfArea(bodyIndex, out int areaEnd))
+                    {
+                        errorCode = $"Не найден end для begin по строке {bodyIndex}";
+                        return false;
+                    }
+                    
                     if (ReadOperatorChilds(first,0, 0, bodyIndex + 1, out end, out errorCode))
                     {
                         errorCode = "";
@@ -200,7 +219,36 @@ namespace SchemeEditor.CodeTranslate
             }
             else if (_code[start].ToLower() == "repeat")
             {
-                
+                // TODO: Проверить существование until
+                bool untilExists = false;
+                int j = start+1;
+                int n = 0;
+                while (j <= _code.Length - 1)
+                {
+                    if (_code[j].ToLower().StartsWith("until ") ||
+                        _code[j].ToLower() == "until")
+                    {
+                        if (n == 0)
+                        {
+                            untilExists = true;
+                            break;
+                        }
+                        
+                        n--;
+                    }
+
+                    if (_code[j].ToLower() == "repeat")
+                        n++;
+                    
+                    j++;
+                }
+
+                if (!untilExists)
+                {
+                    errorCode = $"Не найден until для repeat в строке {start}";
+                    return false;
+                }
+
                 Block first = new Block(BlockType.StartLoop, new string[0], new string[1])
                 {
                     Width = _currentSettings.StandartWidth,
@@ -213,11 +261,9 @@ namespace SchemeEditor.CodeTranslate
                     Height = _currentSettings.StandartHeight,
                     FontSize = _currentSettings.FontSize
                 };
-                main.AddChild(first, branchIndex, childIndex++);
-                main.AddChild(second, branchIndex, childIndex++);
-                
-                
-                
+                block.AddChild(first, branchIndex, childIndex++);
+                block.AddChild(second, branchIndex, childIndex++);
+
                 // Получение номера цикла
                 int number = _cycleNesting.Peek() + 1;
                 char c = (char)(_cycleNesting.Count - 1 + (int)'A');
@@ -244,6 +290,18 @@ namespace SchemeEditor.CodeTranslate
 
                     for (int i = end; i <= conditionEnd; i++)
                     {
+                        foreach (var reserved in _reservedWords)
+                        {
+                            if ((i != end && _code[i].StartsWith(reserved + " ")) ||
+                                _code[i].EndsWith(" " + reserved) ||
+                                _code[i].Contains($" {reserved} ") ||
+                                _code[i] == reserved)
+                            {
+                                errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {end}";
+                                return false;
+                            }
+                        }
+                        
                         var line = _code[i];
                         if (i == end)
                         {
@@ -254,12 +312,11 @@ namespace SchemeEditor.CodeTranslate
                         {
                             line = line.Remove(line.Length - 1, 1).Trim();
                         }
-                        
-                        text.Add(line);
+
+                        if (line.Length != 0)
+                            text.Add(line);
                     }
                     
-                    
-                    text.Insert(0, c + number.ToString());
                     text.Add(cycleName);
                     
                     second.Text = text.ToArray();
@@ -279,11 +336,134 @@ namespace SchemeEditor.CodeTranslate
             else if (_code[start].ToLower().StartsWith("if ") ||
                      _code[start].ToLower() == "if")
             {
-                throw new NotImplementedException();
+                int j = start;
+                int conditionEnd = -1;
+                while (!((_code[j].ToLower().StartsWith("end") && _code[j].Length <= 4) ||
+                         _code[j].ToLower() == "end"))
+                {
+                    foreach (var reserved in _reservedWords)
+                    {
+                        if ((j != start && _code[j].StartsWith(reserved + " ")) ||
+                            _code[j].EndsWith(" " + reserved) ||
+                            _code[j].Contains($" {reserved} ") ||
+                            _code[j] == reserved)
+                        {
+                            errorCode = $"Обнаружено зарезервированное слово внутри условия в строке {start}";
+                            return false;
+                        }
+                    }
+                    
+                    if (_code[j].ToLower().EndsWith(" then") || _code[j].ToLower() == "then")
+                    {
+                        conditionEnd = j;
+                        break;
+                    }
+
+                    j++;
+                }
+
+                if (conditionEnd == -1)
+                {
+                    errorCode = $"Не найден then для условия в строке {start}.";
+                    return false;
+                }
+                
+                // Получение условия
+                var text = new List<string>();
+                for (int i = start; i <= conditionEnd; i++)
+                {
+                    var line = _code[i];
+                    if (i == start)
+                    {
+                        if (_code[start].StartsWith("if"))
+                        {
+                            line = line.Remove(0, 2).Trim();
+                        }
+                    }
+
+                    if (i == conditionEnd)
+                    {
+                        line = line.Remove(line.Length - 4, 4).Trim();
+                    }
+
+                    if (line.Length != 0)
+                        text.Add(line);
+                }
+
+                Block ifBlock = new Block(BlockType.Condition, text.ToArray(), new string[2])
+                {
+                    Width = _currentSettings.StandartWidth,
+                    Height = _currentSettings.StandartHeight,
+                    FontSize = _currentSettings.FontSize
+                };
+                block.AddChild(ifBlock, branchIndex, childIndex++);
+
+                int bodyStart = conditionEnd + 1;
+
+                if (_code[bodyStart].ToLower() == "begin")
+                {
+                    // TODO: Проверить наличие end
+                    
+                    if (ReadOperatorChilds(ifBlock,0, 0, bodyStart + 1, out end, out errorCode))
+                    {
+                        errorCode = "";
+                        end++;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    int ci = 0;
+                    if (ReadOperator(ifBlock, 0, ref ci,bodyStart, out end, out errorCode))
+                    {
+                        errorCode = "";
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                if (_code[end + 1].ToLower() == "else")
+                {
+                    bodyStart = end + 2;
+                    if (_code[bodyStart].ToLower() == "begin")
+                    {
+                        // TODO: Проверить наличие end
+                    
+                        if (ReadOperatorChilds(ifBlock,1, 0, bodyStart + 1, out end, out errorCode))
+                        {
+                            errorCode = "";
+                            end++;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        int ci = 0;
+                        if (ReadOperator(ifBlock, 1, ref ci, bodyStart, out end, out errorCode))
+                        {
+                            errorCode = "";
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+
             }
             else
             {
-                while (
+                while (end<=_code.Length-2 &&
                     !((_code[end + 1].ToLower().StartsWith("end") && _code[end + 1].Length <= 4) ||
                       _code[end + 1].ToLower() == "end" ||
                       _code[end + 1].ToLower() == "else" ||
@@ -291,6 +471,12 @@ namespace SchemeEditor.CodeTranslate
                 )
                 {
                     end++;
+                }
+
+                if (end == _code.Length - 1)
+                {
+                    errorCode = $"Ожидался оператор в строке {start}";
+                    return false;
                 }
 
                 var text = new List<string>();
@@ -301,25 +487,26 @@ namespace SchemeEditor.CodeTranslate
                     {
                         line = line.Remove(line.Length - 1, 1);
                     }
-                    
-                    text.Add(line);
+
+                    if (line.Length != 0)
+                        text.Add(line);
                 }
 
-                Block block = new Block(BlockType.Default, text.ToArray(), new string[0])
+                Block defBlock = new Block(BlockType.Default, text.ToArray(), new string[0])
                 {
                     Width = _currentSettings.StandartWidth,
                     Height = _currentSettings.StandartHeight,
                     FontSize = _currentSettings.FontSize
                 };
 
-                main.AddChild(block, branchIndex, childIndex++);
+                block.AddChild(defBlock, branchIndex, childIndex++);
 
                 errorCode = "";
                 return true;
 
             }
         }
-
+        
         private bool ReadOperatorChilds(Block block, int branchIndex, int childIndex, int childStart, out int end, out string errorCode)
         {
             end = childStart - 1;
@@ -348,7 +535,7 @@ namespace SchemeEditor.CodeTranslate
                 _code[i] = _code[i].Trim();
                 if (_code[i].Contains("//"))
                 {
-                    _code[i].Remove(_code[i].IndexOf("//", StringComparison.Ordinal));
+                    _code[i] = _code[i].Remove(_code[i].IndexOf("//", StringComparison.Ordinal));
                 }
                 
                 if(_code[i].Length != 0)
@@ -405,7 +592,10 @@ namespace SchemeEditor.CodeTranslate
                 {
                     foreach (var reservedWord in _reservedWords)
                     {
-                        if (_code[line].StartsWith(reservedWord + " ") || _code[line] == reservedWord)
+                        if (_code[line].StartsWith(reservedWord + " ") ||
+                            _code[line] == reservedWord ||
+                            _code[line].EndsWith(" " + reservedWord) ||
+                            _code[line].Contains($" {reservedWord} "))
                         {
                             end = line;
                             errorMessage = $"Ожидалась точка с запятой в названии подпрограммы по индексу {start}";
@@ -448,7 +638,7 @@ namespace SchemeEditor.CodeTranslate
                     if (end == _code.Length - 1 ||
                         _code[end + 1] != "begin")
                     {
-                        errorMessage = $"Ожидался begin на строке {end+1}.";
+                        errorMessage = $"Ожидался begin у подпрограммы в строке {start}.";
                         return false;
                     }
                     
