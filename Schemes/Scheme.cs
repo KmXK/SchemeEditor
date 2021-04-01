@@ -9,7 +9,7 @@ using SchemeEditor.Schemes.Blocks;
 namespace SchemeEditor.Schemes
 {
     [Serializable]
-    public class Scheme
+    public class Scheme : IDisposable
     {
         private Block _mainBlock;
 
@@ -69,6 +69,22 @@ namespace SchemeEditor.Schemes
             }
         }
 
+        public void Dispose()
+        {
+            if(_bitmaps!=null)
+            {
+                for (int i = 0; i < _bitmaps.Length; i++)
+                {
+                    _bitmaps[i].Dispose();
+                    _globalBitmap.Dispose();
+                }
+            }
+
+            if (_globalBitmap != null)
+                _globalBitmap.Dispose();
+
+        }
+
         public void SetSettings(SchemeSettings settings)
         {
             _settings = GetMultipliedSettings(settings);
@@ -110,6 +126,16 @@ namespace SchemeEditor.Schemes
 
         public Bitmap DrawScheme()
         {
+            if(_bitmaps != null)
+                for (int i = 0; i < _bitmaps.Length; i++)
+                {
+                    _bitmaps[i].Dispose();
+                    _graphics[i].Dispose();
+                }
+
+            if (_globalBitmap != null)
+                _globalBitmap.Dispose();
+            
             Bitmap[] bitmaps = DrawSchemePages();
 
             _globalBitmap = ConnectBitmaps(bitmaps);
@@ -298,7 +324,8 @@ namespace SchemeEditor.Schemes
                         new Point(x + width, y + height / 3),
                         new Point(x + width, y + height),
                         new Point(x, y + height),
-                        new Point(x, y + height / 3)
+                        new Point(x, y + height / 3),
+                        new Point(x + height / 3, y)
                     };
                     graphics.DrawLines(pen, points);
                     break;
@@ -754,7 +781,7 @@ namespace SchemeEditor.Schemes
                 var arrow = _arrows[i];
 
                 var colorUnderArrow = _bitmaps[arrow.Position.PageIndex].GetPixel(arrow.Position.X,
-                    arrow.Position.Y + 2 * PictureMultiplier);
+                    arrow.Position.Y + _settings.VerticalInterval / 4);
 
 
 
@@ -896,7 +923,6 @@ namespace SchemeEditor.Schemes
                         _arrows.Add(new Arrow(new BlockPosition(pos1.PageIndex, pos1.X,
                                 pos1.Y + _settings.ConnectorSize / 2),
                             Arrow.ArrowDirection.Right, true));
-                        // Добавить стрелочку
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -973,7 +999,7 @@ namespace SchemeEditor.Schemes
                                     pos2.X + _settings.ConnectorSize + _settings.HorizontalInterval +
                                     pair.Connector2.TargetBlock.Width / 2,
                                     pos2.Y + _settings.ConnectorSize / 2),
-                                Arrow.ArrowDirection.Right, false));
+                                Arrow.ArrowDirection.Right, true));
 
                             break;
                         default:

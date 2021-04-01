@@ -385,6 +385,7 @@ namespace SchemeEditor
             if (_schemes.Count != 0)
             {
                 int index = tabControl1.SelectedIndex;
+                _schemes[index].Dispose();
                 _schemes.RemoveAt(index);
                 tabControl1.Controls.RemoveAt(index);
                 UpdateSchemePicture();
@@ -499,9 +500,9 @@ namespace SchemeEditor
         {
             while (_schemes.Count > 0)
             {
-                int index = tabControl1.SelectedIndex;
-                _schemes.RemoveAt(index);
-                tabControl1.Controls.RemoveAt(index);
+                _schemes[0].Dispose();
+                _schemes.RemoveAt(0);
+                tabControl1.Controls.RemoveAt(0);
             }
             UpdateSchemePicture();
         }

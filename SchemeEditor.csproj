@@ -47,7 +47,6 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="CodeTranslate\DelphiCodeParser.cs" />
-        <Compile Include="CodeTranslate\CodeParser.cs" />
         <Compile Include="CodeTranslate\ParseResult.cs" />
         <Compile Include="Forms\BlockEditingForm.cs">
           <SubType>Form</SubType>

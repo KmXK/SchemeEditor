@@ -35,8 +35,9 @@ namespace SchemeEditor.CodeTranslate
         public ParseResult ParseCodeToScheme()
         {
             List<GraphicScheme> schemes = new List<GraphicScheme>();
-            
-            FormatCode();
+
+            if (!FormatCode(out string message))
+                return new ParseResult(false, message, null);
             for (int i = 0; i < _code.Length; i++)
             {
                 if (_code[i].ToLower().StartsWith("function") ||
@@ -48,7 +49,7 @@ namespace SchemeEditor.CodeTranslate
 
                     if (!_code[i].ToLower().StartsWith("begin"))
                     {
-                        if (!CheckAreaName(i, out areaStart, out string message, out name))
+                        if (!CheckAreaName(i, out areaStart, out message, out name))
                         {
                             return new ParseResult(false, message, null);
                         }
@@ -142,6 +143,12 @@ namespace SchemeEditor.CodeTranslate
                     errorCode = $"Не найден do для цикла в строке {start}.";
                     return false;
                 }
+
+                if (_code[start].ToLower().StartsWith("for") && conditionEnd != start)
+                {
+                    errorCode = $"Условие for должно быть в одной строке. (Ошибка в строке {start})";
+                    return false;
+                }
                 
                 // Получение условия
                 var text = new List<string>();
@@ -153,6 +160,39 @@ namespace SchemeEditor.CodeTranslate
                         if (_code[start].ToLower().StartsWith("for"))
                         {
                             line = line.Remove(0, 3).Trim();
+                            int index = line.IndexOf(':');
+                            if (index == -1)
+                            {
+                                errorCode = $"Не найдена инициализация счётчика цикла for в строке {start}";
+                                return false;
+                            }
+
+                            var variable = line.Substring(0, index);
+                            while (line.Contains("  "))
+                                line = line.Replace("  ", " ");
+
+                            if (!line.ToLower().Contains(" downto ") &&
+                                !line.ToLower().Contains(" to "))
+                            {
+                                errorCode = $"Не найдено ключевое слово to/downto цикла for в строке {start}";
+                                return false;
+                            }
+
+                            if (line.ToLower().Contains(" downto "))
+                            {
+                                int t = line.ToLower().IndexOf(" downto ");
+                                line = line.Remove(t + 1, 6);
+                                line = line.Insert(t + 1, "downto");
+                                
+                                line = line.Replace(" downto ", ", " + variable + ">=");
+                            }
+                            else
+                            {
+                                int t = line.ToLower().IndexOf(" to ");
+                                line = line.Remove(t + 1, 2);
+                                line = line.Insert(t + 1, "to");
+                                line = line.Replace(" to ", ", " + variable + "<=");
+                            }
                         }
                         else
                         {
@@ -481,6 +521,102 @@ namespace SchemeEditor.CodeTranslate
                 return true;
 
             }
+            else if (_code[start].ToLower().StartsWith("case "))
+            {
+                if (!_code[start].ToLower().EndsWith(" of"))
+                {
+                    errorCode = $"Не найдено слово of в строке {start}";
+                    return false;
+                }
+
+                string condition = _code[start].Substring(4,
+                    _code[start].ToLower().IndexOf(" of", StringComparison.Ordinal) - 4).Trim();
+
+                _code[start] = "begin";
+                if (FindEndOfArea(start, out end))
+                {
+                    var branchNames = new List<string>();
+                    var caseBlock = new Block(BlockType.Condition, new[] {condition},
+                        new string[0])
+                    {   
+                        Width = _currentSettings.StandartWidth,
+                        Height = _currentSettings.StandartHeight,
+                        FontSize = _currentSettings.FontSize
+                    };
+                    
+                    int line = start + 1;
+                    while (line < end)
+                    {
+                        if (_code[line].ToLower().StartsWith("else ") ||
+                            _code[line].ToLower() == "else")
+                        {
+                            branchNames.Add("else");
+                            caseBlock.SetBranchNames(branchNames.ToArray());
+                            _code[line] = _code[line].Remove(0, 4).Trim();
+                        }
+                        else
+                        {
+
+                            if (_code[line].IndexOf(':') == -1 ||
+                                (_code[line].Length > _code[line].IndexOf(':') + 1 &&
+                                 _code[line][_code[line].IndexOf(':') + 1] == '='))
+                            {
+                                errorCode = $"Ожидалось : в строке {line}";
+                                return false;
+                            }
+
+                            branchNames.Add(_code[line].Substring(0, _code[line].IndexOf(':')));
+                            caseBlock.SetBranchNames(branchNames.ToArray());
+                            _code[line] = _code[line].Remove(0, branchNames.Last().Length + 1).Trim();
+                        }
+
+                        var j = line + (_code[line].Length == 0 ? 1 : 0);
+
+                        if (_code[j].ToLower() == "begin")
+                        {
+                            if (FindEndOfArea(j, out line))
+                            {
+                                if (end < line)
+                                {
+                                    errorCode = $"Не найден end в строке {j}";
+                                    return false;
+                                }
+                                
+                                if (!ReadOperatorChilds(caseBlock, branchNames.Count - 1,
+                                    0, j + 1, out int e, out errorCode))
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                errorCode = $"Не найден end для begin в строке {j}";
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            int temp = 0;
+                            if (!ReadOperator(caseBlock, branchNames.Count - 1, ref temp, j,
+                                out line, out errorCode))
+                            {
+                                return false;
+                            }
+                        }
+
+                        line++;
+                    }
+                    
+                    block.AddChild(caseBlock, branchIndex, childIndex);
+                    errorCode = "";
+                    return true;
+                }
+                else
+                {
+                    errorCode = $"Не обнаружен end для Case в строке {start}";
+                    return false;
+                }
+            }
             else
             {
                 while (end<=_code.Length-2 &&
@@ -536,8 +672,15 @@ namespace SchemeEditor.CodeTranslate
                      _code[end+1].ToLower() == "else"))
             {
                 end++;
+                
                 if (!ReadOperator(block, branchIndex, ref childIndex, end, out end, out errorCode))
                 {
+                    return false;
+                }
+                
+                if (end == _code.Length - 1)
+                {
+                    errorCode = "Ошибка!";
                     return false;
                 }
             }
@@ -547,9 +690,12 @@ namespace SchemeEditor.CodeTranslate
         }
 
         // Удаление лишних пробелов по краям строк, однострочных комментариев
-        private void FormatCode()
+        private bool FormatCode(out string errorMessage)
         {
             var list = new List<string>();
+            bool delete = false;
+            int startDelete = 0;
+            bool isInCovichka = false;
             for (int i = 0; i < _code.Length; i++)
             {
                 _code[i] = _code[i].Trim();
@@ -557,12 +703,58 @@ namespace SchemeEditor.CodeTranslate
                 {
                     _code[i] = _code[i].Remove(_code[i].IndexOf("//", StringComparison.Ordinal)).Trim();
                 }
+
+                for (int j = 0; j < _code[i].Length; j++)
+                {
+                    if (_code[i][j] == '\'')
+                    {
+                        isInCovichka = !isInCovichka;
+                    }
+
+                    if (_code[i][j] == '{' && !isInCovichka)
+                    {
+                        startDelete = j;
+                        delete = true;
+                    }
+
+                    if (_code[i][j] == '}' && !isInCovichka && delete)
+                    {
+                        _code[i] = _code[i].Remove(startDelete, j + 1 - startDelete);
+                        j = startDelete;
+                        delete = false;
+                    }
+                }
+
+                if (delete)
+                {
+                    _code[i] = _code[i].Remove(startDelete, _code[i].Length - startDelete);
+                    startDelete = 0;
+                }
+
                 
                 if(_code[i].Length != 0)
                     list.Add(_code[i]);
             }
 
+            if (isInCovichka)
+            {
+                errorMessage = "Нету закрывающей кавычки";
+                return false;
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].ToLower().EndsWith(" begin"))
+                {
+                    list[i] = list[i].Remove(list[i].Length - 5, 5);
+                    list.Insert(i + 1, "begin");
+                }
+            }
+
             _code = list.ToArray();
+
+            errorMessage = "";
+            return true;
         }
 
         // Найти end для begin
@@ -585,8 +777,12 @@ namespace SchemeEditor.CodeTranslate
                         areaEnd = line;
                         return true;
                     }
+
+                    if (nesting < 0)
+                        return false;
                 }
-                else if (_code[line].ToLower() == "begin")
+                else if (_code[line].ToLower() == "begin" ||
+                         _code[line].ToLower().StartsWith("case "))
                 {
                     nesting++;
                 }
