@@ -44,10 +44,11 @@ namespace SchemeEditor.CodeTranslate
                     _code[i].ToLower().StartsWith("begin"))
                 {
                     int areaStart;
+                    string[] name = new string[0];
 
                     if (!_code[i].ToLower().StartsWith("begin"))
                     {
-                        if (!CheckAreaName(i, out areaStart, out string message))
+                        if (!CheckAreaName(i, out areaStart, out string message, out name))
                         {
                             return new ParseResult(false, message, null);
                         }
@@ -56,11 +57,23 @@ namespace SchemeEditor.CodeTranslate
                     }
                     
                     areaStart = i;
-
                     
                     if (FindEndOfArea(areaStart, out int areaEnd))
                     {
                         var scheme = new Scheme(_startSettings);
+
+                        if (name.Length > 0)
+                        {
+                            name.CopyTo(scheme.MainBlock.GetChild(0, 0).Text, 0);
+                            scheme.MainBlock.GetChild(0, 0).Text[0] =
+                                "Вход " + scheme.MainBlock.GetChild(0, 0).Text[0];
+                            
+                            name.CopyTo(scheme.MainBlock.GetChild(0, 1).Text, 0);
+                            scheme.MainBlock.GetChild(0, 1).Text[0] =
+                                "Выход " + scheme.MainBlock.GetChild(0, 1).Text[0];
+                        }
+                        
+
                         _currentSettings = scheme.Settings;
                         i = areaEnd;
                         _cycleNesting = new Stack<int>();
@@ -582,14 +595,17 @@ namespace SchemeEditor.CodeTranslate
         }
 
         // Проверка имени подпрограммы
-        private bool CheckAreaName(int start, out int end, out string errorMessage)
+        private bool CheckAreaName(int start, out int end, out string errorMessage, out string[] name)
         {
             errorMessage = "";
+            name = new string[0];
             end = start;
             
             var isEnded = false;
             var line = start;
             var bracketNesting = 0;
+            var firstBracket = true;
+            var delete = false;
             while (_code.Length - 1 >= line)
             {
                 if(line != start)
@@ -618,16 +634,52 @@ namespace SchemeEditor.CodeTranslate
 
                     if (_code[line][i] == '(')
                     {
+                        if (!firstBracket && bracketNesting == 0)
+                        {
+                            errorMessage = $"Обнаружена лишняя скобка в строке {line}";
+                            return false;
+                        }
+                        
                         bracketNesting++;
+                        firstBracket = false;
                     }
                     else if (_code[line][i] == ')')
                     {
+                        if (bracketNesting == 0)
+                        {
+                            errorMessage = $"Обнаружена лишняя скобка в строке {line}";
+                            return false;
+                        }
+
                         bracketNesting--;
+                        delete = false;
                     }
                     else if (_code[line][i] == ';')
                     {
-                        isEnded = true;
+                        isEnded = bracketNesting == 0;
                         end = line;
+                        delete = false;
+                    }
+                    else if (_code[line][i] == ':')
+                    {
+                        if (_code[start].StartsWith("procedure"))
+                        {
+                            errorMessage = $"Обнаружен возвращаемый параметр в процедуре в строке {line}";
+                            return false;
+                        }
+
+                        if (delete)
+                        {
+                            errorMessage = $"Обнаружен лишний символ двоеточия в строке {line}";
+                            return false;
+                        }
+
+                        delete = true;
+                    }
+
+                    if (delete)
+                    {
+                        _code[line] = _code[line].Remove(i--, 1);
                     }
                 }
 
@@ -645,6 +697,53 @@ namespace SchemeEditor.CodeTranslate
                         errorMessage = $"Ожидался begin у подпрограммы в строке {start}.";
                         return false;
                     }
+                    
+                    // Достать название схемы
+                    var list = new List<string>();
+                    var isFunction = false;
+                    for (int j = start; j <= end; j++)
+                    {
+                        var nameLine = _code[j];
+                        if (nameLine.ToLower() == "function" ||
+                            nameLine.ToLower() == "procedure")
+                        {
+                            continue;
+                        }
+                        
+                        if (j == start)
+                        {
+                            if (_code[j].ToLower().StartsWith("function"))
+                            {
+                                nameLine = nameLine.Remove(0, "function".Length).Trim();
+                                isFunction = true;
+                            }
+                            else
+                            {
+                                nameLine = nameLine.Remove(0, "procedure".Length).Trim();
+                                isFunction = false;
+                            }
+                        }
+
+                        if (j == end)
+                        {
+                            if (nameLine.Last() == ';')
+                            {
+                                nameLine = nameLine.Remove(nameLine.Length - 1, 1);
+                            }
+
+                            if (isFunction)
+                            {
+                                nameLine = nameLine.Remove(nameLine.Length - 1, 1);
+                                nameLine = nameLine.Insert(nameLine.Length, ", Res)");
+                            }
+                        }
+
+                        nameLine = nameLine.Replace(";", ",");
+                        
+                        list.Add(nameLine);
+                    }
+
+                    name = list.ToArray();
                     
                     end = line;
                     return true;
