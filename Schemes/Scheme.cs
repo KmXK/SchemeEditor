@@ -178,7 +178,7 @@ namespace SchemeEditor.Schemes
                 _graphics[i].InterpolationMode = InterpolationMode.HighQualityBicubic;
                 _graphics[i].PixelOffsetMode = PixelOffsetMode.HighQuality;
                 _graphics[i].SmoothingMode = SmoothingMode.HighQuality;
-                _graphics[i].TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                _graphics[i].TextRenderingHint = TextRenderingHint.AntiAlias;
             }
         }
 
@@ -351,7 +351,7 @@ namespace SchemeEditor.Schemes
 
         private void DrawBlockText(Graphics graphics, Block block, int x, int y)
         {
-            var font = new Font("Times New Roman", block.FontSize / 2);
+            var font = new Font("Times New Roman", block.FontSize / 2f);
 
             var fontHeight = (int) graphics.MeasureString("1", font).Height;
 
@@ -359,7 +359,7 @@ namespace SchemeEditor.Schemes
 
             for (int i = 0; i < block.Text.Length; i++)
             {
-                int lineWidth = (int) graphics.MeasureString(block.Text[i], font).Width;
+                var lineWidth =  graphics.MeasureString(block.Text[i], font).Width;
                 graphics.DrawString(block.Text[i], font, Brushes.Black,
                     x + block.Width / 2 - lineWidth / 2, dy);
                 dy += fontHeight;
@@ -476,7 +476,6 @@ namespace SchemeEditor.Schemes
                                 new Point(block.ColumnXs[1], block.EndPosition.Y + _settings.VerticalInterval / 2),
                                 new Point(x + width / 2, block.EndPosition.Y + _settings.VerticalInterval / 2)
                             });
-                        // Стрелочка
                         _arrows.Add(
 
                             new Arrow(
@@ -492,6 +491,7 @@ namespace SchemeEditor.Schemes
                     {
                         var lastChildSecondColumn = block.GetChild(1,
                             block.GetChildCount(1) - 1);
+                        
                         DrawStraightLines(graphics, pen,
                             new[]
                             {
@@ -517,7 +517,7 @@ namespace SchemeEditor.Schemes
                                 new[]
                                 {
                                     new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
-                                        block.EndPosition.Y),
+                                        lastChildSecondColumn.EndPosition.Y),
                                     new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
                                         block.EndPosition.Y + _settings.VerticalInterval / 2),
                                     new Point(x + width / 2,
@@ -1317,14 +1317,14 @@ namespace SchemeEditor.Schemes
                 {
                     GetGlobalCoordsByPage(block.Position, out x, out y);
                     DrawBlockFigure(graphics, block, x, y, new Pen(Color.Red, PictureMultiplier));
-                    DrawBlockText(graphics, block, x, y);
+                    //DrawBlockText(graphics, block, x, y);
                 }
 
                 if (SelectedBlock != MainBlock)
                 {
                     GetGlobalCoordsByPage(SelectedBlock.Position, out x, out y);
                     DrawBlockFigure(graphics, SelectedBlock, x, y, new Pen(Color.Black, PictureMultiplier));
-                    DrawBlockText(graphics, SelectedBlock, x, y);
+                    //DrawBlockText(graphics, SelectedBlock, x, y);
                 }
                 
                 graphics.Dispose();
