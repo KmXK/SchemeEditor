@@ -17,7 +17,7 @@ namespace SchemeEditor
 
         private void CreateScheme(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            _editorForm.AddScheme(new Scheme(_editorForm.DefaultSettings));
+            _editorForm.AddScheme(new GraphicScheme(_editorForm.DefaultSettings));
             OpenEditor();
         }
 
@@ -34,7 +34,7 @@ namespace SchemeEditor
                     {
                         var formatter = new BinaryFormatter();
                         var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-                        _editorForm.AddScheme((Scheme) formatter.Deserialize(stream));
+                        _editorForm.AddScheme((GraphicScheme) formatter.Deserialize(stream));
                         stream.Close();
                     }
                     catch
@@ -81,7 +81,7 @@ namespace SchemeEditor
 
                         while (stream.Position <= stream.Length - 1)
                         {
-                            _editorForm.AddScheme((Scheme) formatter.Deserialize(stream));
+                            _editorForm.AddScheme((GraphicScheme) formatter.Deserialize(stream));
                         }
 
                         stream.Close();

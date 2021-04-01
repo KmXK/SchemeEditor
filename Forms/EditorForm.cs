@@ -11,8 +11,8 @@ namespace SchemeEditor
 {
     public partial class EditorForm : Form
     {
-        private List<Scheme> _schemes;
-        private Scheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
+        private List<GraphicScheme> _schemes;
+        private GraphicScheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
 
         private float _zoomMultiplier = 1f;
 
@@ -33,12 +33,12 @@ namespace SchemeEditor
         {
             InitializeComponent();
 
-            _schemes = new List<Scheme>(0);
+            _schemes = new List<GraphicScheme>(0);
         }
 
-        public void AddScheme(Scheme scheme)
+        public void AddScheme(GraphicScheme scheme)
         {
-            TabPage tabPage = new TabPage("Untilted.asch")
+            TabPage tabPage = new TabPage(scheme.Name)
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.White
@@ -368,7 +368,8 @@ namespace SchemeEditor
 
         private void createEmptyScheme_Click(object sender, EventArgs e)
         {
-            Scheme scheme = new Scheme(DefaultSettings);
+            GraphicScheme scheme = new GraphicScheme(DefaultSettings);
+            scheme.Name = "Unknown";
             
             AddScheme(scheme);
         }
@@ -413,6 +414,9 @@ namespace SchemeEditor
                 dialog.Title = "Сохранение текущей схемы";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
+                    SelectedScheme.Name = dialog.FileName.Substring(
+                        dialog.FileName.LastIndexOf("/"));
+                    
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                     formatter.Serialize(stream, SelectedScheme);
@@ -435,7 +439,7 @@ namespace SchemeEditor
                     {
                         var formatter = new BinaryFormatter();
                         var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-                        AddScheme((Scheme) formatter.Deserialize(stream));
+                        AddScheme((GraphicScheme) formatter.Deserialize(stream));
                         stream.Close();
                     }
                     catch
@@ -461,7 +465,7 @@ namespace SchemeEditor
 
                     while (stream.Position <= stream.Length - 1)
                     {
-                        AddScheme((Scheme)formatter.Deserialize(stream));
+                        AddScheme((GraphicScheme)formatter.Deserialize(stream));
                     }
                     
                     stream.Close();

@@ -5,7 +5,7 @@ namespace SchemeEditor.CodeTranslate
 {
     public struct ParseResult
     {
-        public ParseResult(bool isSuccess, string errorMessage, IEnumerable<Scheme> schemes)
+        public ParseResult(bool isSuccess, string errorMessage, IEnumerable<GraphicScheme> schemes)
         {
             IsSuccess = isSuccess;
             ErrorMessage = errorMessage;
@@ -14,6 +14,6 @@ namespace SchemeEditor.CodeTranslate
 
         public bool IsSuccess { get; }
         public string ErrorMessage { get; }
-        public IEnumerable<Scheme> Schemes { get; }
+        public IEnumerable<GraphicScheme> Schemes { get; }
     }
 }

@@ -34,7 +34,7 @@ namespace SchemeEditor.CodeTranslate
 
         public ParseResult ParseCodeToScheme()
         {
-            List<Scheme> schemes = new List<Scheme>();
+            List<GraphicScheme> schemes = new List<GraphicScheme>();
             
             FormatCode();
             for (int i = 0; i < _code.Length; i++)
@@ -60,7 +60,10 @@ namespace SchemeEditor.CodeTranslate
                     
                     if (FindEndOfArea(areaStart, out int areaEnd))
                     {
-                        var scheme = new Scheme(_startSettings);
+                        var scheme = new GraphicScheme(_startSettings);
+                        scheme.Name = name.Length > 0 
+                            ? name[0].Substring(0,name[0].IndexOf("(", StringComparison.Ordinal)) 
+                            : "Схема";
 
                         if (name.Length > 0)
                         {
