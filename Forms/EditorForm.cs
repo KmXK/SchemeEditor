@@ -16,7 +16,7 @@ namespace SchemeEditor
 
         private float _zoomMultiplier = 1f;
 
-        public static SchemeSettings DefaultSettings = new SchemeSettings()
+        public SchemeSettings DefaultSettings = new SchemeSettings()
         {
             BlocksOnPage = 10,
             HorizontalInterval = 50,
@@ -298,7 +298,7 @@ namespace SchemeEditor
                     {
                         ToolStripMenuItem item = new ToolStripMenuItem();
                         item.Name = i.ToString();
-                        item.Text = $"Добавить в {i+1} колонку";
+                        item.Text = $@"Добавить в {i+1} колонку";
                         item.Click += AddBlockInside;
                         addBlockInside.DropDownItems.Add(item);
                         addBlockInside2.DropDownItems.Add(item);
@@ -392,15 +392,15 @@ namespace SchemeEditor
 
         private void globalSettingsButton_Click(object sender, EventArgs e)
         {
-            if (_schemes.Count == 0)
-                return;
-
             SettingsForm form = new SettingsForm(DefaultSettings);
             if (form.ShowDialog() == DialogResult.OK)
             {
                 DefaultSettings = form.Settings;
-                SelectedScheme.SetSettings(form.Settings);
-                UpdateSchemePicture();
+                if (_schemes.Count > 0)
+                {
+                    SelectedScheme.SetSettings(form.Settings);
+                    UpdateSchemePicture();
+                }
             }
         }
 
@@ -519,6 +519,50 @@ namespace SchemeEditor
                     {
                         bitmap.Save($"{dialog.SelectedPath}/{i++}.bmp");
                     }
+                }
+            }
+        }
+
+        private void exportSettings_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "Scheme Settings(*.aschsettings)|*.aschsettings";
+                dialog.DefaultExt = "*.aschsettings";
+                dialog.Title = "Сохранить файл настроек";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+
+                    formatter.Serialize(stream, DefaultSettings);
+                    
+                    stream.Close();
+                }
+            }
+        }
+
+        private void importSettings_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "Scheme Settings(*.aschsettings)|*.aschsettings";
+                dialog.DefaultExt = "*.aschsettings";
+                dialog.Title = "Открыть файл настроек";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
+
+                    DefaultSettings = (SchemeSettings) formatter.Deserialize(stream);
+
+                    if (_schemes.Count > 0)
+                    {
+                        SelectedScheme.SetSettings(DefaultSettings);
+
+                        UpdateSchemePicture();
+                    }
+                    stream.Close();
                 }
             }
         }

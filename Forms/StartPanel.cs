@@ -17,7 +17,7 @@ namespace SchemeEditor
 
         private void CreateScheme(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            _editorForm.AddScheme(new Scheme(EditorForm.DefaultSettings));
+            _editorForm.AddScheme(new Scheme(_editorForm.DefaultSettings));
             OpenEditor();
         }
 

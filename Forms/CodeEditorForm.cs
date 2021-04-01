@@ -17,7 +17,7 @@ namespace SchemeEditor
         private void button1_Click(object sender, EventArgs e)
         {
             DelphiCodeParser parser = new DelphiCodeParser(textBox1.Lines,
-                EditorForm.DefaultSettings);
+                _editorForm.DefaultSettings);
             var result = parser.ParseCodeToScheme();
             if (result.IsSuccess)
             {
