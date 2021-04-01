@@ -788,7 +788,7 @@ namespace SchemeEditor.Schemes
                 if (_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
                     _arrows.RemoveAt(i--);
                 else if (!arrow.CanBeHidden ||
-                         colorUnderArrow.Name == "ff000000")
+                         colorUnderArrow.Name != "ffffffff")
                 {
                     int length = 10 * PictureMultiplier;
                     var angle = 25 * Math.PI / 180;
