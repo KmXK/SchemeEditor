@@ -49,6 +49,9 @@ namespace SchemeEditor
                     case BlockType.PredefProc:
                         typeBox.SelectedIndex = 3;
                         break;
+                    case BlockType.Data:
+                        typeBox.SelectedIndex = 4;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -154,7 +157,7 @@ namespace SchemeEditor
                 case 1: _currentType = BlockType.StartLoop;  break;
                 case 2: _currentType = BlockType.Default; break;
                 case 3: _currentType = BlockType.PredefProc; break;
-                case 4: _currentType = BlockType.Start; break;
+                case 4: _currentType = BlockType.Data; break;
                 default:
                     throw new ArgumentException();
             }

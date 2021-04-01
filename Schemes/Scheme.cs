@@ -332,6 +332,18 @@ namespace SchemeEditor.Schemes
                     graphics.DrawLine(pen, x + 9 * width / 10, y, x + 9 * width / 10, y + height);
 
                     break;
+                case BlockType.Data:
+                    points = new[]
+                    {
+                        new Point(x + height / 4, y),
+                        new Point(x + width + height / 4, y),
+                        new Point(x + width - height / 4, y + height),
+                        new Point(x - height / 4, y + height),
+                        new Point(x + height / 4, y),
+                        new Point(x + width + height / 4, y),
+                    };     
+                    graphics.DrawLines(pen, points);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

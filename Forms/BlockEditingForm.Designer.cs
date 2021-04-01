@@ -74,7 +74,7 @@ namespace SchemeEditor
             this.typeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.typeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
             this.typeBox.FormattingEnabled = true;
-            this.typeBox.Items.AddRange(new object[] {"Блок условия", "Блок цикла", "Обычный блок", "Предопределённый блок"});
+            this.typeBox.Items.AddRange(new object[] {"Блок условия", "Блок цикла", "Обычный блок", "Предопределённый блок", "Блок данных"});
             this.typeBox.Location = new System.Drawing.Point(17, 54);
             this.typeBox.Margin = new System.Windows.Forms.Padding(2);
             this.typeBox.Name = "typeBox";
