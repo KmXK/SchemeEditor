@@ -26,7 +26,8 @@ namespace SchemeEditor
             StandartWidth = 100,
             ConnectorSize = 30,
             PageOffset = 30,
-            FontSize = 18
+            FontSize = 18,
+            Quality = 5
         };
 
         private DateTime _lastClickTime = DateTime.MinValue;
@@ -238,12 +239,16 @@ namespace SchemeEditor
 
                     tabControl1.ContextMenuStrip = contextMenuStrip1;
 
-                    if ((DateTime.Now - _lastClickTime).TotalSeconds < 0.3f && pastSelBlock == currentScheme.SelectedBlock)
+                    if (e.Button == MouseButtons.Right)
                     {
-                        EditBlock(this, null);
+                        if ((DateTime.Now - _lastClickTime).TotalSeconds < 0.3f &&
+                            pastSelBlock == currentScheme.SelectedBlock)
+                        {
+                            EditBlock(this, null);
+                        }
+
+                        _lastClickTime = DateTime.Now;
                     }
-                    
-                    _lastClickTime = DateTime.Now;
                 }
                 else
                 {
@@ -272,7 +277,7 @@ namespace SchemeEditor
         {
             var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
             int pictureWidth = (int) (pictureBox.Image.Width /
-                                      (SelectedScheme.PictureMultiplier * _zoomMultiplier));
+                                      (SelectedScheme.Settings.Quality * _zoomMultiplier));
 
             pictureBox.ModifyWidth(pictureWidth);
             FormResize(this, null);
@@ -360,7 +365,7 @@ namespace SchemeEditor
 
         private void zoomPlusButton_Click(object sender, EventArgs e)
         {
-            if (_zoomMultiplier > 1 / 5f)
+            if (_zoomMultiplier > 1 / 20f)
             {
                 _zoomMultiplier -= 0.05f;
                 CalculateSchemePictureSize();
@@ -369,7 +374,7 @@ namespace SchemeEditor
 
         private void zoomMinusButton_Click(object sender, EventArgs e)
         {
-            if (_zoomMultiplier < 4)
+            if (_zoomMultiplier < 5)
             {
                 _zoomMultiplier += 0.05f;
                 CalculateSchemePictureSize();

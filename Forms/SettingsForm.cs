@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SchemeEditor.Schemes;
 
@@ -25,6 +26,7 @@ namespace SchemeEditor
             pageOffset.Value = _settings.PageOffset;
             fontSize.Value = _settings.FontSize;
             connectorSize.Value = _settings.ConnectorSize;
+            qualityBox.SelectedIndex = (_settings.Quality - 1) / 2;
         }
 
         private void ShowError(string mes)
@@ -50,6 +52,7 @@ namespace SchemeEditor
             _settings.PageOffset = (int) pageOffset.Value;
             _settings.FontSize = (int) fontSize.Value;
             _settings.ConnectorSize = (int) connectorSize.Value;
+            _settings.Quality = qualityBox.SelectedIndex * 2 + 1;
         }
     }
 }

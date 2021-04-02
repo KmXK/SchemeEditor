@@ -13,8 +13,6 @@ namespace SchemeEditor.Schemes
     {
         private Block _mainBlock;
 
-        public readonly int PictureMultiplier = 5;
-
         [NonSerialized]
         private int _connectorInterval;
         [NonSerialized]
@@ -89,7 +87,7 @@ namespace SchemeEditor.Schemes
         {
             _settings = GetMultipliedSettings(settings);
 
-            _connectorInterval = 10 * PictureMultiplier;
+            _connectorInterval = 10 * _settings.Quality;
             
             SetBlockDefaultSettings(MainBlock);
         }
@@ -97,14 +95,15 @@ namespace SchemeEditor.Schemes
         private SchemeSettings GetMultipliedSettings(SchemeSettings settings)
         {
             var set = settings;
-            set.HorizontalInterval *= PictureMultiplier;
-            set.VerticalInterval *= PictureMultiplier;
-            set.StandartWidth *= PictureMultiplier;
-            set.StandartHeight *= PictureMultiplier;
-            set.PageOffset *= PictureMultiplier;
-            set.ConnectorSize *= PictureMultiplier;
-            set.PagesInterval *= PictureMultiplier;
-            set.FontSize *= PictureMultiplier;
+            set.HorizontalInterval *= settings.Quality;
+            set.VerticalInterval *= settings.Quality;
+            set.StandartWidth *= settings.Quality;
+            set.StandartHeight *= settings.Quality;
+            set.PageOffset *= settings.Quality;
+            set.ConnectorSize *= settings.Quality;
+            set.PagesInterval *= settings.Quality;
+            set.FontSize *= settings.Quality;
+            set.Quality = settings.Quality;
             
             return set;
         }
@@ -167,7 +166,7 @@ namespace SchemeEditor.Schemes
             InitializeBitmaps();
 
             // Отрисовка компонентов схемы
-            Pen pen = new Pen(Color.Black, 1 * PictureMultiplier);
+            Pen pen = new Pen(Color.Black, 1 * _settings.Quality);
 
             DrawBlock(_mainBlock, pen);
             DrawConnectors(pen);
@@ -338,7 +337,8 @@ namespace SchemeEditor.Schemes
                         new Point(x + width - height / 3, y + height),
                         new Point(x + height / 3, y + height),
                         new Point(x, y + 2 * height / 3),
-                        new Point(x, y)
+                        new Point(x, y),
+                        new Point(x + width, y)
                     };
                     graphics.DrawLines(pen, points);
                     break;
@@ -445,7 +445,7 @@ namespace SchemeEditor.Schemes
 
                     int blockCenter = block.Position.X + block.Width / 2;
 
-                    if (Math.Abs(tX + tSize.Width / 2 - blockCenter) < PictureMultiplier &&
+                    if (Math.Abs(tX + tSize.Width / 2 - blockCenter) < _settings.Quality &&
                         Math.Sign(tX - blockCenter) != Math.Sign(blockCenter - tX))
                     {
                         if (tX - blockCenter > 0)
@@ -790,7 +790,7 @@ namespace SchemeEditor.Schemes
                 else if (!arrow.CanBeHidden ||
                          colorUnderArrow.Name != "0")
                 {
-                    int length = 10 * PictureMultiplier;
+                    int length = 10 * _settings.Quality;
                     var angle = 25 * Math.PI / 180;
                     var points = new PointF[3]
                     {
@@ -1342,14 +1342,14 @@ namespace SchemeEditor.Schemes
                 if (block != MainBlock)
                 {
                     GetGlobalCoordsByPage(block.Position, out x, out y);
-                    DrawBlockFigure(graphics, block, x, y, new Pen(Color.Red, PictureMultiplier));
+                    DrawBlockFigure(graphics, block, x, y, new Pen(Color.Red, _settings.Quality));
                     //DrawBlockText(graphics, block, x, y);
                 }
 
                 if (SelectedBlock != MainBlock)
                 {
                     GetGlobalCoordsByPage(SelectedBlock.Position, out x, out y);
-                    DrawBlockFigure(graphics, SelectedBlock, x, y, new Pen(Color.Black, PictureMultiplier));
+                    DrawBlockFigure(graphics, SelectedBlock, x, y, new Pen(Color.Black, _settings.Quality));
                     //DrawBlockText(graphics, SelectedBlock, x, y);
                 }
                 

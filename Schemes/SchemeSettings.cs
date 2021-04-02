@@ -14,5 +14,6 @@ namespace SchemeEditor.Schemes
         public int PageOffset;
         public int ConnectorSize;
         public int FontSize;
+        public int Quality;
     }
 }

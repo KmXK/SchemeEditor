@@ -86,21 +86,21 @@ namespace SchemeEditor
 
         private void SetBlockSizesData()
         {
-            label6.Text = $@"Ширина (по умолчанию {_scheme.Settings.StandartWidth / _scheme.PictureMultiplier}): ";
-            label4.Text = $@"Высота (по умолчанию {_scheme.Settings.StandartHeight / _scheme.PictureMultiplier}): ";
-            label5.Text = $@"Размер шрифта (по умолчанию {_scheme.Settings.FontSize / _scheme.PictureMultiplier}): ";
+            label6.Text = $@"Ширина (по умолчанию {_scheme.Settings.StandartWidth / _scheme.Settings.Quality}): ";
+            label4.Text = $@"Высота (по умолчанию {_scheme.Settings.StandartHeight / _scheme.Settings.Quality}): ";
+            label5.Text = $@"Размер шрифта (по умолчанию {_scheme.Settings.FontSize / _scheme.Settings.Quality}): ";
 
             if (_blocks[0].Width == 0)
             {
-                widthBox.Value = _scheme.Settings.StandartWidth / _scheme.PictureMultiplier;
-                heightBox.Value = _scheme.Settings.StandartHeight / _scheme.PictureMultiplier;
-                fontSizeBox.Value = _scheme.Settings.FontSize / _scheme.PictureMultiplier;
+                widthBox.Value = _scheme.Settings.StandartWidth / _scheme.Settings.Quality;
+                heightBox.Value = _scheme.Settings.StandartHeight / _scheme.Settings.Quality;
+                fontSizeBox.Value = _scheme.Settings.FontSize / _scheme.Settings.Quality;
             }
             else
             {
-                widthBox.Value = _blocks[0].Width / _scheme.PictureMultiplier;
-                heightBox.Value = _blocks[0].Height / _scheme.PictureMultiplier;
-                fontSizeBox.Value = _blocks[0].FontSize / _scheme.PictureMultiplier;
+                widthBox.Value = _blocks[0].Width / _scheme.Settings.Quality;
+                heightBox.Value = _blocks[0].Height / _scheme.Settings.Quality;
+                fontSizeBox.Value = _blocks[0].FontSize / _scheme.Settings.Quality;
             }
         }
 
@@ -109,9 +109,9 @@ namespace SchemeEditor
             _blocks[0].Text = textBlock.Lines;
             foreach (var block in _blocks)
             {
-                block.Width = (int)widthBox.Value * _scheme.PictureMultiplier;
-                block.Height = (int)heightBox.Value * _scheme.PictureMultiplier;
-                block.FontSize = (int)fontSizeBox.Value * _scheme.PictureMultiplier;
+                block.Width = (int)widthBox.Value * _scheme.Settings.Quality;
+                block.Height = (int)heightBox.Value * _scheme.Settings.Quality;
+                block.FontSize = (int)fontSizeBox.Value * _scheme.Settings.Quality;
             }
 
             if (_currentType != _startType)
