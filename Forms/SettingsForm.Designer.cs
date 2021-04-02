@@ -280,6 +280,7 @@ namespace SchemeEditor
             // 
             // qualityBox
             // 
+            this.qualityBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.qualityBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
             this.qualityBox.FormattingEnabled = true;
             this.qualityBox.Items.AddRange(new object[] {"Very Low", "Low", "Medium", "High", "Very High"});

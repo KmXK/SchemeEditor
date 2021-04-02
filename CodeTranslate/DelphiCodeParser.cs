@@ -97,7 +97,7 @@ namespace SchemeEditor.CodeTranslate
                     else
                     {
                         return new ParseResult(false,
-                            $"Ожидался end для begin в строке {areaStart}",
+                            $"Ожидался end для begin в строке {areaStart + 1}",
                             null);
                     }
                 }
@@ -124,7 +124,7 @@ namespace SchemeEditor.CodeTranslate
                             _code[j].ToLower().Contains($" {reserved} ") ||
                             _code[j].ToLower() == reserved)
                         {
-                            errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {start}";
+                            errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {start + 1}";
                             return false;
                         }
                     }
@@ -140,13 +140,13 @@ namespace SchemeEditor.CodeTranslate
 
                 if (conditionEnd == -1)
                 {
-                    errorCode = $"Не найден do для цикла в строке {start}.";
+                    errorCode = $"Не найден do для цикла в строке {start + 1}.";
                     return false;
                 }
 
                 if (_code[start].ToLower().StartsWith("for") && conditionEnd != start)
                 {
-                    errorCode = $"Условие for должно быть в одной строке. (Ошибка в строке {start})";
+                    errorCode = $"Условие for должно быть в одной строке. (Строка {start + 1})";
                     return false;
                 }
                 
@@ -163,7 +163,7 @@ namespace SchemeEditor.CodeTranslate
                             int index = line.IndexOf(':');
                             if (index == -1)
                             {
-                                errorCode = $"Не найдена инициализация счётчика цикла for в строке {start}";
+                                errorCode = $"Не найдена инициализация счётчика цикла for в строке {start + 1}";
                                 return false;
                             }
 
@@ -174,7 +174,7 @@ namespace SchemeEditor.CodeTranslate
                             if (!line.ToLower().Contains(" downto ") &&
                                 !line.ToLower().Contains(" to "))
                             {
-                                errorCode = $"Не найдено ключевое слово to/downto цикла for в строке {start}";
+                                errorCode = $"Не найдено ключевое слово to/downto цикла for в строке {start + 1}";
                                 return false;
                             }
 
@@ -243,7 +243,7 @@ namespace SchemeEditor.CodeTranslate
                 {
                     if(!FindEndOfArea(bodyIndex, out int areaEnd))
                     {
-                        errorCode = $"Не найден end для begin по строке {bodyIndex}";
+                        errorCode = $"Не найден end для begin по строке {bodyIndex + 1}";
                         return false;
                     }
                     
@@ -301,7 +301,7 @@ namespace SchemeEditor.CodeTranslate
 
                 if (!untilExists)
                 {
-                    errorCode = $"Не найден until для repeat в строке {start}";
+                    errorCode = $"Не найден until для repeat в строке {start + 1}";
                     return false;
                 }
 
@@ -353,7 +353,7 @@ namespace SchemeEditor.CodeTranslate
                                 _code[i].ToLower().Contains($" {reserved} ") ||
                                 _code[i].ToLower() == reserved)
                             {
-                                errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {end}";
+                                errorCode = $"Обнаружено зарезервированное слово внутри условия цикла в строке {end + 1}";
                                 return false;
                             }
                         }
@@ -404,7 +404,7 @@ namespace SchemeEditor.CodeTranslate
                             _code[j].ToLower().Contains($" {reserved} ") ||
                             _code[j].ToLower() == reserved)
                         {
-                            errorCode = $"Обнаружено зарезервированное слово внутри условия в строке {start}";
+                            errorCode = $"Обнаружено зарезервированное слово внутри условия в строке {start + 1}";
                             return false;
                         }
                     }
@@ -420,7 +420,7 @@ namespace SchemeEditor.CodeTranslate
 
                 if (conditionEnd == -1)
                 {
-                    errorCode = $"Не найден then для условия в строке {start}.";
+                    errorCode = $"Не найден then для условия в строке {start + 1}.";
                     return false;
                 }
                 
@@ -460,7 +460,7 @@ namespace SchemeEditor.CodeTranslate
                 {
                     if(!FindEndOfArea(bodyStart, out int areaEnd))
                     {
-                        errorCode = $"Не найден end для begin по строке {bodyStart}";
+                        errorCode = $"Не найден end для begin по строке {bodyStart + 1}";
                         return false;
                     }
                     
@@ -525,7 +525,7 @@ namespace SchemeEditor.CodeTranslate
             {
                 if (!_code[start].ToLower().EndsWith(" of"))
                 {
-                    errorCode = $"Не найдено слово of в строке {start}";
+                    errorCode = $"Не найдено слово of в строке {start + 1}";
                     return false;
                 }
 
@@ -561,7 +561,7 @@ namespace SchemeEditor.CodeTranslate
                                 (_code[line].Length > _code[line].IndexOf(':') + 1 &&
                                  _code[line][_code[line].IndexOf(':') + 1] == '='))
                             {
-                                errorCode = $"Ожидалось : в строке {line}";
+                                errorCode = $"Ожидалось : в строке {line + 1}";
                                 return false;
                             }
 
@@ -578,7 +578,7 @@ namespace SchemeEditor.CodeTranslate
                             {
                                 if (end < line)
                                 {
-                                    errorCode = $"Не найден end в строке {j}";
+                                    errorCode = $"Не найден end в строке {j + 1}";
                                     return false;
                                 }
                                 
@@ -590,7 +590,7 @@ namespace SchemeEditor.CodeTranslate
                             }
                             else
                             {
-                                errorCode = $"Не найден end для begin в строке {j}";
+                                errorCode = $"Не найден end для begin в строке {j + 1}";
                                 return false;
                             }
                         }
@@ -613,7 +613,7 @@ namespace SchemeEditor.CodeTranslate
                 }
                 else
                 {
-                    errorCode = $"Не обнаружен end для Case в строке {start}";
+                    errorCode = $"Не обнаружен end для Case в строке {start + 1}";
                     return false;
                 }
             }
@@ -631,7 +631,7 @@ namespace SchemeEditor.CodeTranslate
 
                 if (end == _code.Length - 1)
                 {
-                    errorCode = $"Ожидался оператор в строке {start}";
+                    errorCode = $"Ожидался оператор в строке {start + 1}";
                     return false;
                 }
 
@@ -817,7 +817,7 @@ namespace SchemeEditor.CodeTranslate
                             _code[line].Contains($" {reservedWord} "))
                         {
                             end = line;
-                            errorMessage = $"Ожидалась точка с запятой в названии подпрограммы по индексу {start}";
+                            errorMessage = $"Ожидалась точка с запятой в названии подпрограммы по индексу {start + 1}";
                             return false;
                         }
                     }
@@ -827,7 +827,7 @@ namespace SchemeEditor.CodeTranslate
                 {
                     if (isEnded)
                     {
-                        errorMessage = "После точки запятой ничего не должно быть.";
+                        errorMessage = $"После точки запятой ничего не должно быть (Строка {line + 1})";
                         return false;
                     }
 
@@ -835,7 +835,7 @@ namespace SchemeEditor.CodeTranslate
                     {
                         if (!firstBracket && bracketNesting == 0)
                         {
-                            errorMessage = $"Обнаружена лишняя скобка в строке {line}";
+                            errorMessage = $"Обнаружена лишняя скобка в строке {line + 1}";
                             return false;
                         }
                         
@@ -846,7 +846,7 @@ namespace SchemeEditor.CodeTranslate
                     {
                         if (bracketNesting == 0)
                         {
-                            errorMessage = $"Обнаружена лишняя скобка в строке {line}";
+                            errorMessage = $"Обнаружена лишняя скобка в строке {line + 1}";
                             return false;
                         }
 
@@ -863,13 +863,13 @@ namespace SchemeEditor.CodeTranslate
                     {
                         if (_code[start].StartsWith("procedure"))
                         {
-                            errorMessage = $"Обнаружен возвращаемый параметр в процедуре в строке {line}";
+                            errorMessage = $"Обнаружен возвращаемый параметр в процедуре в строке {line + 1}";
                             return false;
                         }
 
                         if (delete)
                         {
-                            errorMessage = $"Обнаружен лишний символ двоеточия в строке {line}";
+                            errorMessage = $"Обнаружен лишний символ двоеточия в строке {line + 1}";
                             return false;
                         }
 
@@ -886,14 +886,14 @@ namespace SchemeEditor.CodeTranslate
                 {
                     if (bracketNesting != 0)
                     {
-                        errorMessage = $"Лишняя(ие) скобки в названии подпрограммы, начинающейся на строке {start}.";
+                        errorMessage = $"Лишняя(ие) скобки в названии подпрограммы, начинающейся на строке {start + 1}.";
                         return false;
                     }
 
                     if (end == _code.Length - 1 ||
                         _code[end + 1] != "begin")
                     {
-                        errorMessage = $"Ожидался begin у подпрограммы в строке {start}.";
+                        errorMessage = $"Ожидался begin у подпрограммы в строке {start + 1}.";
                         return false;
                     }
                     
@@ -951,7 +951,7 @@ namespace SchemeEditor.CodeTranslate
                 line++;
             }
 
-            errorMessage = $"Не закрыта подпрограмма в строке {start}.";
+            errorMessage = $"Не закрыта подпрограмма в строке {start + 1}.";
             return false;
         }
     }
