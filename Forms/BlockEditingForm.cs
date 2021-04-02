@@ -32,7 +32,7 @@ namespace SchemeEditor
             if (block.Type == BlockType.End || block.Type == BlockType.Start)
             {
                 typeBox.Items.Add("Терминатор");
-                typeBox.SelectedIndex = typeBox.Items.Count - 1;
+                typeBox.SelectedIndex = typeBox.Items.Count - 1;                        
                 typeBox.Enabled = false;
             }
             else
@@ -131,7 +131,8 @@ namespace SchemeEditor
                     _blocks[0].Parent.AddChild(_blocks[1], branchIndex, index + 1);
                 }
 
-                _blocks[0].SetData(_currentType, textBlock.Lines, _branchNames.ToArray());
+                _blocks[0].SetData(_currentType == BlockType.Start ? _blocks[0].Type : _currentType,
+                    textBlock.Lines, _branchNames.ToArray());
             }
 
             if (_currentType == BlockType.StartLoop)
@@ -159,7 +160,8 @@ namespace SchemeEditor
                 case 3: _currentType = BlockType.PredefProc; break;
                 case 4: _currentType = BlockType.Data; break;
                 default:
-                    throw new ArgumentException();
+                    _currentType = BlockType.Start;
+                    break;
             }
 
             if (_currentType == BlockType.StartLoop)

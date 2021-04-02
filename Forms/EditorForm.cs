@@ -29,6 +29,8 @@ namespace SchemeEditor
             FontSize = 18
         };
 
+        private DateTime _lastClickTime = DateTime.MinValue;
+
         public EditorForm()
         {
             InitializeComponent();
@@ -137,11 +139,11 @@ namespace SchemeEditor
 
         private void EditBlock(object sender, EventArgs e)
         {
-            if (_schemes[tabControl1.SelectedIndex].SelectedBlock.Type != BlockType.Main)
+            if (SelectedScheme.SelectedBlock.Type != BlockType.Main)
             {
                 BlockEditingForm beForm = new BlockEditingForm();
 
-                var selBlock = _schemes[tabControl1.SelectedIndex].SelectedBlock;
+                var selBlock = SelectedScheme.SelectedBlock;
                 selBlock.Parent.GetChildIndex(selBlock, out int branchIndex, out int index);
 
                 if (selBlock.Type == BlockType.StartLoop)
@@ -228,12 +230,20 @@ namespace SchemeEditor
 
             if (pos.PageIndex != -1)
             {
+                var pastSelBlock = currentScheme.SelectedBlock;
                 if (currentScheme.SelectBlockByCoords(pos))
                 {
                     SelectedBlockChanged();
                     ((SchemePicture) sender).Image = currentScheme.GetBitmap();
 
                     tabControl1.ContextMenuStrip = contextMenuStrip1;
+
+                    if ((DateTime.Now - _lastClickTime).TotalSeconds < 0.3f && pastSelBlock == currentScheme.SelectedBlock)
+                    {
+                        EditBlock(this, null);
+                    }
+                    
+                    _lastClickTime = DateTime.Now;
                 }
                 else
                 {
@@ -415,8 +425,7 @@ namespace SchemeEditor
                 dialog.Title = "Сохранение текущей схемы";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    SelectedScheme.Name = dialog.FileName.Substring(
-                        dialog.FileName.LastIndexOf("/"));
+                    SelectedScheme.Name = dialog.FileName.Substring(dialog.FileName.LastIndexOf("\\"));
                     
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
