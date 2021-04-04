@@ -13,7 +13,16 @@ namespace SchemeEditor
     public partial class EditorForm : Form
     {
         private List<GraphicScheme> _schemes;
-        private GraphicScheme SelectedScheme => _schemes[tabControl1.SelectedIndex];
+
+        private GraphicScheme SelectedScheme
+        {
+            get
+            {
+                if (_schemes == null || _schemes.Count == 0)
+                    return null;
+                return _schemes[tabControl1.SelectedIndex];
+            }
+        }
 
         private float _zoomMultiplier = 1f;
 
@@ -77,6 +86,8 @@ namespace SchemeEditor
 
         private void AddBlock(object sender, EventArgs e)
         {
+            if (SelectedScheme == null) return;
+            
             bool isAfter = ((ToolStripMenuItem) sender).Name.ToLower().Contains("after");
             
             
@@ -113,6 +124,7 @@ namespace SchemeEditor
 
         private void RemoveBlock(object sender, EventArgs e)
         {
+            if (SelectedScheme == null) return;
             var selectedBlock = SelectedScheme.SelectedBlock;
             if (selectedBlock.Type != BlockType.Main && 
                 selectedBlock.Type != BlockType.End &&
@@ -142,6 +154,7 @@ namespace SchemeEditor
 
         private void EditBlock(object sender, EventArgs e)
         {
+            if (SelectedScheme == null) return;
             if (SelectedScheme.SelectedBlock.Type != BlockType.Main)
             {
                 BlockEditingForm beForm = new BlockEditingForm();
@@ -174,8 +187,7 @@ namespace SchemeEditor
 
         private void FormResize(object sender, EventArgs e)
         {
-            if (tabControl1.TabCount == 0)
-                return;
+            if (SelectedScheme == null) return;
             
             var tabPage = tabControl1.SelectedTab;
 
@@ -211,6 +223,7 @@ namespace SchemeEditor
 
         private void SchemeMouseDown(object sender, MouseEventArgs e)
         {
+            if (SelectedScheme == null) return;
             var currentScheme = _schemes[tabControl1.SelectedIndex];
             
             if (!(sender is SchemePicture))
@@ -265,8 +278,7 @@ namespace SchemeEditor
 
         private void UpdateSchemePicture()
         {
-            if (_schemes.Count == 0)
-                return;
+            if (SelectedScheme == null) return;
             try
             {
                 var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
@@ -284,6 +296,7 @@ namespace SchemeEditor
 
         private void CalculateSchemePictureSize()
         {
+            if (SelectedScheme == null) return;
             var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
             int pictureWidth = (int) (pictureBox.Image.Width /
                                       (SelectedScheme.Settings.Quality * _zoomMultiplier));
@@ -340,6 +353,7 @@ namespace SchemeEditor
 
         private void AddBlockInside(object sender, EventArgs eventArgs)
         {
+            if (SelectedScheme == null) return;
             string name = ((ToolStripMenuItem) sender).Name;
             int branchIndex;
             if (name == addBlockInside.Name)
@@ -544,9 +558,17 @@ namespace SchemeEditor
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     int i = 1;
-                    foreach (var bitmap in SelectedScheme.DrawSchemePages())
+                    try
                     {
-                        bitmap.Save($"{dialog.SelectedPath}/{i++}.png", ImageFormat.Png);
+                        foreach (var bitmap in SelectedScheme.DrawSchemePages())
+                        {
+                            bitmap.Save($"{dialog.SelectedPath}/{i++}.png", ImageFormat.Png);
+                        }
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Возникла ошибка при сохранении файлов!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
