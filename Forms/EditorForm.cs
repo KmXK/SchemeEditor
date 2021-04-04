@@ -524,7 +524,7 @@ namespace SchemeEditor
 
         private void helpButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Пока ничего тут нет :)", ":)", MessageBoxButtons.OK);
+            new HelpForm().ShowDialog();
         }
 
         private void сохранитьИзображениеСхемыToolStripMenuItem_Click(object sender, EventArgs e)
