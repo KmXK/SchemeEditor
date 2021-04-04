@@ -13,6 +13,8 @@ namespace SchemeEditor.CodeTranslate
         private SchemeSettings _currentSettings;
 
         private Stack<int> _cycleNesting;
+        private int _nesting;
+        private List<int> _numberCount; 
 
         private static string[] _reservedWords =
         {
@@ -79,13 +81,16 @@ namespace SchemeEditor.CodeTranslate
                                 "Выход " + scheme.MainBlock.GetChild(0, 1).Text[0];
                         }
                         
-
                         _currentSettings = scheme.Settings;
                         i = areaEnd;
                         _cycleNesting = new Stack<int>();
                         _cycleNesting.Push(0);
+                        _numberCount = new List<int>();
+                        _numberCount.Add(1);
+                        _nesting = 0;
 
-                        if (ReadOperatorChilds(scheme.MainBlock, 0,1,areaStart + 1, out areaEnd, out string errorMessage))
+                        if (ReadOperatorChilds(scheme.MainBlock, 0,1,
+                            areaStart + 1, out areaEnd, out string errorMessage))
                         {
                             schemes.Add(scheme);
                         }
@@ -212,12 +217,12 @@ namespace SchemeEditor.CodeTranslate
                 }
 
                 // Получение номера цикла
-                
-                int number = _cycleNesting.Peek() + 1;
-                char c = (char)(_cycleNesting.Count - 1 + (int)'A');
+
+                int number = _numberCount[_nesting];
+                char c = (char) ((_nesting + 'A') > 'Z' ? (_nesting + 'a') : (_nesting + 'A'));
                 string cycleName = c + number.ToString();
                 
-                _cycleNesting.Push(_cycleNesting.Pop() + 1);
+                _numberCount[_nesting]++;
                 
                 text.Insert(0, cycleName);
 
@@ -239,7 +244,10 @@ namespace SchemeEditor.CodeTranslate
 
                 int bodyIndex = conditionEnd + 1;
 
-                _cycleNesting.Push(0);
+                //_cycleNesting.Push(0);
+                _nesting++;
+                if (_nesting == _numberCount.Count)
+                    _numberCount.Add(1);
                 
                 if (_code[bodyIndex].ToLower() == "begin")
                 {
@@ -272,12 +280,11 @@ namespace SchemeEditor.CodeTranslate
                     }
                 }
 
-                _cycleNesting.Pop();
+                _nesting--;
                 return true;
             }
             else if (_code[start].ToLower() == "repeat")
             {
-                // TODO: Проверить существование until
                 bool untilExists = false;
                 int j = start+1;
                 int n = 0;
@@ -323,15 +330,19 @@ namespace SchemeEditor.CodeTranslate
                 block.AddChild(second, branchIndex, childIndex++);
 
                 // Получение номера цикла
-                int number = _cycleNesting.Peek() + 1;
-                char c = (char)(_cycleNesting.Count - 1 + (int)'A');
+                int number = _numberCount[_nesting]; //_cycleNesting.Peek() + 1;
+                char c = (char) ((_nesting + 'A') > 'Z' ? (_nesting + 'a') : (_nesting + 'A'));
                 string cycleName = c + number.ToString();
                 
-                _cycleNesting.Push(_cycleNesting.Pop() + 1);
+                //_cycleNesting.Push(_cycleNesting.Pop() + 1);
+                _numberCount[_nesting]++;
 
                 if (ReadOperatorChilds(first, 0, 0, start + 1, out end, out errorCode))
                 {
-                    _cycleNesting.Push(0);
+                    //_cycleNesting.Push(0);
+                    _nesting++;
+                    if (_nesting == _numberCount.Count)
+                        _numberCount.Add(1);
                     
                     end++;
 
@@ -381,7 +392,8 @@ namespace SchemeEditor.CodeTranslate
                     first.Text = new[] {cycleName};
                     
 
-                    _cycleNesting.Pop();
+                    //_cycleNesting.Pop();
+                    _nesting--;
                     
                     // получить инфу о until 
                     return true;
@@ -650,11 +662,11 @@ namespace SchemeEditor.CodeTranslate
                         text.Add(line);
                 }
 
-                var type =
-                    (text[0].ToLower().StartsWith("ввод") ||
-                     text[0].ToLower().StartsWith("вывод") ||
-                     text[0].ToLower().StartsWith("input") ||
-                     text[0].ToLower().StartsWith("output"))
+                var type = text.Count > 0 &&
+                           (text[0].ToLower().StartsWith("ввод") ||
+                            text[0].ToLower().StartsWith("вывод") ||
+                            text[0].ToLower().StartsWith("input") ||
+                            text[0].ToLower().StartsWith("output"))
                         ? BlockType.Data
                         : BlockType.Default;
 

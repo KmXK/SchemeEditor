@@ -439,7 +439,8 @@ namespace SchemeEditor
                 dialog.Title = "Сохранение текущей схемы";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    SelectedScheme.Name = dialog.FileName.Substring(dialog.FileName.LastIndexOf("\\"));
+                    SelectedScheme.Name = dialog.FileName.Substring(dialog.FileName.LastIndexOf("\\") + 1);
+                    tabControl1.SelectedTab.Text = SelectedScheme.Name;
                     
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
