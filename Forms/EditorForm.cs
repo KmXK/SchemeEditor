@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
@@ -266,12 +267,19 @@ namespace SchemeEditor
         {
             if (_schemes.Count == 0)
                 return;
-            
-            var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
-            ((PictureBox) tabControl1.SelectedTab.Controls["panel"].Controls["pb"]).Image =
-                _schemes[tabControl1.SelectedIndex].DrawScheme();
-            
-            CalculateSchemePictureSize();
+            try
+            {
+                var pictureBox = (SchemePicture) tabControl1.SelectedTab.Controls["panel"].Controls["pb"];
+                pictureBox.Image = _schemes[tabControl1.SelectedIndex].DrawScheme();
+
+                CalculateSchemePictureSize();
+            }
+            catch
+            {
+                MessageBox.Show("Возникла какая-то ошибка! Возможно, изображение" +
+                                " схемы является слишком большим. Попробуйте уменьшить настройки.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void CalculateSchemePictureSize()
@@ -537,7 +545,7 @@ namespace SchemeEditor
                     int i = 1;
                     foreach (var bitmap in SelectedScheme.DrawSchemePages())
                     {
-                        bitmap.Save($"{dialog.SelectedPath}/{i++}.bmp");
+                        bitmap.Save($"{dialog.SelectedPath}/{i++}.png", ImageFormat.Png);
                     }
                 }
             }

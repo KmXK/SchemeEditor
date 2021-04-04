@@ -49,6 +49,12 @@ namespace SchemeEditor
             _settings.BlocksOnPage = (int) blocksOnPage.Value;
             _settings.HorizontalInterval = (int) horizontalInterval.Value;
             _settings.VerticalInterval = (int) verticalInterval.Value;
+
+            if (_settings.HorizontalInterval % 2 != 0)
+                _settings.HorizontalInterval--;
+            if (_settings.VerticalInterval % 2 != 0)
+                _settings.VerticalInterval--;
+            
             _settings.PagesInterval = (int) pageInterval.Value;
             _settings.PageOffset = (int) pageOffset.Value;
             _settings.FontSize = (int) fontSize.Value;

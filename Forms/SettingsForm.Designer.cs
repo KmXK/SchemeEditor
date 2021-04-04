@@ -82,6 +82,7 @@ namespace SchemeEditor
             this.blocksOnPage.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
             this.blocksOnPage.Location = new System.Drawing.Point(262, 13);
             this.blocksOnPage.Margin = new System.Windows.Forms.Padding(2);
+            this.blocksOnPage.Maximum = new decimal(new int[] {10000, 0, 0, 0});
             this.blocksOnPage.Minimum = new decimal(new int[] {4, 0, 0, 0});
             this.blocksOnPage.Name = "blocksOnPage";
             this.blocksOnPage.Size = new System.Drawing.Size(200, 26);

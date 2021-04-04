@@ -32,20 +32,30 @@ namespace SchemeEditor
 
         private void button1_Click(object sender, EventArgs e)
         {
-            DelphiCodeParser parser = new DelphiCodeParser(richTextBox1.Lines,
-                _editorForm.DefaultSettings);
-            var result = parser.ParseCodeToScheme();
-            if (result.IsSuccess)
+            try
             {
-                foreach (var scheme in result.Schemes)
+                DelphiCodeParser parser = new DelphiCodeParser(richTextBox1.Lines,
+                    _editorForm.DefaultSettings);
+
+                var result = parser.ParseCodeToScheme();
+                if (result.IsSuccess)
                 {
-                    _editorForm.AddScheme(scheme);
+                    foreach (var scheme in result.Schemes)
+                    {
+                        _editorForm.AddScheme(scheme);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(result.ErrorMessage, "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            else
+            catch
             {
-                MessageBox.Show(result.ErrorMessage, "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Возникла какая-то ошибка! Возможно, код слишком большой, из-за чего изображение" +
+                                " схемы является слишком большим. Попробуйте уменьшить настройки.",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
