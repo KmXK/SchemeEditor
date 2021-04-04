@@ -18,7 +18,7 @@ namespace SchemeEditor
         {
             get
             {
-                if (_schemes == null || _schemes.Count == 0)
+                if (_schemes.Count == 0)
                     return null;
                 return _schemes[tabControl1.SelectedIndex];
             }
