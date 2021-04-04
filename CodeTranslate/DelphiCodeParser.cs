@@ -648,7 +648,15 @@ namespace SchemeEditor.CodeTranslate
                         text.Add(line);
                 }
 
-                Block defBlock = new Block(BlockType.Default, text.ToArray(), new string[0])
+                var type =
+                    (text[0].ToLower().StartsWith("ввод") ||
+                     text[0].ToLower().StartsWith("вывод") ||
+                     text[0].ToLower().StartsWith("input") ||
+                     text[0].ToLower().StartsWith("output"))
+                        ? BlockType.Data
+                        : BlockType.Default;
+
+                Block defBlock = new Block(type, text.ToArray(), new string[0])
                 {
                     Width = _currentSettings.StandartWidth,
                     Height = _currentSettings.StandartHeight,
