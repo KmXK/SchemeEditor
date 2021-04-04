@@ -458,9 +458,20 @@ namespace AutoScheme
                     
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-                    formatter.Serialize(stream, SelectedScheme);
-                    
-                    stream.Close();
+                    try
+                    {
+                        formatter.Serialize(stream, SelectedScheme);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Возникла ошибка при сохранении схемы!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                    }
+
                 }
             }
         }
@@ -474,17 +485,20 @@ namespace AutoScheme
                 dialog.Title = "Открыть схему";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                     try
                     {
-                        var formatter = new BinaryFormatter();
-                        var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                         AddScheme((GraphicScheme) formatter.Deserialize(stream));
-                        stream.Close();
                     }
                     catch
                     {
                         MessageBox.Show("Ошибка при открытии файла. Попробуйте ещё раз!",
                             "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        stream.Close();
                     }
                 }
             }
@@ -501,13 +515,22 @@ namespace AutoScheme
                 {
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-
-                    while (stream.Position <= stream.Length - 1)
+                    try
                     {
-                        AddScheme((GraphicScheme)formatter.Deserialize(stream));
+                        while (stream.Position <= stream.Length - 1)
+                        {
+                            AddScheme((GraphicScheme) formatter.Deserialize(stream));
+                        }
                     }
-                    
-                    stream.Close();
+                    catch
+                    {
+                        MessageBox.Show("Возникла ошибка при открытии файла!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                    }
                 }
             }
         }
@@ -524,12 +547,22 @@ namespace AutoScheme
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
 
-                    foreach (var scheme in _schemes)
+                    try
                     {
-                        formatter.Serialize(stream, scheme);
+                        foreach (var scheme in _schemes)
+                        {
+                            formatter.Serialize(stream, scheme);
+                        }
                     }
-                    
-                    stream.Close();
+                    catch
+                    {
+                        MessageBox.Show("Возникла ошибка при сохранении файла!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                    }
                 }
             }
         }
@@ -586,9 +619,19 @@ namespace AutoScheme
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
 
-                    formatter.Serialize(stream, DefaultSettings);
-                    
-                    stream.Close();
+                    try
+                    {
+                        formatter.Serialize(stream, DefaultSettings);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Возникла ошибка при сохранении файла!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                    }
                 }
             }
         }
@@ -605,15 +648,26 @@ namespace AutoScheme
                     var formatter = new BinaryFormatter();
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
 
-                    DefaultSettings = (SchemeSettings) formatter.Deserialize(stream);
-
-                    if (_schemes.Count > 0)
+                    try
                     {
-                        SelectedScheme.SetSettings(DefaultSettings);
+                        DefaultSettings = (SchemeSettings) formatter.Deserialize(stream);
+                        
+                        if (_schemes.Count > 0)
+                        {
+                            SelectedScheme.SetSettings(DefaultSettings);
 
-                        UpdateSchemePicture();
+                            UpdateSchemePicture();
+                        }
                     }
-                    stream.Close();
+                    catch
+                    {
+                        MessageBox.Show("Возникла ошибка при сохранении файлов!", "Ошибка",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                    }
                 }
             }
         }
