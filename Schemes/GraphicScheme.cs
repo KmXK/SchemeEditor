@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SchemeEditor.Schemes
+namespace AutoScheme.Schemes
 {
     [Serializable]
     public class GraphicScheme : Scheme

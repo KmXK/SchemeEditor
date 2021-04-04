@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SchemeEditor.Schemes;
+using AutoScheme.Schemes;
 
-namespace SchemeEditor.CodeTranslate
+namespace AutoScheme.CodeTranslate
 {
     public struct ParseResult
     {

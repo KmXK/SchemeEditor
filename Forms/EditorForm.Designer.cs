@@ -1,4 +1,4 @@
-﻿namespace SchemeEditor
+﻿namespace AutoScheme
 {
     partial class EditorForm
     {

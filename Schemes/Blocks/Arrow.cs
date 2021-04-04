@@ -1,4 +1,4 @@
-﻿namespace SchemeEditor.Schemes.Blocks
+﻿namespace AutoScheme.Schemes.Blocks
 {
     public class Arrow
     {

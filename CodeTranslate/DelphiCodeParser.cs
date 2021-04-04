@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SchemeEditor.Schemes;
-using SchemeEditor.Schemes.Blocks;
+using AutoScheme.Schemes;
+using AutoScheme.Schemes.Blocks;
 
-namespace SchemeEditor.CodeTranslate
+namespace AutoScheme.CodeTranslate
 {
     public class DelphiCodeParser
     {

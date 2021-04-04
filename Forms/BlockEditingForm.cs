@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using SchemeEditor.Schemes.Blocks;
-using SchemeEditor.Schemes;
+using AutoScheme.Schemes;
+using AutoScheme.Schemes.Blocks;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public partial class BlockEditingForm : Form
     {

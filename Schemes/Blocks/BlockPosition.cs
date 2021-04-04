@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SchemeEditor.Schemes.Blocks
+namespace AutoScheme.Schemes.Blocks
 {
     [Serializable]
     public struct BlockPosition

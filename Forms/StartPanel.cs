@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using SchemeEditor.Schemes;
+using AutoScheme.Schemes;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public partial class StartPanel : Form
     {

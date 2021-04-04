@@ -2,10 +2,10 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using AutoScheme.CodeTranslate;
 using Microsoft.Win32.SafeHandles;
-using SchemeEditor.CodeTranslate;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public partial class CodeEditorForm : Form
     {

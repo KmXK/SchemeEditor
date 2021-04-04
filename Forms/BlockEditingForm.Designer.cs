@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     partial class BlockEditingForm
     {

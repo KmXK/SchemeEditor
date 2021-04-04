@@ -1,0 +1,13 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/projectSettingsUpdater.xml
+/contentModel.xml
+/.idea.AutoScheme.iml
+/modules.xml
+# Datasource local storage ignored files
+/../../../../../../../:\Programming\Projects\AutoScheme\.idea\.idea.AutoScheme\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/

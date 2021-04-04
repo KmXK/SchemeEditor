@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using SchemeEditor.Schemes;
+using AutoScheme.Schemes;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public partial class SettingsForm : Form
     {

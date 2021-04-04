@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Linq;
-using SchemeEditor.Schemes.Blocks;
+using AutoScheme.Schemes.Blocks;
 
-namespace SchemeEditor.Schemes
+namespace AutoScheme.Schemes
 {
     [Serializable]
     public class Scheme : IDisposable

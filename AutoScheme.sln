@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemeEditor", "SchemeEditor.csproj", "{11666FFC-8145-43D8-A43E-DEB0DFA2051B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoScheme", "AutoScheme.csproj", "{11666FFC-8145-43D8-A43E-DEB0DFA2051B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

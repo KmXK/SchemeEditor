@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public partial class HelpForm : Form
     {

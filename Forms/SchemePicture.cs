@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public class SchemePicture : PictureBox
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SchemeEditor.Schemes.Blocks
+namespace AutoScheme.Schemes.Blocks
 {
     public class Connector
     {

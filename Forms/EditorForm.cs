@@ -5,10 +5,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
-using SchemeEditor.Schemes.Blocks;
-using SchemeEditor.Schemes;
+using AutoScheme.Schemes;
+using AutoScheme.Schemes.Blocks;
 
-namespace SchemeEditor
+namespace AutoScheme
 {
     public partial class EditorForm : Form
     {
