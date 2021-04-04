@@ -52,8 +52,8 @@ namespace SchemeEditor
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 400);
             this.Controls.Add(this.richTextBox1);
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Name = "HelpForm";
-            this.ShowIcon = false;
             this.Text = "HelpForm";
             this.ResumeLayout(false);
         }

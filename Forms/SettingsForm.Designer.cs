@@ -31,6 +31,7 @@ namespace SchemeEditor
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.label1 = new System.Windows.Forms.Label();
             this.blocksOnPage = new System.Windows.Forms.NumericUpDown();
             this.horizontalInterval = new System.Windows.Forms.NumericUpDown();
@@ -356,6 +357,7 @@ namespace SchemeEditor
             this.Controls.Add(this.blocksOnPage);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SettingsForm";
             this.Text = "SettingsForm";
