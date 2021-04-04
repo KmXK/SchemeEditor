@@ -72,13 +72,15 @@ namespace AutoScheme.CodeTranslate
 
                         if (name.Length > 0)
                         {
-                            name.CopyTo(scheme.MainBlock.GetChild(0, 0).Text, 0);
-                            scheme.MainBlock.GetChild(0, 0).Text[0] =
-                                "Вход " + scheme.MainBlock.GetChild(0, 0).Text[0];
+                            var first = scheme.MainBlock.GetChild(0, 0);
+                            first.Text = new string[name.Length];
+                            name.CopyTo(first.Text, 0);
+                            first.Text[0] = "Вход " + first.Text[0];
                             
-                            name.CopyTo(scheme.MainBlock.GetChild(0, 1).Text, 0);
-                            scheme.MainBlock.GetChild(0, 1).Text[0] =
-                                "Выход " + scheme.MainBlock.GetChild(0, 1).Text[0];
+                            var last = scheme.MainBlock.GetChild(0, 1);
+                            last.Text = new string[name.Length];
+                            name.CopyTo(last.Text, 0);
+                            last.Text[0] = "Выход " + last.Text[0];
                         }
                         
                         _currentSettings = scheme.Settings;
@@ -888,12 +890,6 @@ namespace AutoScheme.CodeTranslate
                     }
                     else if (_code[line][i] == ':')
                     {
-                        if (_code[start].StartsWith("procedure"))
-                        {
-                            errorMessage = $"Обнаружен возвращаемый параметр в процедуре в строке {_lineNumbers[line + 1]}";
-                            return false;
-                        }
-
                         if (delete)
                         {
                             errorMessage = $"Обнаружен лишний символ двоеточия в строке {_lineNumbers[line + 1]}";
@@ -914,13 +910,6 @@ namespace AutoScheme.CodeTranslate
                     if (bracketNesting != 0)
                     {
                         errorMessage = $"Лишняя(ие) скобки в названии подпрограммы, начинающейся на строке {_lineNumbers[start + 1]}.";
-                        return false;
-                    }
-
-                    if (end == _code.Length - 1 ||
-                        _code[end + 1] != "begin")
-                    {
-                        errorMessage = $"Ожидался begin у подпрограммы в строке {_lineNumbers[start + 1]}.";
                         return false;
                     }
                     
@@ -972,6 +961,34 @@ namespace AutoScheme.CodeTranslate
                     name = list.ToArray();
                     
                     end = line;
+
+                    int beginIndex = end + 1;
+                    while (beginIndex < _code.Length &&
+                           _code[beginIndex].ToLower() != "begin")
+                    {
+                        foreach (var reservedWord in new string[]{"function", "procedure"})
+                        {
+                            if (_code[beginIndex].StartsWith(reservedWord + " ") ||
+                                _code[beginIndex] == reservedWord ||
+                                _code[beginIndex].EndsWith(" " + reservedWord) ||
+                                _code[beginIndex].Contains($" {reservedWord} "))
+                            {
+                                errorMessage = $"Ожидался begin у подпрограммы в строке {_lineNumbers[start + 1]}.";
+                                return false;
+                            }
+                        }
+                        
+                        beginIndex++;
+                    }
+
+                    if (_code[beginIndex].ToLower() != "begin")
+                    {
+                        errorMessage = $"Ожидался begin у подпрограммы в строке {_lineNumbers[start + 1]}.";
+                        return false;
+                    }
+
+                    end = beginIndex - 1;
+
                     return true;
                 }
 
