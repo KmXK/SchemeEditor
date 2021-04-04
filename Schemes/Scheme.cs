@@ -28,6 +28,8 @@ namespace SchemeEditor.Schemes
         public Block MainBlock => _mainBlock;
         public Block SelectedBlock { get; private set; }
 
+        private Color _backColor;
+
         [NonSerialized]
         private List<int> _pageHeights;
         [NonSerialized]
@@ -51,8 +53,10 @@ namespace SchemeEditor.Schemes
             _mainBlock.AddChild(end, 0, 1);
 
             SelectedBlock = _mainBlock;
-            
+
             SetSettings(settings);
+
+            _backColor = Color.White;
         }
 
         ~Scheme()
@@ -198,6 +202,7 @@ namespace SchemeEditor.Schemes
                 // Добавим к height 2 высоты коннектора + 2 интервала
 
                 _graphics[i] = Graphics.FromImage(_bitmaps[i]);
+                _graphics[i].Clear(_backColor);
 
                 _graphics[i].CompositingQuality = CompositingQuality.HighQuality;
                 _graphics[i].InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -228,7 +233,7 @@ namespace SchemeEditor.Schemes
 
             bitmap = new Bitmap(width, height);
             var graphics = Graphics.FromImage(bitmap);
-            graphics.Clear(Color.White);
+            graphics.Clear(_backColor);
             for (int i = 0; i < bitmaps.Length; i++)
             {
                 graphics.DrawImage(bitmaps[i], new Point(0, bitmapYs[i]));
@@ -788,7 +793,10 @@ namespace SchemeEditor.Schemes
                 if (_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
                     _arrows.RemoveAt(i--);
                 else if (!arrow.CanBeHidden ||
-                         colorUnderArrow.Name != "0")
+                         (colorUnderArrow.A != _backColor.A || 
+                          colorUnderArrow.R != _backColor.R || 
+                          colorUnderArrow.G != _backColor.G || 
+                          colorUnderArrow.B != _backColor.B))
                 {
                     int length = 10 * _settings.Quality;
                     var angle = 25 * Math.PI / 180;
@@ -855,8 +863,8 @@ namespace SchemeEditor.Schemes
 
                 var pos1 = pair.Connector1.Position;
                 var pos2 = pair.Connector2.Position;
-                var firstPage = pos1.PageIndex;
-                var secondPage = pos2.PageIndex;
+                var firstPage = pos1.PageIndex + _settings.FirstPage;
+                var secondPage = pos2.PageIndex  + _settings.FirstPage;
                 
                 bool drawSecond = true;
 

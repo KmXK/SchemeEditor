@@ -27,7 +27,8 @@ namespace SchemeEditor
             ConnectorSize = 30,
             PageOffset = 30,
             FontSize = 18,
-            Quality = 5
+            Quality = 5,
+            FirstPage = 1
         };
 
         private DateTime _lastClickTime = DateTime.MinValue;
