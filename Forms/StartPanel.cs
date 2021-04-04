@@ -30,18 +30,21 @@ namespace AutoScheme
                 dialog.Title = "Открыть схему";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                     try
                     {
-                        var formatter = new BinaryFormatter();
-                        var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                         _editorForm.AddScheme((GraphicScheme) formatter.Deserialize(stream));
-                        stream.Close();
                     }
                     catch
                     {
                         MessageBox.Show("Ошибка при открытии файла. Попробуйте ещё раз!",
                             "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
+                    }
+                    finally
+                    {
+                        stream.Close();
                     }
                 }
                 else
@@ -74,23 +77,24 @@ namespace AutoScheme
                 dialog.Title = "Открытие группы схем";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
+                    var formatter = new BinaryFormatter();
+                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                     try
                     {
-                        var formatter = new BinaryFormatter();
-                        var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-
                         while (stream.Position <= stream.Length - 1)
                         {
                             _editorForm.AddScheme((GraphicScheme) formatter.Deserialize(stream));
                         }
-
-                        stream.Close();
                     }
                     catch
                     {
                         MessageBox.Show("Ошибка при открытии файла. Попробуйте ещё раз!",
                             "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
+                    }
+                    finally
+                    {
+                        stream.Close();
                     }
                 }
                 else
