@@ -503,9 +503,18 @@ namespace AutoScheme.CodeTranslate
                     }
                 }
 
-                if (_code[end + 1].ToLower() == "else")
+                if (_code[end + 1].ToLower().StartsWith("else"))
                 {
-                    bodyStart = end + 2;
+                    if (_code[end + 1].ToLower() == "else")
+                    {
+                        bodyStart = end + 2;
+                    }
+                    else
+                    {
+                        bodyStart = end + 1;
+                        _code[end + 1] = _code[end + 1].Remove(0, 4).Trim();
+                    }
+                    
                     if (_code[bodyStart].ToLower() == "begin")
                     {
                         // TODO: Проверить наличие end
