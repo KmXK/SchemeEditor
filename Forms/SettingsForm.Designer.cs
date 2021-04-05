@@ -70,10 +70,9 @@ namespace AutoScheme
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label1.Location = new System.Drawing.Point(9, 15);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Location = new System.Drawing.Point(12, 18);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(242, 24);
+            this.label1.Size = new System.Drawing.Size(323, 30);
             this.label1.TabIndex = 0;
             this.label1.Text = "Количество блоков на странице: ";
             // 
@@ -81,12 +80,12 @@ namespace AutoScheme
             // 
             this.blocksOnPage.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.blocksOnPage.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.blocksOnPage.Location = new System.Drawing.Point(262, 13);
-            this.blocksOnPage.Margin = new System.Windows.Forms.Padding(2);
+            this.blocksOnPage.Location = new System.Drawing.Point(349, 16);
+            this.blocksOnPage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.blocksOnPage.Maximum = new decimal(new int[] {10000, 0, 0, 0});
             this.blocksOnPage.Minimum = new decimal(new int[] {4, 0, 0, 0});
             this.blocksOnPage.Name = "blocksOnPage";
-            this.blocksOnPage.Size = new System.Drawing.Size(200, 26);
+            this.blocksOnPage.Size = new System.Drawing.Size(267, 29);
             this.blocksOnPage.TabIndex = 1;
             this.blocksOnPage.Value = new decimal(new int[] {4, 0, 0, 0});
             // 
@@ -94,21 +93,20 @@ namespace AutoScheme
             // 
             this.horizontalInterval.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.horizontalInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.horizontalInterval.Location = new System.Drawing.Point(262, 44);
-            this.horizontalInterval.Margin = new System.Windows.Forms.Padding(2);
+            this.horizontalInterval.Location = new System.Drawing.Point(349, 54);
+            this.horizontalInterval.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.horizontalInterval.Maximum = new decimal(new int[] {500, 0, 0, 0});
             this.horizontalInterval.Name = "horizontalInterval";
-            this.horizontalInterval.Size = new System.Drawing.Size(200, 26);
+            this.horizontalInterval.Size = new System.Drawing.Size(267, 29);
             this.horizontalInterval.TabIndex = 3;
             this.horizontalInterval.Value = new decimal(new int[] {50, 0, 0, 0});
             // 
             // label2
             // 
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label2.Location = new System.Drawing.Point(9, 46);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Location = new System.Drawing.Point(12, 57);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(242, 24);
+            this.label2.Size = new System.Drawing.Size(323, 30);
             this.label2.TabIndex = 2;
             this.label2.Text = "Горизонтальный интервал:";
             // 
@@ -116,21 +114,20 @@ namespace AutoScheme
             // 
             this.verticalInterval.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.verticalInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.verticalInterval.Location = new System.Drawing.Point(262, 76);
-            this.verticalInterval.Margin = new System.Windows.Forms.Padding(2);
+            this.verticalInterval.Location = new System.Drawing.Point(349, 94);
+            this.verticalInterval.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.verticalInterval.Maximum = new decimal(new int[] {500, 0, 0, 0});
             this.verticalInterval.Name = "verticalInterval";
-            this.verticalInterval.Size = new System.Drawing.Size(200, 26);
+            this.verticalInterval.Size = new System.Drawing.Size(267, 29);
             this.verticalInterval.TabIndex = 5;
             this.verticalInterval.Value = new decimal(new int[] {50, 0, 0, 0});
             // 
             // label3
             // 
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label3.Location = new System.Drawing.Point(9, 77);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Location = new System.Drawing.Point(12, 95);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(242, 24);
+            this.label3.Size = new System.Drawing.Size(323, 30);
             this.label3.TabIndex = 4;
             this.label3.Text = "Вертикальный интервал";
             // 
@@ -138,21 +135,20 @@ namespace AutoScheme
             // 
             this.pageInterval.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pageInterval.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.pageInterval.Location = new System.Drawing.Point(262, 108);
-            this.pageInterval.Margin = new System.Windows.Forms.Padding(2);
+            this.pageInterval.Location = new System.Drawing.Point(349, 133);
+            this.pageInterval.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pageInterval.Maximum = new decimal(new int[] {500, 0, 0, 0});
             this.pageInterval.Name = "pageInterval";
-            this.pageInterval.Size = new System.Drawing.Size(200, 26);
+            this.pageInterval.Size = new System.Drawing.Size(267, 29);
             this.pageInterval.TabIndex = 7;
             this.pageInterval.Value = new decimal(new int[] {50, 0, 0, 0});
             // 
             // label4
             // 
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label4.Location = new System.Drawing.Point(9, 110);
-            this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label4.Location = new System.Drawing.Point(12, 135);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(242, 24);
+            this.label4.Size = new System.Drawing.Size(323, 30);
             this.label4.TabIndex = 6;
             this.label4.Text = "Интервал между страницами:";
             // 
@@ -160,22 +156,21 @@ namespace AutoScheme
             // 
             this.blockWidth.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.blockWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.blockWidth.Location = new System.Drawing.Point(262, 142);
-            this.blockWidth.Margin = new System.Windows.Forms.Padding(2);
+            this.blockWidth.Location = new System.Drawing.Point(349, 175);
+            this.blockWidth.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.blockWidth.Maximum = new decimal(new int[] {1000, 0, 0, 0});
             this.blockWidth.Minimum = new decimal(new int[] {10, 0, 0, 0});
             this.blockWidth.Name = "blockWidth";
-            this.blockWidth.Size = new System.Drawing.Size(200, 26);
+            this.blockWidth.Size = new System.Drawing.Size(267, 29);
             this.blockWidth.TabIndex = 9;
             this.blockWidth.Value = new decimal(new int[] {100, 0, 0, 0});
             // 
             // label5
             // 
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label5.Location = new System.Drawing.Point(9, 144);
-            this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label5.Location = new System.Drawing.Point(12, 177);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(242, 24);
+            this.label5.Size = new System.Drawing.Size(323, 30);
             this.label5.TabIndex = 8;
             this.label5.Text = "Ширина блока:";
             // 
@@ -183,22 +178,21 @@ namespace AutoScheme
             // 
             this.blockHeight.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.blockHeight.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.blockHeight.Location = new System.Drawing.Point(262, 174);
-            this.blockHeight.Margin = new System.Windows.Forms.Padding(2);
+            this.blockHeight.Location = new System.Drawing.Point(349, 214);
+            this.blockHeight.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.blockHeight.Maximum = new decimal(new int[] {1000, 0, 0, 0});
             this.blockHeight.Minimum = new decimal(new int[] {5, 0, 0, 0});
             this.blockHeight.Name = "blockHeight";
-            this.blockHeight.Size = new System.Drawing.Size(200, 26);
+            this.blockHeight.Size = new System.Drawing.Size(267, 29);
             this.blockHeight.TabIndex = 11;
             this.blockHeight.Value = new decimal(new int[] {50, 0, 0, 0});
             // 
             // label6
             // 
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label6.Location = new System.Drawing.Point(9, 176);
-            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label6.Location = new System.Drawing.Point(12, 217);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(242, 24);
+            this.label6.Size = new System.Drawing.Size(323, 30);
             this.label6.TabIndex = 10;
             this.label6.Text = "Высота блока:";
             // 
@@ -206,21 +200,20 @@ namespace AutoScheme
             // 
             this.pageOffset.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pageOffset.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.pageOffset.Location = new System.Drawing.Point(262, 206);
-            this.pageOffset.Margin = new System.Windows.Forms.Padding(2);
+            this.pageOffset.Location = new System.Drawing.Point(349, 254);
+            this.pageOffset.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pageOffset.Maximum = new decimal(new int[] {500, 0, 0, 0});
             this.pageOffset.Name = "pageOffset";
-            this.pageOffset.Size = new System.Drawing.Size(200, 26);
+            this.pageOffset.Size = new System.Drawing.Size(267, 29);
             this.pageOffset.TabIndex = 13;
             this.pageOffset.Value = new decimal(new int[] {30, 0, 0, 0});
             // 
             // label7
             // 
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label7.Location = new System.Drawing.Point(9, 207);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label7.Location = new System.Drawing.Point(12, 255);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(242, 24);
+            this.label7.Size = new System.Drawing.Size(323, 30);
             this.label7.TabIndex = 12;
             this.label7.Text = "Отступ на странице:";
             // 
@@ -228,22 +221,21 @@ namespace AutoScheme
             // 
             this.connectorSize.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.connectorSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.connectorSize.Location = new System.Drawing.Point(262, 240);
-            this.connectorSize.Margin = new System.Windows.Forms.Padding(2);
+            this.connectorSize.Location = new System.Drawing.Point(349, 295);
+            this.connectorSize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.connectorSize.Maximum = new decimal(new int[] {500, 0, 0, 0});
             this.connectorSize.Minimum = new decimal(new int[] {5, 0, 0, 0});
             this.connectorSize.Name = "connectorSize";
-            this.connectorSize.Size = new System.Drawing.Size(200, 26);
+            this.connectorSize.Size = new System.Drawing.Size(267, 29);
             this.connectorSize.TabIndex = 15;
             this.connectorSize.Value = new decimal(new int[] {30, 0, 0, 0});
             // 
             // label8
             // 
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label8.Location = new System.Drawing.Point(9, 241);
-            this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label8.Location = new System.Drawing.Point(12, 297);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(242, 24);
+            this.label8.Size = new System.Drawing.Size(323, 30);
             this.label8.TabIndex = 14;
             this.label8.Text = "Размер соединителя:";
             // 
@@ -251,22 +243,20 @@ namespace AutoScheme
             // 
             this.fontSize.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.fontSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.fontSize.Location = new System.Drawing.Point(262, 274);
-            this.fontSize.Margin = new System.Windows.Forms.Padding(2);
-            this.fontSize.Maximum = new decimal(new int[] {50, 0, 0, 0});
+            this.fontSize.Location = new System.Drawing.Point(349, 337);
+            this.fontSize.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.fontSize.Minimum = new decimal(new int[] {3, 0, 0, 0});
             this.fontSize.Name = "fontSize";
-            this.fontSize.Size = new System.Drawing.Size(200, 26);
+            this.fontSize.Size = new System.Drawing.Size(267, 29);
             this.fontSize.TabIndex = 17;
             this.fontSize.Value = new decimal(new int[] {18, 0, 0, 0});
             // 
             // label9
             // 
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label9.Location = new System.Drawing.Point(9, 275);
-            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label9.Location = new System.Drawing.Point(12, 338);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(242, 24);
+            this.label9.Size = new System.Drawing.Size(323, 30);
             this.label9.TabIndex = 16;
             this.label9.Text = "Размер шрифта:";
             // 
@@ -274,10 +264,10 @@ namespace AutoScheme
             // 
             this.button1.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.button1.Location = new System.Drawing.Point(333, 398);
-            this.button1.Margin = new System.Windows.Forms.Padding(2);
+            this.button1.Location = new System.Drawing.Point(444, 490);
+            this.button1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(130, 30);
+            this.button1.Size = new System.Drawing.Size(173, 37);
             this.button1.TabIndex = 18;
             this.button1.Text = "Принять";
             this.button1.UseVisualStyleBackColor = true;
@@ -286,10 +276,9 @@ namespace AutoScheme
             // QualityLabel
             // 
             this.QualityLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.QualityLabel.Location = new System.Drawing.Point(9, 307);
-            this.QualityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.QualityLabel.Location = new System.Drawing.Point(12, 378);
             this.QualityLabel.Name = "QualityLabel";
-            this.QualityLabel.Size = new System.Drawing.Size(242, 24);
+            this.QualityLabel.Size = new System.Drawing.Size(323, 30);
             this.QualityLabel.TabIndex = 19;
             this.QualityLabel.Text = "Качество картинки:";
             // 
@@ -299,40 +288,39 @@ namespace AutoScheme
             this.qualityBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
             this.qualityBox.FormattingEnabled = true;
             this.qualityBox.Items.AddRange(new object[] {"Very Low", "Low", "Medium", "High", "Very High"});
-            this.qualityBox.Location = new System.Drawing.Point(262, 305);
-            this.qualityBox.Margin = new System.Windows.Forms.Padding(2);
+            this.qualityBox.Location = new System.Drawing.Point(349, 375);
+            this.qualityBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.qualityBox.Name = "qualityBox";
-            this.qualityBox.Size = new System.Drawing.Size(200, 28);
+            this.qualityBox.Size = new System.Drawing.Size(265, 32);
             this.qualityBox.TabIndex = 20;
             // 
             // firstPage
             // 
             this.firstPage.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.firstPage.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.firstPage.Location = new System.Drawing.Point(262, 340);
-            this.firstPage.Margin = new System.Windows.Forms.Padding(2);
+            this.firstPage.Location = new System.Drawing.Point(349, 418);
+            this.firstPage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.firstPage.Maximum = new decimal(new int[] {100000, 0, 0, 0});
             this.firstPage.Minimum = new decimal(new int[] {1, 0, 0, 0});
             this.firstPage.Name = "firstPage";
-            this.firstPage.Size = new System.Drawing.Size(200, 26);
+            this.firstPage.Size = new System.Drawing.Size(267, 29);
             this.firstPage.TabIndex = 22;
             this.firstPage.Value = new decimal(new int[] {18, 0, 0, 0});
             // 
             // label10
             // 
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (204)));
-            this.label10.Location = new System.Drawing.Point(11, 342);
-            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label10.Location = new System.Drawing.Point(15, 421);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(242, 24);
+            this.label10.Size = new System.Drawing.Size(323, 30);
             this.label10.TabIndex = 21;
             this.label10.Text = "Номер первой страницы:";
             // 
             // SettingsForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(472, 439);
+            this.ClientSize = new System.Drawing.Size(629, 540);
             this.Controls.Add(this.firstPage);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.qualityBox);
@@ -358,7 +346,7 @@ namespace AutoScheme
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "SettingsForm";
             this.Text = "Настройки";
             ((System.ComponentModel.ISupportInitialize) (this.blocksOnPage)).EndInit();
