@@ -254,7 +254,7 @@ namespace AutoScheme
 
                     tabControl1.ContextMenuStrip = contextMenuStrip1;
 
-                    if (e.Button == MouseButtons.Right)
+                    if (e.Button == MouseButtons.Left)
                     {
                         if ((DateTime.Now - _lastClickTime).TotalSeconds < 0.3f &&
                             pastSelBlock == currentScheme.SelectedBlock)
