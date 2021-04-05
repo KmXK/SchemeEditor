@@ -1111,6 +1111,11 @@ namespace AutoScheme.Schemes
 
                             )
                         );
+                        
+                        // TODO: Можно сделать сдвиг ветки блока на deltaX, другие блоки будут уже по новому X
+                        // Но может произойти неоднократный сдвиг. + расстояние между блоками соседних колонок будет немного разным
+                        // мне пока больше нравится так, как есть. Оставляем
+                        // Это кстати решает проблему с Case. Можно поиграться)
 
                         childIndexPage = 2;
                         childPos.PageIndex++;
@@ -1153,7 +1158,7 @@ namespace AutoScheme.Schemes
 
                 // Вызов метода для выравнивая текущей колонки,
                 // который возвращает макс ширину
-                maxWidth = AlignColumn(block, branchIndex);
+                maxWidth = childPos.X - startChildPos.X + AlignColumn(block, branchIndex);
 
                 int deltaColumnX = maxWidth;
 
@@ -1205,16 +1210,17 @@ namespace AutoScheme.Schemes
                 block.EndPosition.PageIndex != block.Position.PageIndex)
             {
                 int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10))
-                    .MeasureString("Из стр. 10", font).Width;
-                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize +
-                                              _connectorInterval + textWidth);
+                    .MeasureString($"Из стр. {block.Position.PageIndex}", font).Width;
+
+                int deltaX = _settings.HorizontalInterval + _settings.ConnectorSize +
+                             _connectorInterval + textWidth;
+                //ShiftBlockWithChildren(block, _settings.HorizontalInterval + _settings.ConnectorSize +
+                //                              _connectorInterval + textWidth);
 
                 block.ChildrenWidth = Math.Max(
-                                          block.ChildrenWidth,
-                                          block.Width + _settings.HorizontalInterval + _settings.ConnectorSize +
-                                          _connectorInterval + textWidth) +
-                                      _settings.HorizontalInterval + _settings.ConnectorSize + _connectorInterval +
-                                      textWidth;
+                    block.ChildrenWidth,
+                    block.Width + _settings.HorizontalInterval + _settings.ConnectorSize +
+                    _connectorInterval + textWidth); // +deltaX;
 
                 var blockAfter = block;
 
@@ -1229,6 +1235,17 @@ namespace AutoScheme.Schemes
                     {
                         break;
                     }
+                }
+
+                if (blockAfter == block)
+                {
+                    ShiftBlockWithChildren(block, deltaX);
+                    block.ChildrenWidth += deltaX;
+                }
+                else
+                {
+                    ShiftBlockWithChildren(blockAfter, deltaX);
+                    blockAfter.ChildrenWidth += deltaX;
                 }
 
                 _connectorPairs.Add(
@@ -1250,16 +1267,25 @@ namespace AutoScheme.Schemes
             }
             else if(block.ColumnCount == 2 && 
                     block.GetChildCount(1) > 0 &&
-                    block.GetChild(1,block.GetChildCount(1) - 1).Position.PageIndex !=
+                    block.GetChild(1,block.GetChildCount(1) - 1).EndPosition.PageIndex !=
                     block.EndPosition.PageIndex)
             {
-                int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10))
-                    .MeasureString("Из стр. 10", font).Width;
-                ShiftBlockWithChildren(block, _settings.HorizontalInterval + _connectorInterval + _settings.ConnectorSize + textWidth);
+                int textWidth = (int) Graphics.FromImage(new Bitmap(10, 10)).MeasureString(
+                        $"Из стр. {block.GetChild(1,block.GetChildCount(1) - 1).EndPosition.PageIndex}",
+                        font).Width;
+                int deltaX = _connectorInterval + _settings.ConnectorSize / 2 + textWidth -
+                             (block.Position.X + block.Width / 2 - block.ColumnXs[0]);
+                if (deltaX > 0)
+                {
+                    ShiftBlockWithChildren(block, deltaX);
+                    block.ChildrenWidth += deltaX;
+                }
+
+                int addSize = _connectorInterval + _settings.ConnectorSize / 2 + textWidth;
 
                 block.ChildrenWidth = Math.Max(
                     block.ChildrenWidth,
-                    block.Width) + _settings.HorizontalInterval + _connectorInterval + _settings.ConnectorSize + textWidth;
+                    block.Position.X + block.Width / 2 - block.ColumnXs[1] + addSize);
             }
 
             if (block.ColumnCount > 2 &&
