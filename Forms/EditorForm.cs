@@ -593,6 +593,7 @@ namespace AutoScheme
                     int i = 1;
                     try
                     {
+                        SelectedScheme.SelectBlock(SelectedScheme.MainBlock);
                         foreach (var bitmap in SelectedScheme.DrawSchemePages())
                         {
                             bitmap.Save($"{dialog.SelectedPath}/{i++}.png", ImageFormat.Png);
