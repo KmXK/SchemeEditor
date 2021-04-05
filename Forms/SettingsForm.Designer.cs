@@ -360,7 +360,7 @@ namespace AutoScheme
             this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SettingsForm";
-            this.Text = "SettingsForm";
+            this.Text = "Настройки";
             ((System.ComponentModel.ISupportInitialize) (this.blocksOnPage)).EndInit();
             ((System.ComponentModel.ISupportInitialize) (this.horizontalInterval)).EndInit();
             ((System.ComponentModel.ISupportInitialize) (this.verticalInterval)).EndInit();

@@ -311,7 +311,7 @@ namespace AutoScheme
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "BlockEditingForm";
-            this.Text = "Редактор блока";
+            this.Text = "Параметры блока";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);

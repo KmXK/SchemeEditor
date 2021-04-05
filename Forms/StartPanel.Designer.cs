@@ -111,7 +111,7 @@ namespace AutoScheme
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "StartPanel";
-            this.Text = "StartPanel";
+            this.Text = "Меню";
             this.ResumeLayout(false);
         }
 

@@ -89,7 +89,7 @@ namespace AutoScheme
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(249, 249);
             this.Name = "CodeEditorForm";
-            this.Text = "CodeEditorForm";
+            this.Text = "Редактор кода";
             this.Resize += new System.EventHandler(this.CodeEditorForm_Resize);
             this.ResumeLayout(false);
         }

@@ -356,7 +356,7 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(398, 398);
             this.Name = "EditorForm";
-            this.Text = "SchemeEditor";
+            this.Text = "Редактор схем";
             this.Resize += new System.EventHandler(this.FormResize);
             this.contextMenuStrip1.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
