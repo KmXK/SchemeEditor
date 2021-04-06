@@ -930,7 +930,7 @@ namespace AutoScheme.Schemes
 
                         _arrows.Add(new Arrow(new BlockPosition(pos1.PageIndex, pos1.X,
                                 pos1.Y + _settings.ConnectorSize / 2),
-                            Arrow.ArrowDirection.Right, true));
+                            Arrow.ArrowDirection.Right, false));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
