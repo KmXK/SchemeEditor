@@ -66,9 +66,22 @@ namespace AutoScheme.CodeTranslate
                     if (FindEndOfArea(areaStart, out int areaEnd))
                     {
                         var scheme = new GraphicScheme(_startSettings);
-                        scheme.Name = name.Length > 0 
-                            ? name[0].Substring(0,name[0].IndexOf("(", StringComparison.Ordinal)) 
-                            : "Схема";
+                        int index = name[0].IndexOf("(", StringComparison.Ordinal);
+
+                        if (index != -1)
+                        {
+                            scheme.Name = name[0].Substring(0, index);
+                        }
+                        else if (name.Length == 1)
+                        {
+                            scheme.Name = name[0];
+                        }
+                        else
+                        {
+                            return new ParseResult(false,
+                                $"Не найдена точка с запятой в строке {_lineNumbers[areaStart]}",
+                                null);
+                        }
 
                         if (name.Length > 0)
                         {
@@ -837,7 +850,7 @@ namespace AutoScheme.CodeTranslate
             errorMessage = "";
             name = new string[0];
             end = start;
-            
+
             var isEnded = false;
             var line = start;
             var bracketNesting = 0;
@@ -845,6 +858,27 @@ namespace AutoScheme.CodeTranslate
             var delete = false;
             while (_code.Length - 1 >= line)
             {
+                int index = -1;
+                var banWords = new[] {"var", "const"};
+                do
+                {
+                    for (int i = 0; i < banWords.Length; i++)
+                    {
+                        index = _code[line].ToLower().IndexOf(banWords[i] + " ", StringComparison.Ordinal);
+                        if (index != -1)
+                        {
+                            if (index == 0 ||
+                                _code[line][index - 1] == ';' ||
+                                _code[line][index - 1] == ' ' ||
+                                _code[line][index - 1] == '(')
+                            {
+                                _code[line] = _code[line].Remove(index, 1 + banWords[i].Length).Trim();
+                            }
+                        }
+                    }
+                    
+                } while (index != -1);
+                
                 if(line != start)
                 {
                     foreach (var reservedWord in _reservedWords)
