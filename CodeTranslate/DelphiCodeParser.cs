@@ -66,25 +66,27 @@ namespace AutoScheme.CodeTranslate
                     if (FindEndOfArea(areaStart, out int areaEnd))
                     {
                         var scheme = new GraphicScheme(_startSettings);
-                        int index = name[0].IndexOf("(", StringComparison.Ordinal);
-
-                        if (index != -1)
-                        {
-                            scheme.Name = name[0].Substring(0, index);
-                        }
-                        else if (name.Length == 1)
-                        {
-                            scheme.Name = name[0];
-                        }
-                        else
-                        {
-                            return new ParseResult(false,
-                                $"Не найдена точка с запятой в строке {_lineNumbers[areaStart]}",
-                                null);
-                        }
+                        scheme.Name = "Схема";
 
                         if (name.Length > 0)
                         {
+                            int index = name[0].IndexOf("(", StringComparison.Ordinal);
+
+                            if (index != -1)
+                            {
+                                scheme.Name = name[0].Substring(0, index);
+                            }
+                            else if (name.Length == 1)
+                            {
+                                scheme.Name = name[0];
+                            }
+                            else
+                            {
+                                return new ParseResult(false,
+                                    $"Не найдена точка с запятой в строке {_lineNumbers[areaStart]}",
+                                    null);
+                            }
+
                             var first = scheme.MainBlock.GetChild(0, 0);
                             first.Text = new string[name.Length];
                             name.CopyTo(first.Text, 0);
