@@ -476,7 +476,7 @@ namespace AutoScheme
             }
         }
 
-        private void openScheme_Click(object sender, EventArgs e)
+        public void openScheme_Click(object sender, EventArgs e)
         {
             using (var dialog = new OpenFileDialog())
             {
@@ -489,7 +489,9 @@ namespace AutoScheme
                     var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
                     try
                     {
-                        AddScheme((GraphicScheme) formatter.Deserialize(stream));
+                        var scheme = (GraphicScheme) formatter.Deserialize(stream);
+                        AddScheme(scheme);
+                        DefaultSettings = scheme.DefaultSettings;
                     }
                     catch
                     {
@@ -504,7 +506,7 @@ namespace AutoScheme
             }
         }
 
-        private void openSchemeGroup_Click(object sender, EventArgs e)
+        public void openSchemeGroup_Click(object sender, EventArgs e)
         {
             using (var dialog = new OpenFileDialog())
             {
@@ -519,7 +521,9 @@ namespace AutoScheme
                     {
                         while (stream.Position <= stream.Length - 1)
                         {
-                            AddScheme((GraphicScheme) formatter.Deserialize(stream));
+                            var scheme = (GraphicScheme) formatter.Deserialize(stream);
+                            AddScheme(scheme);
+                            DefaultSettings = scheme.DefaultSettings;
                         }
                     }
                     catch

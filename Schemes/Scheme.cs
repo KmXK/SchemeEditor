@@ -23,8 +23,10 @@ namespace AutoScheme.Schemes
         private List<Arrow> _arrows;
 
         private SchemeSettings _settings;
+        private SchemeSettings _defaultSettings;
 
         public SchemeSettings Settings => _settings;
+        public SchemeSettings DefaultSettings => _defaultSettings;
         public Block MainBlock => _mainBlock;
         public Block SelectedBlock { get; private set; }
 
@@ -89,6 +91,7 @@ namespace AutoScheme.Schemes
 
         public void SetSettings(SchemeSettings settings)
         {
+            _defaultSettings = settings;
             _settings = GetMultipliedSettings(settings);
 
             _connectorInterval = 10 * _settings.Quality;
