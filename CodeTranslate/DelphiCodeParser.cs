@@ -184,38 +184,49 @@ namespace AutoScheme.CodeTranslate
                         if (_code[start].ToLower().StartsWith("for"))
                         {
                             line = line.Remove(0, 3).Trim();
-                            int index = line.IndexOf(':');
-                            if (index == -1)
-                            {
-                                errorCode = $"Не найдена инициализация счётчика цикла for в строке {_lineNumbers[start + 1]}";
-                                return false;
-                            }
 
-                            var variable = line.Substring(0, index);
-                            while (line.Contains("  "))
-                                line = line.Replace("  ", " ");
-
-                            if (!line.ToLower().Contains(" downto ") &&
-                                !line.ToLower().Contains(" to "))
+                            if (_code[start].ToLower().Contains("in"))
                             {
-                                errorCode = $"Не найдено ключевое слово to/downto цикла for в строке {_lineNumbers[start + 1]}";
-                                return false;
-                            }
-
-                            if (line.ToLower().Contains(" downto "))
-                            {
-                                int t = line.ToLower().IndexOf(" downto ");
-                                line = line.Remove(t + 1, 6);
-                                line = line.Insert(t + 1, "downto");
-                                
-                                line = line.Replace(" downto ", ", " + variable + ">=");
+                                //
                             }
                             else
                             {
-                                int t = line.ToLower().IndexOf(" to ");
-                                line = line.Remove(t + 1, 2);
-                                line = line.Insert(t + 1, "to");
-                                line = line.Replace(" to ", ", " + variable + "<=");
+
+                                int index = line.IndexOf(':');
+                                if (index == -1)
+                                {
+                                    errorCode =
+                                        $"Не найдена инициализация счётчика цикла for в строке {_lineNumbers[start + 1]}";
+                                    return false;
+                                }
+
+                                var variable = line.Substring(0, index);
+                                while (line.Contains("  "))
+                                    line = line.Replace("  ", " ");
+
+                                if (!line.ToLower().Contains(" downto ") &&
+                                    !line.ToLower().Contains(" to "))
+                                {
+                                    errorCode =
+                                        $"Не найдено ключевое слово to/downto цикла for в строке {_lineNumbers[start + 1]}";
+                                    return false;
+                                }
+
+                                if (line.ToLower().Contains(" downto "))
+                                {
+                                    int t = line.ToLower().IndexOf(" downto ");
+                                    line = line.Remove(t + 1, 6);
+                                    line = line.Insert(t + 1, "downto");
+
+                                    line = line.Replace(" downto ", ", " + variable + ">=");
+                                }
+                                else
+                                {
+                                    int t = line.ToLower().IndexOf(" to ");
+                                    line = line.Remove(t + 1, 2);
+                                    line = line.Insert(t + 1, "to");
+                                    line = line.Replace(" to ", ", " + variable + "<=");
+                                }
                             }
                         }
                         else
