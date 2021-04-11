@@ -171,6 +171,7 @@ namespace AutoScheme.Schemes
 
             // Отрисовка компонентов схемы
             Pen pen = new Pen(Color.Black, 1 * _settings.Quality);
+            pen.Alignment = PenAlignment.Center;
 
             DrawBlock(_mainBlock, pen);
             DrawConnectors(pen);
@@ -199,7 +200,6 @@ namespace AutoScheme.Schemes
                                        : 0);
 
                 _bitmaps[i] = new Bitmap(normalWidth, normalHeight);
-                // Добавим к height 2 высоты коннектора + 2 интервала
 
                 _graphics[i] = Graphics.FromImage(_bitmaps[i]);
                 _graphics[i].Clear(_backColor);
@@ -496,6 +496,9 @@ namespace AutoScheme.Schemes
             {
                 if (block.ColumnCount == 2)
                 {
+                    block.Parent.GetChildIndex(block, out int branchIndex, out int index);
+                    bool ShowBeArrow = !(block.Parent.ColumnCount > 2 &&
+                                         index == block.Parent.GetChildCount(branchIndex) - 1);
                     // Если вторая колонка - просто обход на этой же странице
                     if (block.GetChildCount(1) == 0 &&
                         block.Position.PageIndex == block.EndPosition.PageIndex)
@@ -508,15 +511,16 @@ namespace AutoScheme.Schemes
                                 new Point(block.ColumnXs[1], block.EndPosition.Y + _settings.VerticalInterval / 2),
                                 new Point(x + width / 2, block.EndPosition.Y + _settings.VerticalInterval / 2)
                             });
-                        _arrows.Add(
+                        if (ShowBeArrow)
+                            _arrows.Add(
 
-                            new Arrow(
-                                new BlockPosition(block.EndPosition.PageIndex,
-                                    x + width / 2, block.EndPosition.Y + _settings.VerticalInterval / 2),
-                                Arrow.ArrowDirection.Left,
-                                true
-                            )
-                        );
+                                new Arrow(
+                                    new BlockPosition(block.EndPosition.PageIndex,
+                                        x + width / 2, block.EndPosition.Y + _settings.VerticalInterval / 2),
+                                    Arrow.ArrowDirection.Left,
+                                    true
+                                )
+                            );
                     }
                     // Если вторая колонка не пустая
                     else if (block.GetChildCount(1) > 0)
@@ -533,6 +537,7 @@ namespace AutoScheme.Schemes
                                 new Point(lastChildSecondColumn.Position.X + lastChildSecondColumn.Width / 2,
                                     y + height + _settings.VerticalInterval),
                             });
+                        
                         _arrows.Add(
                             new Arrow(
                                 new BlockPosition(block.Position.PageIndex,
@@ -555,16 +560,17 @@ namespace AutoScheme.Schemes
                                     new Point(x + width / 2,
                                         block.EndPosition.Y + _settings.VerticalInterval / 2),
                                 });
-                            
-                            _arrows.Add(
-                                new Arrow(
-                                    new BlockPosition(block.EndPosition.PageIndex,
-                                        x + width / 2,
-                                        block.EndPosition.Y + _settings.VerticalInterval / 2),
-                                    Arrow.ArrowDirection.Left,
-                                    true
-                                )
-                            );
+
+                            if (ShowBeArrow)
+                                _arrows.Add(
+                                    new Arrow(
+                                        new BlockPosition(block.EndPosition.PageIndex,
+                                            x + width / 2,
+                                            block.EndPosition.Y + _settings.VerticalInterval / 2),
+                                        Arrow.ArrowDirection.Left,
+                                        true
+                                    )
+                                );
                         }
                         else
                         {
@@ -786,9 +792,7 @@ namespace AutoScheme.Schemes
                 var arrow = _arrows[i];
 
                 var colorUnderArrow = _bitmaps[arrow.Position.PageIndex].GetPixel(arrow.Position.X,
-                    arrow.Position.Y + _settings.VerticalInterval / 4);
-
-
+                    arrow.Position.Y + _settings.VerticalInterval / 4 );
 
                 if (_arrows.Count(a => a.Position.Equals(arrow.Position)) > 1)
                     _arrows.RemoveAt(i--);
