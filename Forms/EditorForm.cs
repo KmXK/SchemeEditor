@@ -362,7 +362,7 @@ namespace AutoScheme
             }
             else
             {
-                branchIndex = Convert.ToInt32(name);
+                branchIndex = name.StartsWith("addBlockInside") ? 0 : Convert.ToInt32(name);
             }
 
             var selBlock = SelectedScheme.SelectedBlock;
