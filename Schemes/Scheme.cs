@@ -13,7 +13,7 @@ namespace AutoScheme.Schemes
     {
         private Block _mainBlock;
 
-        [NonSerialized]
+        
         private int _connectorInterval;
         [NonSerialized]
         private List<ConnectorPair> _connectorPairs;
@@ -913,9 +913,8 @@ namespace AutoScheme.Schemes
                 float dx = _settings.ConnectorSize / 2 - size.Width / 2;
                 float dy = _settings.ConnectorSize / 2 - size.Height / 2;
 
+                
                 #region Отрисовка первого соединителя
-
-
 
                 firstGraph.DrawEllipse(pen, pos1.X, pos1.Y, _settings.ConnectorSize, _settings.ConnectorSize);
                 switch (pair.Connector1.Type)
