@@ -12,6 +12,9 @@ namespace AutoScheme
 {
     public partial class EditorForm : Form
     {
+        // TODO: Сделать настройку количества блоков на определённой странице
+        // TODO: Пересмотреть отрисовку Case
+        
         private List<GraphicScheme> _schemes;
 
         private GraphicScheme SelectedScheme
