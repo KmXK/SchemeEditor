@@ -485,23 +485,7 @@ namespace AutoScheme
                 dialog.Title = "Открыть схему";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    var formatter = new BinaryFormatter();
-                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-                    try
-                    {
-                        var scheme = (GraphicScheme) formatter.Deserialize(stream);
-                        AddScheme(scheme);
-                        DefaultSettings = scheme.DefaultSettings;
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Ошибка при открытии файла. Попробуйте ещё раз!",
-                            "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    finally
-                    {
-                        stream.Close();
-                    }
+                    AddSchemeFromFile(dialog.FileName);
                 }
             }
         }
@@ -515,30 +499,57 @@ namespace AutoScheme
                 dialog.Title = "Открытие группы схем";
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    var formatter = new BinaryFormatter();
-                    var stream = new FileStream(dialog.FileName, FileMode.OpenOrCreate);
-                    try
-                    {
-                        while (stream.Position <= stream.Length - 1)
-                        {
-                            var scheme = (GraphicScheme) formatter.Deserialize(stream);
-                            AddScheme(scheme);
-                            DefaultSettings = scheme.DefaultSettings;
-                        }
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Возникла ошибка при открытии файла!", "Ошибка",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    finally
-                    {
-                        stream.Close();
-                    }
+                    AddSchemeGroupFromFile(dialog.FileName);
                 }
             }
         }
 
+        public void AddSchemeFromFile(string fileName)
+        {
+            GraphicScheme scheme = null;
+            var formatter = new BinaryFormatter();
+            var stream = new FileStream(fileName, FileMode.OpenOrCreate);
+            try
+            {
+                scheme = (GraphicScheme) formatter.Deserialize(stream);
+                AddScheme(scheme);
+                DefaultSettings = scheme.DefaultSettings;
+            }
+            catch
+            {
+                MessageBox.Show("Ошибка при открытии файла. Попробуйте ещё раз!",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
+        public void AddSchemeGroupFromFile(string fileName)
+        {
+            var formatter = new BinaryFormatter();
+            var stream = new FileStream(fileName, FileMode.OpenOrCreate);
+            try
+            {
+                while (stream.Position <= stream.Length - 1)
+                {
+                    var scheme = (GraphicScheme) formatter.Deserialize(stream);
+                    AddScheme(scheme);
+                    DefaultSettings = scheme.DefaultSettings;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Возникла ошибка при открытии файла!", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+        
         private void saveSchemeGroup_Click(object sender, EventArgs e)
         {
             using (var dialog = new SaveFileDialog())
